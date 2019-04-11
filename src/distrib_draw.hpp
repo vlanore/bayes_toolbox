@@ -1,7 +1,7 @@
 #pragma once
 
-#include "random.hpp"
 #include "distrib_types.hpp"
+#include "random.hpp"
 
 template <typename Gen>
 void draw_exponential(double& node, double rate, Gen& gen) {
