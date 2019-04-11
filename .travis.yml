@@ -1,37 +1,33 @@
 language: cpp
 
-sudo: false
-
 matrix:
   include:
+  
   - os: osx
-      compiler: clang
-      env:
-        - COMPILER=clang++
+    compiler: clang
+    env:
+      - COMPILER=clang++
 
   - os: linux
-    dist: trusty
     addons:
       apt:
         sources:
-        - ubuntu-toolchain-r-test
+          - ubuntu-toolchain-r-test
         packages:
-        - g++-5
+          - g++-5
     env:
-    - COMPILER=g++-5
+      - COMPILER=g++-5
 
   - os: linux
-    dist: trusty
     addons:
       apt:
         sources:
-        - ubuntu-toolchain-r-test
-        - llvm-toolchain-precise-3.6
+          - ubuntu-toolchain-r-test
+          - llvm-toolchain-precise-3.6
         packages:
-        - g++-5
-        - clang-3.6
+          - clang-3.6
     env:
-    - COMPILER=clang++-3.6
+      - COMPILER=clang++-3.6
 
 before_script:
   - export CXX=$COMPILER
