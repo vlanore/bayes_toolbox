@@ -23,10 +23,13 @@ TEST_CASE("Draw in various distribs") {
     // expected mean is 1/rate = 1/4
     CHECK(sum / NB_POINTS == doctest::Approx(0.25).epsilon(PRECISION));
 
+    distrib::constant_t two = {2};
+    distrib::constant_t three = {3};
     distrib::gamma_t lambda;
+    distrib::gamma_param_t lambda_param = {two.value, three.value};
     sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
-        draw(lambda, 2, 3, gen);
+        draw(lambda, lambda_param, gen);
         sum += lambda.value;
     }
     // expected mean is shape * scale = 2 * 3 = 6
@@ -42,12 +45,13 @@ TEST_CASE("Gamma/Exp super simple model") {
     distrib::exponential_t theta;
     distrib::exponential_param_t theta_param = {two.value};
     distrib::gamma_t lambda;
+    distrib::gamma_param_t lambda_param = {k.value, theta.value};
 
     double sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
         draw(k, k_param, gen);
         draw(theta, theta_param, gen);
-        draw(lambda, k.value, theta.value, gen);
+        draw(lambda, lambda_param, gen);
         sum += lambda.value;
     }
     // expected mean is 1/2 * 1/2 = 0.25

@@ -26,6 +26,6 @@ void draw_gamma(double& node, double shape, double scale, Gen& gen) {
 }
 
 template <typename Gen>
-void draw(distrib::gamma_t& node, double shape, double scale, Gen& gen) {
-    draw_gamma(node.value, shape, scale, gen);
+void draw(distrib::gamma_t& node, distrib::gamma_param_t param, Gen& gen) {
+    draw_gamma(node.value, param.shape, param.scale, gen);
 }
