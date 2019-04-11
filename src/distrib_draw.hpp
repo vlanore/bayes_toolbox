@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include "distrib_types.hpp"
+#include "param_types.hpp"
 #include "random.hpp"
 
 template <typename Gen>
@@ -12,8 +13,8 @@ void draw_exponential(double& node, double rate, Gen& gen) {
 }
 
 template <typename Gen>
-void draw(distrib::exponential_t& node, double rate, Gen& gen) {
-    draw_exponential(node.value, rate, gen);
+void draw(distrib::exponential_t& node, distrib::exponential_param_t param, Gen& gen) {
+    draw_exponential(node.value, param.rate, gen);
 }
 
 template <typename Gen>

@@ -12,10 +12,12 @@ using namespace std;
 TEST_CASE("Draw in various distribs") {
     auto gen = make_generator();
 
+    distrib::constant_t four = {4};
     distrib::exponential_t alpha;
+    distrib::exponential_param_t alpha_param = {four.value};
     double sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
-        draw(alpha, 4, gen);
+        draw(alpha, alpha_param, gen);
         sum += alpha.value;
     }
     // expected mean is 1/rate = 1/4
@@ -34,14 +36,17 @@ TEST_CASE("Draw in various distribs") {
 TEST_CASE("Gamma/Exp super simple model") {
     auto gen = make_generator();
 
+    distrib::constant_t two = {2};
     distrib::exponential_t k;
+    distrib::exponential_param_t k_param = {two.value};
     distrib::exponential_t theta;
+    distrib::exponential_param_t theta_param = {two.value};
     distrib::gamma_t lambda;
 
     double sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
-        draw(k, 2, gen);
-        draw(theta, 2, gen);
+        draw(k, k_param, gen);
+        draw(theta, theta_param, gen);
         draw(lambda, k.value, theta.value, gen);
         sum += lambda.value;
     }

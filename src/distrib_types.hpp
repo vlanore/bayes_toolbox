@@ -8,4 +8,8 @@ namespace distrib {
     struct gamma_t {
         double value;
     };
+
+    struct constant_t {
+        const double value;
+    };
 };  // namespace distrib
