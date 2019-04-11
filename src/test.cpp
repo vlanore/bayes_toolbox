@@ -8,6 +8,7 @@ using namespace std;
 
 TEST_CASE("Draw in various distribs") {
     auto gen = make_generator();
+
     distrib::exponential_t alpha;
     double sum = 0;
     for (int i = 0; i < 10000; i++) {
@@ -15,6 +16,14 @@ TEST_CASE("Draw in various distribs") {
         sum += alpha.value;
     }
     CHECK(sum == doctest::Approx(2500).epsilon(0.05));
+
+    distrib::gamma_t lambda;
+    sum = 0;
+    for (int i = 0; i < 10000; i++) {
+        draw(lambda, 2, 3, gen);
+        sum += lambda.value;
+    }
+    CHECK(sum == doctest::Approx(60000).epsilon(0.05));
 }
 
 TEST_CASE("Gamma/Exp super simple model") {

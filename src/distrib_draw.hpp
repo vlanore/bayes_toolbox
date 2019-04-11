@@ -1,10 +1,12 @@
 #pragma once
 
+#include <assert.h>
 #include "distrib_types.hpp"
 #include "random.hpp"
 
 template <typename Gen>
 void draw_exponential(double& node, double rate, Gen& gen) {
+    assert(rate > 0);
     std::exponential_distribution<double> distrib(rate);
     node = distrib(gen);
 }
@@ -12,4 +14,17 @@ void draw_exponential(double& node, double rate, Gen& gen) {
 template <typename Gen>
 void draw(distrib::exponential_t& node, double rate, Gen& gen) {
     draw_exponential(node.value, rate, gen);
+}
+
+template <typename Gen>
+void draw_gamma(double& node, double shape, double scale, Gen& gen) {
+    assert(shape > 0);
+    assert(scale > 0);
+    std::gamma_distribution<double> distrib(shape, scale);
+    node = distrib(gen);
+}
+
+template <typename Gen>
+void draw(distrib::gamma_t& node, double shape, double scale, Gen& gen) {
+    draw_gamma(node.value, shape, scale, gen);
 }
