@@ -6,33 +6,45 @@
 #include "distrib_draw.hpp"
 using namespace std;
 
+#define NB_POINTS 10000
+#define PRECISION 0.025
+
 TEST_CASE("Draw in various distribs") {
     auto gen = make_generator();
 
     distrib::exponential_t alpha;
     double sum = 0;
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < NB_POINTS; i++) {
         draw(alpha, 4, gen);
         sum += alpha.value;
     }
-    CHECK(sum == doctest::Approx(2500).epsilon(0.05));
+    // expected mean is 1/rate = 1/4
+    CHECK(sum / NB_POINTS == doctest::Approx(0.25).epsilon(PRECISION));
 
     distrib::gamma_t lambda;
     sum = 0;
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < NB_POINTS; i++) {
         draw(lambda, 2, 3, gen);
         sum += lambda.value;
     }
-    CHECK(sum == doctest::Approx(60000).epsilon(0.05));
+    // expected mean is shape * scale = 2 * 3 = 6
+    CHECK(sum / NB_POINTS == doctest::Approx(6).epsilon(PRECISION));
 }
 
 TEST_CASE("Gamma/Exp super simple model") {
-    // distrib::exponential_t alpha;
-    // config::param::mode_t alpha_mode = config::param::fixed;
+    auto gen = make_generator();
 
-    // distrib::exponential_t mu;
-    // config::param::mode_t mu_mode = config::param::independent;
+    distrib::exponential_t k;
+    distrib::exponential_t theta;
+    distrib::gamma_t lambda;
 
-    // distrib::gamma_t lambda;
-    // config::param::mode_t lambda_mode = config::param::independent;
+    double sum = 0;
+    for (int i = 0; i < NB_POINTS; i++) {
+        draw(k, 2, gen);
+        draw(theta, 2, gen);
+        draw(lambda, k.value, theta.value, gen);
+        sum += lambda.value;
+    }
+    // expected mean is 1/2 * 1/2 = 0.25
+    CHECK(sum / NB_POINTS == doctest::Approx(0.25).epsilon(PRECISION));
 }
