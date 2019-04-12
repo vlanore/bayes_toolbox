@@ -3,15 +3,18 @@
 #include <functional>
 #include "ref_types.hpp"
 
-CDRef make_param(const double& value) { return CDRef(value); }
+template <class T>
+struct ParamFactory {
+    static CRef<T> make(const T& value) { return CRef<T>(value); }
 
-DRef make_param(double& value) { return DRef(value); }
+    static Ref<T> make(T& value) { return Ref<T>(value); }
 
-auto make_param(double&& value) {
-    return [value]() { return value; };
-}
+    static auto make(T&& value) {
+        return [value]() { return value; };
+    }
 
-auto make_param(std::function<double()> f) { return f; }
+    static auto make(std::function<T()> f) { return f; }
+};
 
 namespace distrib {
     namespace exponential {
@@ -22,7 +25,8 @@ namespace distrib {
 
         template <typename Rate>
         auto make_params(Rate&& rate) {
-            Param<decltype(make_param(rate))> result = {make_param(rate)};
+            Param<decltype(ParamFactory<double>::make(rate))> result = {
+                ParamFactory<double>::make(rate)};
             return result;
         }
     };  // namespace exponential
@@ -36,8 +40,9 @@ namespace distrib {
 
         template <typename Shape, typename Scale>
         auto make_params(Shape&& shape, Scale&& scale) {
-            Param<decltype(make_param(shape)), decltype(make_param(scale))> result = {
-                make_param(shape), make_param(scale)};
+            Param<decltype(ParamFactory<double>::make(shape)),
+                  decltype(ParamFactory<double>::make(scale))>
+                result = {ParamFactory<double>::make(shape), ParamFactory<double>::make(scale)};
             return result;
         }
     };  // namespace gamma
