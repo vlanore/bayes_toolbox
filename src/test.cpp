@@ -57,3 +57,16 @@ TEST_CASE("Gamma/Exp super simple model") {
     // expected mean is 1/2 * 1/2 = 0.25
     CHECK(sum / NB_POINTS == doctest::Approx(0.25).epsilon(PRECISION));
 }
+
+TEST_CASE("Lambda as draw parameters") {
+    auto gen = make_generator();
+
+    distrib::exponential_t alpha;
+    double sum = 0;
+    for (int i = 0; i < NB_POINTS; i++) {
+        draw(alpha, []() { return 2; }, gen);
+        sum += alpha.value;
+    }
+    // expected mean is 1/rate = 1/4
+    CHECK(sum / NB_POINTS == doctest::Approx(0.5).epsilon(PRECISION));
+}

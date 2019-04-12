@@ -28,7 +28,7 @@ void draw_gamma(double& node, double shape, double scale, Gen& gen) {
 ==================================================================================================*/
 
 template <typename Rate, typename Gen>
-void draw(distrib::exponential_t& node, Rate& rate, Gen& gen) {
+void draw(distrib::exponential_t& node, Rate rate, Gen& gen) {
     draw_exponential(node.value, rate(), gen);
 }
 
