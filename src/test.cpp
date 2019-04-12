@@ -9,83 +9,65 @@ using namespace std;
 #define NB_POINTS 10000
 #define PRECISION 0.025
 
+void check_mean(double& target, function<void()> draw, double expected_mean) {
+    double sum = 0;
+    for (int i = 0; i < NB_POINTS; i++) {
+        draw();
+        sum += target;
+    }
+    CHECK(sum / NB_POINTS == doctest::Approx(expected_mean).epsilon(PRECISION));
+}
+
 TEST_CASE("Draw in various distribs") {
     auto gen = make_generator();
 
-    distrib::constant::value_t four = {4};
-    distrib::exponential::value_t alpha;
-    auto alpha_param = distrib::exponential::make_params(four.value);
-    double sum = 0;
-    for (int i = 0; i < NB_POINTS; i++) {
-        draw(alpha, alpha_param, gen);
-        sum += alpha.value;
+    SUBCASE("exponential distribution") {
+        distrib::exponential::value_t alpha;
+        auto alpha_param = distrib::exponential::make_params(4);
+        check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 0.25);
     }
-    // expected mean is 1/rate = 1/4
-    CHECK(sum / NB_POINTS == doctest::Approx(0.25).epsilon(PRECISION));
 
-    distrib::constant::value_t two = {2};
-    distrib::constant::value_t three = {3};
-    distrib::gamma::value_t lambda;
-    auto lambda_param = distrib::gamma::make_params(two.value, three.value);
-    sum = 0;
-    for (int i = 0; i < NB_POINTS; i++) {
-        draw(lambda, lambda_param, gen);
-        sum += lambda.value;
+    SUBCASE("gamma distribution") {
+        distrib::gamma::value_t lambda;
+        auto lambda_param = distrib::gamma::make_params(2, 3);
+        check_mean(lambda.value, [&]() { draw(lambda, lambda_param, gen); }, 6);
     }
-    // expected mean is shape * scale = 2 * 3 = 6
-    CHECK(sum / NB_POINTS == doctest::Approx(6).epsilon(PRECISION));
 }
 
 TEST_CASE("Gamma/Exp super simple model") {
     auto gen = make_generator();
 
-    distrib::constant::value_t two = {2};
     distrib::exponential::value_t k;
-    auto k_param = distrib::exponential::make_params(two.value);
+    auto k_param = distrib::exponential::make_params(2);
     distrib::exponential::value_t theta;
-    auto theta_param = distrib::exponential::make_params(two.value);
+    auto theta_param = distrib::exponential::make_params(2);
     distrib::gamma::value_t lambda;
     auto lambda_param = distrib::gamma::make_params(k.value, theta.value);
-
-    double sum = 0;
-    for (int i = 0; i < NB_POINTS; i++) {
-        draw(k, k_param, gen);
-        draw(theta, theta_param, gen);
-        draw(lambda, lambda_param, gen);
-        sum += lambda.value;
-    }
-    // expected mean is 1/2 * 1/2 = 0.25
-    CHECK(sum / NB_POINTS == doctest::Approx(0.25).epsilon(PRECISION));
+    check_mean(lambda.value,
+               [&]() {
+                   draw(k, k_param, gen);
+                   draw(theta, theta_param, gen);
+                   draw(lambda, lambda_param, gen);
+               },
+               0.25);
 }
 
 TEST_CASE("Lambda and rvalue constants as draw parameters") {
     auto gen = make_generator();
 
     distrib::exponential::value_t alpha;
-    double sum = 0;
     SUBCASE("lambda param") {
         auto alpha_param = distrib::exponential::make_params([]() { return 2; });
-        for (int i = 0; i < NB_POINTS; i++) {
-            draw(alpha, alpha_param, gen);
-            sum += alpha.value;
-        }
+        check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 0.5);
     }
     SUBCASE("rvalue param") {
         auto alpha_param = distrib::exponential::make_params(2);
-        for (int i = 0; i < NB_POINTS; i++) {
-            draw(alpha, alpha_param, gen);
-            sum += alpha.value;
-        }
+        check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 0.5);
     }
     SUBCASE("lvalue param") {
         double my_param = 17;
         auto alpha_param = distrib::exponential::make_params(my_param);
         my_param = 2;
-        for (int i = 0; i < NB_POINTS; i++) {
-            draw(alpha, alpha_param, gen);
-            sum += alpha.value;
-        }
+        check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 0.5);
     }
-    // expected mean is 1/rate = 1/2
-    CHECK(sum / NB_POINTS == doctest::Approx(0.5).epsilon(PRECISION));
 }
