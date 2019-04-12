@@ -2,7 +2,6 @@
 
 #include "doctest.h"
 
-#include "config.hpp"
 #include "distrib_draw.hpp"
 using namespace std;
 
