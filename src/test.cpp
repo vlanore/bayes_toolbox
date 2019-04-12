@@ -71,3 +71,17 @@ TEST_CASE("Lambda as draw parameters") {
     // expected mean is 1/rate = 1/4
     CHECK(sum / NB_POINTS == doctest::Approx(0.5).epsilon(PRECISION));
 }
+
+TEST_CASE("Rvalue constant as draw parameters") {
+    auto gen = make_generator();
+
+    distrib::exponential_t alpha;
+    auto alpha_param = distrib::exponential::make_params(2);
+    double sum = 0;
+    for (int i = 0; i < NB_POINTS; i++) {
+        draw(alpha, alpha_param.rate, gen);
+        sum += alpha.value;
+    }
+    // expected mean is 1/rate = 1/4
+    CHECK(sum / NB_POINTS == doctest::Approx(0.5).epsilon(PRECISION));
+}
