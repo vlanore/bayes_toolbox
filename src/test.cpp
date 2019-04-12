@@ -58,30 +58,25 @@ TEST_CASE("Gamma/Exp super simple model") {
     CHECK(sum / NB_POINTS == doctest::Approx(0.25).epsilon(PRECISION));
 }
 
-TEST_CASE("Lambda as draw parameters") {
+TEST_CASE("Lambda and rvalue constants as draw parameters") {
     auto gen = make_generator();
 
     distrib::exponential::value_t alpha;
-    auto alpha_param = distrib::exponential::make_params([]() { return 2; });
     double sum = 0;
-    for (int i = 0; i < NB_POINTS; i++) {
-        draw(alpha, alpha_param, gen);
-        sum += alpha.value;
+    SUBCASE("lambda param") {
+        auto alpha_param = distrib::exponential::make_params([]() { return 2; });
+        for (int i = 0; i < NB_POINTS; i++) {
+            draw(alpha, alpha_param, gen);
+            sum += alpha.value;
+        }
     }
-    // expected mean is 1/rate = 1/4
-    CHECK(sum / NB_POINTS == doctest::Approx(0.5).epsilon(PRECISION));
-}
-
-TEST_CASE("Rvalue constant as draw parameters") {
-    auto gen = make_generator();
-
-    distrib::exponential::value_t alpha;
-    auto alpha_param = distrib::exponential::make_params(2);
-    double sum = 0;
-    for (int i = 0; i < NB_POINTS; i++) {
-        draw(alpha, alpha_param, gen);
-        sum += alpha.value;
+    SUBCASE("rvalue param") {
+        auto alpha_param = distrib::exponential::make_params(2);
+        for (int i = 0; i < NB_POINTS; i++) {
+            draw(alpha, alpha_param, gen);
+            sum += alpha.value;
+        }
     }
-    // expected mean is 1/rate = 1/4
+    // expected mean is 1/rate = 1/2
     CHECK(sum / NB_POINTS == doctest::Approx(0.5).epsilon(PRECISION));
 }
