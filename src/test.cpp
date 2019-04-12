@@ -77,6 +77,15 @@ TEST_CASE("Lambda and rvalue constants as draw parameters") {
             sum += alpha.value;
         }
     }
+    SUBCASE("lvalue param") {
+        double my_param = 17;
+        auto alpha_param = distrib::exponential::make_params(my_param);
+        my_param = 2;
+        for (int i = 0; i < NB_POINTS; i++) {
+            draw(alpha, alpha_param, gen);
+            sum += alpha.value;
+        }
+    }
     // expected mean is 1/rate = 1/2
     CHECK(sum / NB_POINTS == doctest::Approx(0.5).epsilon(PRECISION));
 }
