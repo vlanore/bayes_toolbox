@@ -7,7 +7,7 @@
 double positive_real(double input) {
     assert(input >= 0);
     if (input == 0) {
-        return DBL_MIN;
+        return FLT_MIN;
     } else {
         return input;
     }
