@@ -46,4 +46,18 @@ namespace distrib {
             return result;
         }
     };  // namespace gamma
+
+    namespace poisson {
+        template <typename Rate>
+        struct Param {
+            Rate rate;
+        };
+
+        template <typename Rate>
+        auto make_params(Rate&& rate) {
+            Param<decltype(ParamFactory<double>::make(rate))> result = {
+                ParamFactory<double>::make(rate)};
+            return result;
+        }
+    };  // namespace poisson
 };      // namespace distrib

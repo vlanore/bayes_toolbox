@@ -40,4 +40,13 @@ namespace distrib {
             return result;
         }
     };  // namespace gamma
+
+    namespace poisson {
+        template <typename Rate>
+        auto make_node(Rate&& rate) {
+            ProbNode<distrib::poisson::value_t, decltype(distrib::poisson::make_params(rate))>
+                result = {{0}, distrib::poisson::make_params(rate)};
+            return result;
+        }
+    };  // namespace poisson
 };      // namespace distrib

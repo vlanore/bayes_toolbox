@@ -13,6 +13,12 @@ namespace distrib {
         };
     };  // namespace gamma
 
+    namespace poisson {
+        struct value_t {
+            int value;
+        };
+    };  // namespace poisson
+
     namespace constant {
         struct value_t {
             const double value;

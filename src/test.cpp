@@ -8,13 +8,16 @@ using namespace std;
 #define NB_POINTS 10000
 #define PRECISION 0.025
 
-void check_mean(double& target, function<void()> draw, double expected_mean) {
-    double sum = 0;
+template <class T>
+void check_mean(T& target, function<void()> draw, double expected_mean,
+                double precision_fact = 1.0) {
+    T sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
         draw();
         sum += target;
     }
-    CHECK(sum / NB_POINTS == doctest::Approx(expected_mean).epsilon(PRECISION));
+    CHECK(double(sum) / NB_POINTS ==
+          doctest::Approx(expected_mean).epsilon(precision_fact * PRECISION));
 }
 
 TEST_CASE("Draw in various distribs") {
@@ -30,6 +33,12 @@ TEST_CASE("Draw in various distribs") {
         distrib::gamma::value_t lambda;
         auto lambda_param = distrib::gamma::make_params(2, 3);
         check_mean(lambda.value, [&]() { draw(lambda, lambda_param, gen); }, 6);
+    }
+
+    SUBCASE("poisson distribution") {
+        distrib::poisson::value_t alpha;
+        auto alpha_param = distrib::poisson::make_params(4);
+        check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 4);
     }
 }
 
@@ -82,18 +91,20 @@ TEST_CASE("Node ref") {
     check_mean(alpha.value, [&]() { draw(alpha_ref, gen); }, 0.5);
 }
 
-TEST_CASE("Gamma/Exp super simple model") {
+TEST_CASE("Poisson/gamma super simple model") {
     auto gen = make_generator();
 
-    auto k = distrib::exponential::make_node(2);
-    auto theta = distrib::exponential::make_node(2);
+    auto k = distrib::exponential::make_node(0.5);
+    auto theta = distrib::exponential::make_node(0.5);
     auto lambda = distrib::gamma::make_node(k.value.value, theta.value.value);
+    auto counts = distrib::poisson::make_node(lambda.value.value);
 
-    check_mean(lambda.value.value,
+    check_mean(counts.value.value,
                [&]() {
                    draw(k, gen);
                    draw(theta, gen);
                    draw(lambda, gen);
+                   draw(counts, gen);
                },
-               0.25);
+               4, 2.0);
 }
