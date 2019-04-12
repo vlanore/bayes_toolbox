@@ -34,24 +34,6 @@ TEST_CASE("Draw in various distribs") {
     }
 }
 
-TEST_CASE("Gamma/Exp super simple model") {
-    auto gen = make_generator();
-
-    distrib::exponential::value_t k;
-    auto k_param = distrib::exponential::make_params(2);
-    distrib::exponential::value_t theta;
-    auto theta_param = distrib::exponential::make_params(2);
-    distrib::gamma::value_t lambda;
-    auto lambda_param = distrib::gamma::make_params(k.value, theta.value);
-    check_mean(lambda.value,
-               [&]() {
-                   draw(k, k_param, gen);
-                   draw(theta, theta_param, gen);
-                   draw(lambda, lambda_param, gen);
-               },
-               0.25);
-}
-
 TEST_CASE("Lambda and rvalue constants as draw parameters") {
     auto gen = make_generator();
 
@@ -70,4 +52,38 @@ TEST_CASE("Lambda and rvalue constants as draw parameters") {
         my_param = 2;
         check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 0.5);
     }
+}
+
+TEST_CASE("Node construction") {
+    auto gen = make_generator();
+    SUBCASE("exponential") {
+        auto alpha = distrib::exponential::make_node(4);
+        check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 0.25);
+    }
+    SUBCASE("gamma") {
+        auto alpha = distrib::gamma::make_node(2, 3);
+        check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 6.0);
+    }
+    SUBCASE("exponential with ref") {
+        double my_param = 17;
+        auto alpha = distrib::exponential::make_node(my_param);
+        my_param = 4;
+        check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 0.25);
+    }
+}
+
+TEST_CASE("Gamma/Exp super simple model") {
+    auto gen = make_generator();
+
+    auto k = distrib::exponential::make_node(2);
+    auto theta = distrib::exponential::make_node(2);
+    auto lambda = distrib::gamma::make_node(k.value.value, theta.value.value);
+
+    check_mean(lambda.value.value,
+               [&]() {
+                   draw(k, gen);
+                   draw(theta, gen);
+                   draw(lambda, gen);
+               },
+               0.25);
 }

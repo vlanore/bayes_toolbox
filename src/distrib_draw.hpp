@@ -1,8 +1,7 @@
 #pragma once
 
 #include <assert.h>
-#include "distrib_types.hpp"
-#include "param_types.hpp"
+#include "node_types.hpp"
 #include "random.hpp"
 
 /*==================================================================================================
@@ -26,7 +25,6 @@ void draw_gamma(double& node, double shape, double scale, Gen& gen) {
 /*==================================================================================================
 ~~ Overloads that distringuish based on typing ~~
 ==================================================================================================*/
-
 template <typename Rate, typename Gen>
 void draw(distrib::exponential::value_t& node, distrib::exponential::Param<Rate> param, Gen& gen) {
     draw_exponential(node.value, param.rate(), gen);
@@ -35,4 +33,17 @@ void draw(distrib::exponential::value_t& node, distrib::exponential::Param<Rate>
 template <typename Shape, typename Scale, typename Gen>
 void draw(distrib::gamma::value_t& node, distrib::gamma::Param<Shape, Scale> param, Gen& gen) {
     draw_gamma(node.value, param.shape(), param.scale(), gen);
+}
+
+/*==================================================================================================
+~~ Generic version that unpacks probnode objects ~~
+==================================================================================================*/
+template <typename Value, typename Params, typename Gen>
+void draw(ProbNodeRef<Value, Params> noderef, Gen& gen) {
+    draw(noderef.value, noderef.params, gen);
+}
+
+template <typename Value, typename Params, typename Gen>
+void draw(ProbNode<Value, Params>& node, Gen& gen) {
+    draw(node.value, node.params, gen);
 }
