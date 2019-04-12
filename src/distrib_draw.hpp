@@ -5,16 +5,14 @@
 #include "param_types.hpp"
 #include "random.hpp"
 
+/*==================================================================================================
+~~ Raw drawing functions (with direct access to data) ~~
+==================================================================================================*/
 template <typename Gen>
 void draw_exponential(double& node, double rate, Gen& gen) {
     assert(rate > 0);
     std::exponential_distribution<double> distrib(rate);
     node = distrib(gen);
-}
-
-template <typename Gen>
-void draw(distrib::exponential_t& node, distrib::exponential_param_t param, Gen& gen) {
-    draw_exponential(node.value, param.rate, gen);
 }
 
 template <typename Gen>
@@ -25,7 +23,16 @@ void draw_gamma(double& node, double shape, double scale, Gen& gen) {
     node = distrib(gen);
 }
 
-template <typename Gen>
-void draw(distrib::gamma_t& node, distrib::gamma_param_t param, Gen& gen) {
-    draw_gamma(node.value, param.shape, param.scale, gen);
+/*==================================================================================================
+~~ Overloads that distringuish based on typing ~~
+==================================================================================================*/
+
+template <typename Rate, typename Gen>
+void draw(distrib::exponential_t& node, Rate& rate, Gen& gen) {
+    draw_exponential(node.value, rate(), gen);
+}
+
+template <typename Shape, typename Scale, typename Gen>
+void draw(distrib::gamma_t& node, Shape shape, Scale scale, Gen& gen) {
+    draw_gamma(node.value, shape(), scale(), gen);
 }

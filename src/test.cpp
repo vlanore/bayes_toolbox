@@ -17,7 +17,7 @@ TEST_CASE("Draw in various distribs") {
     distrib::exponential_param_t alpha_param = {four.value};
     double sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
-        draw(alpha, alpha_param, gen);
+        draw(alpha, alpha_param.rate, gen);
         sum += alpha.value;
     }
     // expected mean is 1/rate = 1/4
@@ -29,7 +29,7 @@ TEST_CASE("Draw in various distribs") {
     distrib::gamma_param_t lambda_param = {two.value, three.value};
     sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
-        draw(lambda, lambda_param, gen);
+        draw(lambda, lambda_param.shape, lambda_param.scale, gen);
         sum += lambda.value;
     }
     // expected mean is shape * scale = 2 * 3 = 6
@@ -49,9 +49,9 @@ TEST_CASE("Gamma/Exp super simple model") {
 
     double sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
-        draw(k, k_param, gen);
-        draw(theta, theta_param, gen);
-        draw(lambda, lambda_param, gen);
+        draw(k, k_param.rate, gen);
+        draw(theta, theta_param.rate, gen);
+        draw(lambda, lambda_param.shape, lambda_param.scale, gen);
         sum += lambda.value;
     }
     // expected mean is 1/2 * 1/2 = 0.25
