@@ -1,36 +1,44 @@
 #pragma once
 
-template <typename T>
-class Ref {
-    T& ref;
+#include <functional>
+#include "ref_types.hpp"
 
-  public:
-    Ref(T& ref) : ref(ref) {}
-    T& operator()() { return ref; }
-    const T& operator()() const { return ref; }
-};
+CDRef make_param(const double& value) { return CDRef(value); }
 
-template <typename T>
-class CRef {
-    const T& ref;
+DRef make_param(double& value) { return DRef(value); }
 
-  public:
-    CRef(const T& ref) : ref(ref) {}
-    const T& operator()() const { return ref; }
-};
+auto make_param(double&& value) {
+    return [value]() { return value; };
+}
 
-using DRef = Ref<double>;
-using CDRef = CRef<double>;
-using IRef = Ref<int>;
-using CIRef = CRef<int>;
+auto make_param(std::function<double()> f) { return f; }
 
 namespace distrib {
-    struct exponential_param_t {
-        CDRef rate;
-    };
+    namespace exponential {
+        template <typename Rate>
+        struct Param {
+            Rate rate;
+        };
 
-    struct gamma_param_t {
-        CDRef shape;
-        CDRef scale;
-    };
-};  // namespace distrib
+        template <typename Rate>
+        auto make_params(Rate&& rate) {
+            Param<decltype(make_param(rate))> result = {make_param(rate)};
+            return result;
+        }
+    };  // namespace exponential
+
+    namespace gamma {
+        template <typename Rate, typename Scale>
+        struct Param {
+            Rate shape;
+            Scale scale;
+        };
+
+        template <typename Shape, typename Scale>
+        auto make_params(Shape&& shape, Scale&& scale) {
+            Param<decltype(make_param(shape)), decltype(make_param(scale))> result = {
+                make_param(shape), make_param(scale)};
+            return result;
+        }
+    };  // namespace gamma
+};      // namespace distrib

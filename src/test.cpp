@@ -14,7 +14,7 @@ TEST_CASE("Draw in various distribs") {
 
     distrib::constant_t four = {4};
     distrib::exponential_t alpha;
-    distrib::exponential_param_t alpha_param = {four.value};
+    auto alpha_param = distrib::exponential::make_params(four.value);
     double sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
         draw(alpha, alpha_param.rate, gen);
@@ -26,7 +26,7 @@ TEST_CASE("Draw in various distribs") {
     distrib::constant_t two = {2};
     distrib::constant_t three = {3};
     distrib::gamma_t lambda;
-    distrib::gamma_param_t lambda_param = {two.value, three.value};
+    auto lambda_param = distrib::gamma::make_params(two.value, three.value);
     sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
         draw(lambda, lambda_param.shape, lambda_param.scale, gen);
@@ -41,11 +41,11 @@ TEST_CASE("Gamma/Exp super simple model") {
 
     distrib::constant_t two = {2};
     distrib::exponential_t k;
-    distrib::exponential_param_t k_param = {two.value};
+    auto k_param = distrib::exponential::make_params(two.value);
     distrib::exponential_t theta;
-    distrib::exponential_param_t theta_param = {two.value};
+    auto theta_param = distrib::exponential::make_params(two.value);
     distrib::gamma_t lambda;
-    distrib::gamma_param_t lambda_param = {k.value, theta.value};
+    auto lambda_param = distrib::gamma::make_params(k.value, theta.value);
 
     double sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
@@ -62,9 +62,10 @@ TEST_CASE("Lambda as draw parameters") {
     auto gen = make_generator();
 
     distrib::exponential_t alpha;
+    auto alpha_param = distrib::exponential::make_params([]() { return 2; });
     double sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
-        draw(alpha, []() { return 2; }, gen);
+        draw(alpha, alpha_param.rate, gen);
         sum += alpha.value;
     }
     // expected mean is 1/rate = 1/4
