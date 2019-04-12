@@ -12,8 +12,8 @@ using namespace std;
 TEST_CASE("Draw in various distribs") {
     auto gen = make_generator();
 
-    distrib::constant_t four = {4};
-    distrib::exponential_t alpha;
+    distrib::constant::value_t four = {4};
+    distrib::exponential::value_t alpha;
     auto alpha_param = distrib::exponential::make_params(four.value);
     double sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
@@ -23,9 +23,9 @@ TEST_CASE("Draw in various distribs") {
     // expected mean is 1/rate = 1/4
     CHECK(sum / NB_POINTS == doctest::Approx(0.25).epsilon(PRECISION));
 
-    distrib::constant_t two = {2};
-    distrib::constant_t three = {3};
-    distrib::gamma_t lambda;
+    distrib::constant::value_t two = {2};
+    distrib::constant::value_t three = {3};
+    distrib::gamma::value_t lambda;
     auto lambda_param = distrib::gamma::make_params(two.value, three.value);
     sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
@@ -39,12 +39,12 @@ TEST_CASE("Draw in various distribs") {
 TEST_CASE("Gamma/Exp super simple model") {
     auto gen = make_generator();
 
-    distrib::constant_t two = {2};
-    distrib::exponential_t k;
+    distrib::constant::value_t two = {2};
+    distrib::exponential::value_t k;
     auto k_param = distrib::exponential::make_params(two.value);
-    distrib::exponential_t theta;
+    distrib::exponential::value_t theta;
     auto theta_param = distrib::exponential::make_params(two.value);
-    distrib::gamma_t lambda;
+    distrib::gamma::value_t lambda;
     auto lambda_param = distrib::gamma::make_params(k.value, theta.value);
 
     double sum = 0;
@@ -61,7 +61,7 @@ TEST_CASE("Gamma/Exp super simple model") {
 TEST_CASE("Lambda as draw parameters") {
     auto gen = make_generator();
 
-    distrib::exponential_t alpha;
+    distrib::exponential::value_t alpha;
     auto alpha_param = distrib::exponential::make_params([]() { return 2; });
     double sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {
@@ -75,7 +75,7 @@ TEST_CASE("Lambda as draw parameters") {
 TEST_CASE("Rvalue constant as draw parameters") {
     auto gen = make_generator();
 
-    distrib::exponential_t alpha;
+    distrib::exponential::value_t alpha;
     auto alpha_param = distrib::exponential::make_params(2);
     double sum = 0;
     for (int i = 0; i < NB_POINTS; i++) {

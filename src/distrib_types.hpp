@@ -1,15 +1,21 @@
 #pragma once
 
 namespace distrib {
-    struct exponential_t {
-        double value;
-    };
+    namespace exponential {
+        struct value_t {
+            double value;
+        };
+    };  // namespace exponential
 
-    struct gamma_t {
-        double value;
-    };
+    namespace gamma {
+        struct value_t {
+            double value;
+        };
+    };  // namespace gamma
 
-    struct constant_t {
-        const double value;
-    };
-};  // namespace distrib
+    namespace constant {
+        struct value_t {
+            const double value;
+        };
+    };  // namespace constant
+};      // namespace distrib
