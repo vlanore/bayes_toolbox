@@ -72,6 +72,17 @@ TEST_CASE("Node construction") {
     }
 }
 
+TEST_CASE("Node ref") {
+    auto gen = make_generator();
+
+    distrib::constant::value_t two = {2.};
+    distrib::exponential::value_t alpha;
+    auto alpha_param = distrib::exponential::make_params(two.value);
+    auto alpha_ref = make_probnode_ref(alpha, alpha_param);
+
+    check_mean(alpha.value, [&]() { draw(alpha_ref, gen); }, 0.5);
+}
+
 TEST_CASE("Gamma/Exp super simple model") {
     auto gen = make_generator();
 
