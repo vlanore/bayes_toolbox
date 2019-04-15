@@ -148,7 +148,7 @@ TEST_CASE("Poisson/gamma simple model: draw values") {
                    draw(lambda, gen);
                    draw(counts, gen);
                },
-               4, 2.0);
+               4, 3.0);
 }
 
 TEST_CASE("Very simple manual MCMC") {
