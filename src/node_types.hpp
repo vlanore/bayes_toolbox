@@ -26,6 +26,7 @@ license and that you accept its terms.*/
 
 #pragma once
 
+#include <vector>
 #include "distrib_types.hpp"
 #include "param_types.hpp"
 
@@ -45,6 +46,22 @@ template <typename Value, typename Params>
 auto make_probnode_ref(Value& value, Params& params) {
     ProbNodeRef<Value, Params> result = {value, params};
     return result;
+}
+
+template <typename Constructor>
+auto make_probnode_array(size_t size, Constructor f) {
+    std::vector<decltype(f(0))> result;
+    for (size_t i = 0; i < size; i++) { result.push_back(f(i)); }
+    return result;
+}
+
+template <typename Value, typename Params, typename... Values>
+void clamp_array(std::vector<ProbNode<Value, Params>>& nodes, Values... values) {
+    assert(nodes.size() > 0);
+    using raw_type = decltype(nodes.at(0).value.value);
+    std::vector<raw_type> value_vec{values...};
+    assert(nodes.size() == value_vec.size());
+    for (size_t i = 0; i < nodes.size(); i++) { nodes.at(i).value.value = value_vec.at(i); }
 }
 
 namespace distrib {

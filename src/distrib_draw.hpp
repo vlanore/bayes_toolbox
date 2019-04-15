@@ -43,22 +43,28 @@ double positive_real(double input) {
 ~~ Raw drawing functions (with direct access to data) ~~
 ==================================================================================================*/
 template <typename Gen>
-void draw_exponential(double& node, double rate, Gen& gen) {
+double draw_exponential(double rate, Gen& gen) {
     std::exponential_distribution<double> distrib(positive_real(rate));
-    node = distrib(gen);
+    return distrib(gen);
     // printf("drawn %f from param %f\n", node, rate);
 }
 
 template <typename Gen>
-void draw_gamma(double& node, double shape, double scale, Gen& gen) {
+double draw_gamma(double shape, double scale, Gen& gen) {
     std::gamma_distribution<double> distrib(positive_real(shape), positive_real(scale));
-    node = distrib(gen);
+    return distrib(gen);
 }
 
 template <typename Gen>
-void draw_poisson(int& node, double rate, Gen& gen) {
+int draw_poisson(double rate, Gen& gen) {
     std::poisson_distribution<int> distrib(positive_real(rate));
-    node = distrib(gen);
+    return distrib(gen);
+}
+
+template <typename Gen>
+double draw_uniform(Gen& gen) {
+    std::uniform_real_distribution<double> distrib(0, 1);
+    return distrib(gen);
 }
 
 /*==================================================================================================
@@ -66,17 +72,17 @@ void draw_poisson(int& node, double rate, Gen& gen) {
 ==================================================================================================*/
 template <typename Rate, typename Gen>
 void draw(distrib::exponential::value_t& node, distrib::exponential::Param<Rate>& param, Gen& gen) {
-    draw_exponential(node.value, param.rate(), gen);
+    node.value = draw_exponential(param.rate(), gen);
 }
 
 template <typename Shape, typename Scale, typename Gen>
 void draw(distrib::gamma::value_t& node, distrib::gamma::Param<Shape, Scale>& param, Gen& gen) {
-    draw_gamma(node.value, param.shape(), param.scale(), gen);
+    node.value = draw_gamma(param.shape(), param.scale(), gen);
 }
 
 template <typename Rate, typename Gen>
 void draw(distrib::poisson::value_t& node, distrib::poisson::Param<Rate>& param, Gen& gen) {
-    draw_poisson(node.value, param.rate(), gen);
+    node.value = draw_poisson(param.rate(), gen);
 }
 
 /*==================================================================================================
