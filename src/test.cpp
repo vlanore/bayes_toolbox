@@ -52,6 +52,12 @@ void check_mean(T& target, function<void()> draw, double expected_mean,
           doctest::Approx(expected_mean).epsilon(precision_fact * PRECISION));
 }
 
+TEST_CASE("Check that dist types have correct size") {
+    size_t ds = sizeof(double);
+    size_t es = sizeof(exponential::value_t);
+    CHECK(ds == es);
+}
+
 TEST_CASE("Draw in various distribs") {
     auto gen = make_generator();
 
@@ -247,14 +253,11 @@ TEST_CASE("Sum and mean functions") {
     vector<double> vd = {1, 2, 3, 4.2, 5.1, 6};
     vector<int> vi = {1, 2, 3, 4, 5};
     vector<exponential::value_t> ve = {{1.2}, {2.3}, {3.4}};
+    vector<poisson::value_t> vp = {{11}, {2}, {3}};
     CHECK(sum(vd) == doctest::Approx(21.3));
     CHECK(sum(vi) == 15);
     CHECK(sum(ve) == doctest::Approx(6.9));
     CHECK(mean(vi) == doctest::Approx(3));
-}
-
-TEST_CASE("Check that dist types have correct size") {
-    size_t ds = sizeof(double);
-    size_t de = sizeof(exponential::value_t);
-    CHECK(ds == de);
+    CHECK(sum(vp) == 16);
+    CHECK(std::is_same<int, decltype(sum(vp))>::value);
 }
