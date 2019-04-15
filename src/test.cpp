@@ -256,3 +256,31 @@ TEST_CASE("Sum and mean functions") {
     CHECK(sum(vp) == 16);
     CHECK(std::is_same<int, decltype(sum(vp))>::value);
 }
+
+TEST_CASE("Better manual MCMC with suffstats") {
+    auto gen = make_generator();
+
+    auto param = exponential::make_node(1);
+    draw(param, gen);
+    auto array = make_probnode_array<poisson>(20, param.value.value);
+    clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
+    auto array_ss = poisson::sum_suffstat::gather(array.values);
+
+    vector<double> trace;
+    for (int i = 0; i < 10000; i++) {
+        for (int rep = 0; rep < 10; rep++) {
+            auto param_backup = make_value_backup(param);
+            double logprob_before =
+                logprob(param) + poisson::partial_array_logprob_param1(array_ss, param.value.value);
+            double log_hastings = scale(param.value.value, gen);
+            double logprob_after =
+                logprob(param) + poisson::partial_array_logprob_param1(array_ss, param.value.value);
+            bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
+            if (!accept) { restore_from_backup(param, param_backup); }
+        }
+        trace.push_back(param.value.value);
+    }
+    double mean_trace = mean(trace);
+    CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
+    CHECK(mean_trace < 2);
+}
