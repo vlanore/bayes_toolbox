@@ -46,3 +46,16 @@ double logprob(Value value, Param param) {
     using distrib = typename Value::distrib;
     return logprob_helper<distrib>(value, param.unpack());
 }
+
+/*==================================================================================================
+~~ Generic version that unpacks probnode objects ~~
+==================================================================================================*/
+template <typename Value, typename Params>
+double logprob(ProbNodeRef<Value, Params> noderef) {
+    return logprob(noderef.value, noderef.params);
+}
+
+template <typename Value, typename Params>
+double logprob(ProbNode<Value, Params>& node) {
+    return logprob(node.value, node.params);
+}
