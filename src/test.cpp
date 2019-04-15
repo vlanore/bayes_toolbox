@@ -31,6 +31,7 @@ license and that you accept its terms.*/
 #include "basic_moves.hpp"
 #include "exponential.hpp"
 #include "gamma.hpp"
+#include "logprob.hpp"
 #include "mcmc_utils.hpp"
 #include "poisson.hpp"
 using namespace std;
@@ -228,15 +229,11 @@ TEST_CASE("Better manual MCMC") {
     for (int i = 0; i < 10000; i++) {
         for (int rep = 0; rep < 10; rep++) {
             auto param_backup = make_value_backup(param);
-            double logprob_before = exponential::logprob(param.value.value, 1);
-            for (auto pnode : array) {
-                logprob_before += poisson::logprob(pnode.value.value, param.value.value);
-            }
+            double logprob_before = logprob(param.value, param.params);
+            for (auto pnode : array) { logprob_before += logprob(pnode.value, pnode.params); }
             double log_hastings = scale(param.value.value, gen);
-            double logprob_after = exponential::logprob(param.value.value, 1);
-            for (auto pnode : array) {
-                logprob_after += poisson::logprob(pnode.value.value, param.value.value);
-            }
+            double logprob_after = logprob(param.value, param.params);
+            for (auto pnode : array) { logprob_after += logprob(pnode.value, pnode.params); }
             bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
             if (!accept) { restore_from_backup(param, param_backup); }
         }
