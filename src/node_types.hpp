@@ -48,17 +48,37 @@ auto make_probnode_ref(Value& value, Params& params) {
 }
 
 template <typename Constructor>
-auto make_probnode_array(size_t size, Constructor f) {
+auto make_array(size_t size, Constructor f) {
     std::vector<decltype(f(0))> result;
     for (size_t i = 0; i < size; i++) { result.push_back(f(i)); }
     return result;
 }
 
+template <typename Value, typename Params>
+struct ProbNodeArray {
+    std::vector<Value> values;
+    std::vector<Params> params;
+    std::vector<ProbNodeRef<Value, Params>> nodes;
+};
+
+template <typename Distrib, typename... Params>
+auto make_probnode_array(size_t size, Params&&... params) {
+    auto param_struct = Distrib::make_params(std::forward<Params>(params)...);
+    ProbNodeArray<typename Distrib::value_t, decltype(param_struct)> result;
+    result.values.reserve(size);
+    result.params.reserve(size);
+    for (size_t i = 0; i < size; i++) {
+        result.values.push_back({0});
+        result.params.push_back(param_struct);
+        result.nodes.push_back({result.values.back(), result.params.back()});
+    }
+    return result;
+}
+
 template <typename Value, typename Params, typename... Values>
-void clamp_array(std::vector<ProbNode<Value, Params>>& nodes, Values... values) {
-    assert(nodes.size() > 0);
-    using raw_type = decltype(nodes.at(0).value.value);
+void clamp_array(ProbNodeArray<Value, Params>& array, Values... values) {
+    using raw_type = typename Value::distrib::raw_type;
     std::vector<raw_type> value_vec{values...};
-    assert(nodes.size() == value_vec.size());
-    for (size_t i = 0; i < nodes.size(); i++) { nodes.at(i).value.value = value_vec.at(i); }
+    assert(array.values.size() == value_vec.size());
+    for (size_t i = 0; i < array.values.size(); i++) { array.values.at(i).value = value_vec.at(i); }
 }

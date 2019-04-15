@@ -62,11 +62,11 @@ double logprob(ProbNode<Value, Params> node) {
 }
 
 /*==================================================================================================
-~~ Vector unpackers ~~
+~~ Array unpackers ~~
 ==================================================================================================*/
-template <typename Node>
-double logprob(const std::vector<Node> v) {
+template <typename Value, typename Params>
+double logprob(ProbNodeArray<Value, Params> array) {
     double sum = 0;
-    for (auto e : v) { sum += logprob(e); }
+    for (auto e : array.nodes) { sum += logprob(e); }
     return sum;
 }

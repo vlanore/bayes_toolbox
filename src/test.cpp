@@ -156,8 +156,7 @@ TEST_CASE("Very simple manual MCMC") {
 
     auto param = exponential::make_node(1);
     draw(param, gen);
-    auto array =
-        make_probnode_array(20, [&param](int) { return poisson::make_node(param.value.value); });
+    auto array = make_probnode_array<poisson>(20, param.value.value);
     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
     vector<double> trace;
@@ -165,13 +164,13 @@ TEST_CASE("Very simple manual MCMC") {
         for (int rep = 0; rep < 10; rep++) {
             auto param_backup = param;
             double logprob_before = exponential::logprob(param.value.value, 1);
-            for (auto pnode : array) {
-                logprob_before += poisson::logprob(pnode.value.value, param.value.value);
+            for (auto pnode : array.values) {
+                logprob_before += poisson::logprob(pnode.value, param.value.value);
             }
             double log_hastings = scale(param.value.value, gen);
             double logprob_after = exponential::logprob(param.value.value, 1);
-            for (auto pnode : array) {
-                logprob_after += poisson::logprob(pnode.value.value, param.value.value);
+            for (auto pnode : array.values) {
+                logprob_after += poisson::logprob(pnode.value, param.value.value);
             }
             double acceptance = logprob_after - logprob_before + log_hastings;
             bool accept = draw_uniform(gen) < exp(acceptance);
@@ -191,8 +190,7 @@ TEST_CASE("Very simple manual MCMC with partial log probs") {
 
     auto param = exponential::make_node(1);
     draw(param, gen);
-    auto array =
-        make_probnode_array(20, [&param](int) { return poisson::make_node(param.value.value); });
+    auto array = make_probnode_array<poisson>(20, param.value.value);
     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
     vector<double> trace;
@@ -200,15 +198,13 @@ TEST_CASE("Very simple manual MCMC with partial log probs") {
         for (int rep = 0; rep < 10; rep++) {
             auto param_backup = param;
             double logprob_before = exponential::partial_logprob_value(param.value.value, 1);
-            for (auto pnode : array) {
-                logprob_before +=
-                    poisson::partial_logprob_param1(pnode.value.value, param.value.value);
+            for (auto pnode : array.values) {
+                logprob_before += poisson::partial_logprob_param1(pnode.value, param.value.value);
             }
             double log_hastings = scale(param.value.value, gen);
             double logprob_after = exponential::partial_logprob_value(param.value.value, 1);
-            for (auto pnode : array) {
-                logprob_after +=
-                    poisson::partial_logprob_param1(pnode.value.value, param.value.value);
+            for (auto pnode : array.values) {
+                logprob_after += poisson::partial_logprob_param1(pnode.value, param.value.value);
             }
             double acceptance = logprob_after - logprob_before + log_hastings;
             bool accept = draw_uniform(gen) < exp(acceptance);
@@ -228,8 +224,7 @@ TEST_CASE("Better manual MCMC") {
 
     auto param = exponential::make_node(1);
     draw(param, gen);
-    auto array =
-        make_probnode_array(20, [&param](int) { return poisson::make_node(param.value.value); });
+    auto array = make_probnode_array<poisson>(20, param.value.value);
     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
     vector<double> trace;
