@@ -27,6 +27,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <tuple>
+#include <vector>
 
 /*==================================================================================================
 ~~ Unpacking params ~~
@@ -56,6 +57,16 @@ double logprob(ProbNodeRef<Value, Params> noderef) {
 }
 
 template <typename Value, typename Params>
-double logprob(ProbNode<Value, Params>& node) {
+double logprob(ProbNode<Value, Params> node) {
     return logprob(node.value, node.params);
+}
+
+/*==================================================================================================
+~~ Vector unpackers ~~
+==================================================================================================*/
+template <typename Node>
+double logprob(const std::vector<Node> v) {
+    double sum = 0;
+    for (auto e : v) { sum += logprob(e); }
+    return sum;
 }
