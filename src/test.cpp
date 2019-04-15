@@ -32,6 +32,7 @@ license and that you accept its terms.*/
 #include "exponential.hpp"
 #include "gamma.hpp"
 #include "logprob.hpp"
+#include "math_utils.hpp"
 #include "mcmc_utils.hpp"
 #include "poisson.hpp"
 using namespace std;
@@ -237,9 +238,17 @@ TEST_CASE("Better manual MCMC") {
         }
         trace.push_back(param.value.value);
     }
-    double sum_trace = 0;
-    for (auto e : trace) { sum_trace += e; }
-    double sum_mean = sum_trace / 10000;
-    CHECK(1.9 < sum_mean);  // should be somewhere close to 2.0 but biaised down due to prior
-    CHECK(sum_mean < 2);
+    double mean_trace = mean(trace);
+    CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
+    CHECK(mean_trace < 2);
+}
+
+TEST_CASE("Sum and mean functions") {
+    vector<double> vd = {1, 2, 3, 4.2, 5.1, 6};
+    vector<int> vi = {1, 2, 3, 4, 5};
+    vector<exponential::value_t> ve = {{1.2}, {2.3}, {3.4}};
+    CHECK(sum(vd) == doctest::Approx(21.3));
+    CHECK(sum(vi) == 15);
+    CHECK(sum(ve) == doctest::Approx(6.9));
+    CHECK(mean(vi) == doctest::Approx(3));
 }
