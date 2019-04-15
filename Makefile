@@ -10,6 +10,27 @@ _build: CMakeLists.txt
 	@mkdir _build
 	@cd _build ; cmake ..
 
+.PHONY: coverage
+coverage:
+	@rm -rf _build
+	@mkdir _build
+	@cd _build ; cmake -DCOVERAGE_MODE=ON ..
+	@make --no-print-directory test
+
+.PHONY: debug
+debug:
+	@rm -rf _build
+	@mkdir _build
+	@cd _build ; cmake -DDEBUG_MODE=ON ..
+	@make --no-print-directory
+
+.PHONY: release
+release:
+	@rm -rf _build
+	@mkdir _build
+	@cd _build ; cmake ..
+	@make --no-print-directory
+
 .PHONY: clean
 clean:
 	@rm -rf _build
