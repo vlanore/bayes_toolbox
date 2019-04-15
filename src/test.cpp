@@ -174,3 +174,42 @@ TEST_CASE("Very simple manual MCMC") {
     CHECK(1.8 < sum_mean);  // should be somewhere close to 2.0 but biaised down due to prior
     CHECK(sum_mean < 2.1);
 }
+
+TEST_CASE("Very simple manual MCMC with partial log probs") {
+    auto gen = make_generator();
+
+    auto param = distrib::exponential::make_node(1);
+    draw(param, gen);
+    auto array = make_probnode_array(
+        10, [&param](int) { return distrib::poisson::make_node(param.value.value); });
+    clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
+
+    vector<double> trace;
+    for (int i = 0; i < 10000; i++) {
+        for (int rep = 0; rep < 10; rep++) {
+            auto param_backup = param;
+            double logprob_before =
+                distrib::exponential::partial_logprob_value(param.value.value, 1);
+            for (auto pnode : array) {
+                logprob_before +=
+                    distrib::poisson::partial_logprob_param1(pnode.value.value, param.value.value);
+            }
+            double log_hastings = scale(param.value.value, gen);
+            double logprob_after =
+                distrib::exponential::partial_logprob_value(param.value.value, 1);
+            for (auto pnode : array) {
+                logprob_after +=
+                    distrib::poisson::partial_logprob_param1(pnode.value.value, param.value.value);
+            }
+            double acceptance = logprob_after - logprob_before + log_hastings;
+            bool accept = draw_uniform(gen) < exp(acceptance);
+            if (!accept) { param.value.value = param_backup.value.value; }
+        }
+        trace.push_back(param.value.value);
+    }
+    double sum_trace = 0;
+    for (auto e : trace) { sum_trace += e; }
+    double sum_mean = sum_trace / 10000;
+    CHECK(1.8 < sum_mean);  // should be somewhere close to 2.0 but biaised down due to prior
+    CHECK(sum_mean < 2.1);
+}
