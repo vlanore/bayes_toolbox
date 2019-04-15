@@ -72,6 +72,10 @@ TEST_CASE("Node construction") {
         auto alpha = distrib::gamma::make_node(2, 3);
         check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 6.0);
     }
+    SUBCASE("poisson") {
+        auto alpha = distrib::poisson::make_node(3);
+        check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 3.0);
+    }
     SUBCASE("exponential with ref") {
         double my_param = 17;
         auto alpha = distrib::exponential::make_node(my_param);

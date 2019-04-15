@@ -25,8 +25,8 @@ namespace distrib {
 
         template <typename Rate>
         auto make_params(Rate&& rate) {
-            Param<decltype(ParamFactory<double>::make(rate))> result = {
-                ParamFactory<double>::make(rate)};
+            Param<decltype(ParamFactory<double>::make(std::forward<Rate>(rate)))> result = {
+                ParamFactory<double>::make(std::forward<Rate>(rate))};
             return result;
         }
     };  // namespace exponential
@@ -40,9 +40,10 @@ namespace distrib {
 
         template <typename Shape, typename Scale>
         auto make_params(Shape&& shape, Scale&& scale) {
-            Param<decltype(ParamFactory<double>::make(shape)),
-                  decltype(ParamFactory<double>::make(scale))>
-                result = {ParamFactory<double>::make(shape), ParamFactory<double>::make(scale)};
+            Param<decltype(ParamFactory<double>::make(std::forward<Shape>(shape))),
+                  decltype(ParamFactory<double>::make(std::forward<Scale>(scale)))>
+                result = {ParamFactory<double>::make(std::forward<Shape>(shape)),
+                          ParamFactory<double>::make(std::forward<Scale>(scale))};
             return result;
         }
     };  // namespace gamma
@@ -55,8 +56,8 @@ namespace distrib {
 
         template <typename Rate>
         auto make_params(Rate&& rate) {
-            Param<decltype(ParamFactory<double>::make(rate))> result = {
-                ParamFactory<double>::make(rate)};
+            Param<decltype(ParamFactory<double>::make(std::forward<Rate>(rate)))> result = {
+                ParamFactory<double>::make(std::forward<Rate>(rate))};
             return result;
         }
     };  // namespace poisson
