@@ -252,3 +252,9 @@ TEST_CASE("Sum and mean functions") {
     CHECK(sum(ve) == doctest::Approx(6.9));
     CHECK(mean(vi) == doctest::Approx(3));
 }
+
+TEST_CASE("Check that dist types have correct size") {
+    size_t ds = sizeof(double);
+    size_t de = sizeof(exponential::value_t);
+    CHECK(ds == de);
+}
