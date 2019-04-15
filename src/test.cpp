@@ -150,8 +150,8 @@ TEST_CASE("Very simple manual MCMC") {
     auto param = exponential::make_node(1);
     draw(param, gen);
     auto array =
-        make_probnode_array(10, [&param](int) { return poisson::make_node(param.value.value); });
-    clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
+        make_probnode_array(20, [&param](int) { return poisson::make_node(param.value.value); });
+    clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
     vector<double> trace;
     for (int i = 0; i < 10000; i++) {
@@ -175,8 +175,8 @@ TEST_CASE("Very simple manual MCMC") {
     double sum_trace = 0;
     for (auto e : trace) { sum_trace += e; }
     double sum_mean = sum_trace / 10000;
-    CHECK(1.8 < sum_mean);  // should be somewhere close to 2.0 but biaised down due to prior
-    CHECK(sum_mean < 2.1);
+    CHECK(1.9 < sum_mean);  // should be somewhere close to 2.0 but biaised down due to prior
+    CHECK(sum_mean < 2);
 }
 
 TEST_CASE("Very simple manual MCMC with partial log probs") {
@@ -185,8 +185,8 @@ TEST_CASE("Very simple manual MCMC with partial log probs") {
     auto param = exponential::make_node(1);
     draw(param, gen);
     auto array =
-        make_probnode_array(10, [&param](int) { return poisson::make_node(param.value.value); });
-    clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
+        make_probnode_array(20, [&param](int) { return poisson::make_node(param.value.value); });
+    clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
     vector<double> trace;
     for (int i = 0; i < 10000; i++) {
@@ -212,8 +212,8 @@ TEST_CASE("Very simple manual MCMC with partial log probs") {
     double sum_trace = 0;
     for (auto e : trace) { sum_trace += e; }
     double sum_mean = sum_trace / 10000;
-    CHECK(1.8 < sum_mean);  // should be somewhere close to 2.0 but biaised down due to prior
-    CHECK(sum_mean < 2.1);
+    CHECK(1.9 < sum_mean);  // should be somewhere close to 2.0 but biaised down due to prior
+    CHECK(sum_mean < 2);
 }
 
 TEST_CASE("Better manual MCMC") {
@@ -222,8 +222,8 @@ TEST_CASE("Better manual MCMC") {
     auto param = exponential::make_node(1);
     draw(param, gen);
     auto array =
-        make_probnode_array(10, [&param](int) { return poisson::make_node(param.value.value); });
-    clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
+        make_probnode_array(20, [&param](int) { return poisson::make_node(param.value.value); });
+    clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
     vector<double> trace;
     for (int i = 0; i < 10000; i++) {
@@ -240,6 +240,6 @@ TEST_CASE("Better manual MCMC") {
     double sum_trace = 0;
     for (auto e : trace) { sum_trace += e; }
     double sum_mean = sum_trace / 10000;
-    CHECK(1.8 < sum_mean);  // should be somewhere close to 2.0 but biaised down due to prior
-    CHECK(sum_mean < 2.1);
+    CHECK(1.9 < sum_mean);  // should be somewhere close to 2.0 but biaised down due to prior
+    CHECK(sum_mean < 2);
 }
