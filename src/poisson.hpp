@@ -26,18 +26,52 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include <functional>
-#include "ref_types.hpp"
+#include "distrib_utils.hpp"
 
-template <class T>
-struct ParamFactory {
-    static CRef<T> make(const T& value) { return CRef<T>(value); }
+double log_factorial(int n) { return std::lgamma(n + 1); }
 
-    static Ref<T> make(T& value) { return Ref<T>(value); }
+struct poisson : Distrib {
+    using raw_type = int;
 
-    static auto make(T&& value) {
-        return [value]() { return value; };
+    struct value_t {
+        int value;
+        using distrib = poisson;
+    };
+
+    template <typename Rate>
+    struct Param {
+        Rate rate;
+        auto unpack() { return std::make_tuple(rate); }
+        using distrib = poisson;
+    };
+
+    template <typename Rate>
+    static auto make_params(Rate&& rate) {
+        Param<decltype(ParamFactory<double>::make(std::forward<Rate>(rate)))> result = {
+            ParamFactory<double>::make(std::forward<Rate>(rate))};
+        return result;
     }
 
-    static auto make(std::function<T()> f) { return f; }
+    template <typename Gen>
+    static int draw(double rate, Gen& gen) {
+        std::poisson_distribution<int> distrib(positive_real(rate));
+        return distrib(gen);
+    }
+
+    template <typename Rate>
+    static auto make_node(Rate&& rate) {
+        ProbNode<poisson::value_t, decltype(poisson::make_params(std::forward<Rate>(rate)))>
+            result = {{0}, poisson::make_params(std::forward<Rate>(rate))};
+        return result;
+    }
+
+    static double logprob(int x, double lambda) {
+        return x * log(lambda) - lambda - log_factorial(x);
+    }
+
+    static double partial_logprob_value(int x, double lambda) {
+        return x * log(lambda) - log_factorial(x);
+    }
+
+    static double partial_logprob_param1(int x, double lambda) { return x * log(lambda) - lambda; }
 };

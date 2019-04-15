@@ -26,28 +26,19 @@ license and that you accept its terms.*/
 
 #pragma once
 
-namespace distrib {
-    namespace exponential {
-        struct value_t {
-            double value;
-        };
-    };  // namespace exponential
+#include "distrib_draw.hpp"
 
-    namespace gamma {
-        struct value_t {
-            double value;
-        };
-    };  // namespace gamma
+template <typename Value, typename Params>
+auto make_value_backup(ProbNode<Value, Params>& node) {
+    return node.value;  // not .value.value to preserve distrib typing
+}
 
-    namespace poisson {
-        struct value_t {
-            int value;
-        };
-    };  // namespace poisson
+template <typename Value, typename Params>
+void restore_from_backup(ProbNode<Value, Params>& node, const Value& backup) {
+    node.value = backup;
+}
 
-    namespace constant {
-        struct value_t {
-            const double value;
-        };
-    };  // namespace constant
-};      // namespace distrib
+template <typename Gen>
+bool decide(double logprob, Gen& gen) {
+    return draw_uniform(gen) < exp(logprob);
+}

@@ -30,37 +30,9 @@ license and that you accept its terms.*/
 #include "node_types.hpp"
 #include "random.hpp"
 
-double positive_real(double input) {
-    assert(input >= 0);
-    if (input == 0) {
-        return DBL_MIN;
-    } else {
-        return input;
-    }
-}
-
 /*==================================================================================================
-~~ Raw drawing functions (with direct access to data) ~~
+~~ Raw drawing functions ~~
 ==================================================================================================*/
-template <typename Gen>
-double draw_exponential(double rate, Gen& gen) {
-    std::exponential_distribution<double> distrib(positive_real(rate));
-    return distrib(gen);
-    // printf("drawn %f from param %f\n", node, rate);
-}
-
-template <typename Gen>
-double draw_gamma(double shape, double scale, Gen& gen) {
-    std::gamma_distribution<double> distrib(positive_real(shape), positive_real(scale));
-    return distrib(gen);
-}
-
-template <typename Gen>
-int draw_poisson(double rate, Gen& gen) {
-    std::poisson_distribution<int> distrib(positive_real(rate));
-    return distrib(gen);
-}
-
 template <typename Gen>
 double draw_uniform(Gen& gen) {
     std::uniform_real_distribution<double> distrib(0, 1);
@@ -68,21 +40,21 @@ double draw_uniform(Gen& gen) {
 }
 
 /*==================================================================================================
-~~ Overloads that distinguish based on typing ~~
+~~ Overloads that unpack parameters ~~
 ==================================================================================================*/
-template <typename Rate, typename Gen>
-void draw(distrib::exponential::value_t& node, distrib::exponential::Param<Rate>& param, Gen& gen) {
-    node.value = draw_exponential(param.rate(), gen);
+template <typename D, typename Param, typename Gen>
+auto draw_helper(std::tuple<Param> param, Gen& gen) {
+    return D::draw(std::get<0>(param)(), gen);
 }
 
-template <typename Shape, typename Scale, typename Gen>
-void draw(distrib::gamma::value_t& node, distrib::gamma::Param<Shape, Scale>& param, Gen& gen) {
-    node.value = draw_gamma(param.shape(), param.scale(), gen);
+template <typename D, typename Param1, typename Param2, typename Gen>
+auto draw_helper(std::tuple<Param1, Param2> param, Gen& gen) {
+    return D::draw(std::get<0>(param)(), std::get<1>(param)(), gen);
 }
 
-template <typename Rate, typename Gen>
-void draw(distrib::poisson::value_t& node, distrib::poisson::Param<Rate>& param, Gen& gen) {
-    node.value = draw_poisson(param.rate(), gen);
+template <typename Value, typename Param, typename Gen>
+void draw(Value& node, Param& param, Gen& gen) {
+    node.value = draw_helper<typename Value::distrib>(param.unpack(), gen);
 }
 
 /*==================================================================================================

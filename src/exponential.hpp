@@ -26,45 +26,49 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include <cmath>
+#include "distrib_utils.hpp"
 
-double log_factorial(int n) { return std::lgamma(n + 1); }
+struct exponential : Distrib {
+    using raw_type = double;
 
-namespace distrib {
-    namespace exponential {
-        double logprob(double x, double lambda) { return log(lambda) - lambda * x; }
+    struct value_t {
+        double value;
+        using distrib = exponential;
+    };
 
-        double partial_logprob_value(double x, double lambda) { return -lambda * x; }
+    template <typename Rate>
+    struct Param {
+        Rate rate;
+        using distrib = exponential;
+        auto unpack() { return std::make_tuple(rate); }
+    };
 
-        double partial_logprob_param1(double x, double lambda) { return log(lambda) - lambda * x; }
-    };  // namespace exponential
+    template <typename Rate>
+    static auto make_params(Rate&& rate) {
+        Param<decltype(ParamFactory<double>::make(std::forward<Rate>(rate)))> result = {
+            ParamFactory<double>::make(std::forward<Rate>(rate))};
+        return result;
+    }
 
-    namespace gamma {
-        double logprob(double x, double k, double theta) {
-            return -std::lgamma(k) - k * log(theta) + (k - 1) * log(x) - x / theta;
-        }
+    template <typename Rate>
+    static auto make_node(Rate&& rate) {
+        ProbNode<exponential::value_t, decltype(exponential::make_params(std::forward<Rate>(rate)))>
+            result = {{0.}, exponential::make_params(std::forward<Rate>(rate))};
+        return result;
+    }
 
-        double partial_logprob_value(double x, double k, double theta) {
-            return (k - 1) * log(x) - x / theta;
-        }
+    template <typename Gen>
+    static double draw(double rate, Gen& gen) {
+        std::exponential_distribution<double> distrib(positive_real(rate));
+        return distrib(gen);
+        // printf("drawn %f from param %f\n", node, rate);
+    }
 
-        double partial_logprob_param1(double, double k, double theta) {
-            return -std::lgamma(k) - k * log(theta) + (k - 1);
-        }
+    static double logprob(double x, double lambda) { return log(lambda) - lambda * x; }
 
-        double partial_logprob_param2(double x, double k, double theta) {
-            return -k * log(theta) - x / theta;
-        }
-    };  // namespace gamma
+    static double partial_logprob_value(double x, double lambda) { return -lambda * x; }
 
-    namespace poisson {
-        double logprob(int x, double lambda) { return x * log(lambda) - lambda - log_factorial(x); }
-
-        double partial_logprob_value(int x, double lambda) {
-            return x * log(lambda) - log_factorial(x);
-        }
-
-        double partial_logprob_param1(int x, double lambda) { return x * log(lambda) - lambda; }
-    };  // namespace poisson
-
-};  // namespace distrib
+    static double partial_logprob_param1(double x, double lambda) {
+        return log(lambda) - lambda * x;
+    }
+};

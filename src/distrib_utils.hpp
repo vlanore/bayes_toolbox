@@ -26,18 +26,12 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include <functional>
-#include "ref_types.hpp"
+#include <cmath>
+#include <type_traits>
+#include "param_types.hpp"
+#include "random.hpp"
 
-template <class T>
-struct ParamFactory {
-    static CRef<T> make(const T& value) { return CRef<T>(value); }
+struct Distrib {};  // tag
 
-    static Ref<T> make(T& value) { return Ref<T>(value); }
-
-    static auto make(T&& value) {
-        return [value]() { return value; };
-    }
-
-    static auto make(std::function<T()> f) { return f; }
-};
+template <class Type>
+using is_distrib = std::integral_constant<bool, std::is_base_of<Type, Distrib>::value>;

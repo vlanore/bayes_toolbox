@@ -26,6 +26,7 @@ license and that you accept its terms.*/
 
 #pragma once
 
+#include <assert.h>
 #include <random>
 
 std::mt19937 make_generator(int seed) { return std::mt19937(seed); }
@@ -33,4 +34,13 @@ std::mt19937 make_generator(int seed) { return std::mt19937(seed); }
 std::mt19937 make_generator() {
     std::random_device rd;
     return make_generator(rd());
+}
+
+double positive_real(double input) {
+    assert(input >= 0);
+    if (input == 0) {
+        return DBL_MIN;
+    } else {
+        return input;
+    }
 }

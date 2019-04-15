@@ -29,7 +29,10 @@ license and that you accept its terms.*/
 #include "doctest.h"
 
 #include "basic_moves.hpp"
-#include "logprobs.hpp"
+#include "exponential.hpp"
+#include "gamma.hpp"
+#include "mcmc_utils.hpp"
+#include "poisson.hpp"
 using namespace std;
 
 #define NB_POINTS 10000
@@ -51,20 +54,20 @@ TEST_CASE("Draw in various distribs") {
     auto gen = make_generator();
 
     SUBCASE("exponential distribution") {
-        distrib::exponential::value_t alpha;
-        auto alpha_param = distrib::exponential::make_params(4);
+        exponential::value_t alpha;
+        auto alpha_param = exponential::make_params(4);
         check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 0.25);
     }
 
     SUBCASE("gamma distribution") {
-        distrib::gamma::value_t lambda;
-        auto lambda_param = distrib::gamma::make_params(2, 3);
+        gamma::value_t lambda;
+        auto lambda_param = gamma::make_params(2, 3);
         check_mean(lambda.value, [&]() { draw(lambda, lambda_param, gen); }, 6);
     }
 
     SUBCASE("poisson distribution") {
-        distrib::poisson::value_t alpha;
-        auto alpha_param = distrib::poisson::make_params(4);
+        poisson::value_t alpha;
+        auto alpha_param = poisson::make_params(4);
         check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 4);
     }
 }
@@ -72,18 +75,18 @@ TEST_CASE("Draw in various distribs") {
 TEST_CASE("Lambda and rvalue constants as draw parameters") {
     auto gen = make_generator();
 
-    distrib::exponential::value_t alpha;
+    exponential::value_t alpha;
     SUBCASE("lambda param") {
-        auto alpha_param = distrib::exponential::make_params([]() { return 2; });
+        auto alpha_param = exponential::make_params([]() { return 2; });
         check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 0.5);
     }
     SUBCASE("rvalue param") {
-        auto alpha_param = distrib::exponential::make_params(2);
+        auto alpha_param = exponential::make_params(2);
         check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 0.5);
     }
     SUBCASE("lvalue param") {
         double my_param = 17;
-        auto alpha_param = distrib::exponential::make_params(my_param);
+        auto alpha_param = exponential::make_params(my_param);
         my_param = 2;
         check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 0.5);
     }
@@ -92,20 +95,20 @@ TEST_CASE("Lambda and rvalue constants as draw parameters") {
 TEST_CASE("Node construction") {
     auto gen = make_generator();
     SUBCASE("exponential") {
-        auto alpha = distrib::exponential::make_node(4);
+        auto alpha = exponential::make_node(4);
         check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 0.25);
     }
     SUBCASE("gamma") {
-        auto alpha = distrib::gamma::make_node(2, 3);
+        auto alpha = gamma::make_node(2, 3);
         check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 6.0);
     }
     SUBCASE("poisson") {
-        auto alpha = distrib::poisson::make_node(3);
+        auto alpha = poisson::make_node(3);
         check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 3.0);
     }
     SUBCASE("exponential with ref") {
         double my_param = 17;
-        auto alpha = distrib::exponential::make_node(my_param);
+        auto alpha = exponential::make_node(my_param);
         my_param = 4;
         check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 0.25);
     }
@@ -114,9 +117,9 @@ TEST_CASE("Node construction") {
 TEST_CASE("Node ref") {
     auto gen = make_generator();
 
-    distrib::constant::value_t two = {2.};
-    distrib::exponential::value_t alpha;
-    auto alpha_param = distrib::exponential::make_params(two.value);
+    double two = 2.;
+    exponential::value_t alpha;
+    auto alpha_param = exponential::make_params(two);
     auto alpha_ref = make_probnode_ref(alpha, alpha_param);
 
     check_mean(alpha.value, [&]() { draw(alpha_ref, gen); }, 0.5);
@@ -125,10 +128,10 @@ TEST_CASE("Node ref") {
 TEST_CASE("Poisson/gamma simple model: draw values") {
     auto gen = make_generator();
 
-    auto k = distrib::exponential::make_node(0.5);
-    auto theta = distrib::exponential::make_node(0.5);
-    auto lambda = distrib::gamma::make_node(k.value.value, theta.value.value);
-    auto counts = distrib::poisson::make_node(lambda.value.value);
+    auto k = exponential::make_node(0.5);
+    auto theta = exponential::make_node(0.5);
+    auto lambda = gamma::make_node(k.value.value, theta.value.value);
+    auto counts = poisson::make_node(lambda.value.value);
 
     check_mean(counts.value.value,
                [&]() {
@@ -143,24 +146,24 @@ TEST_CASE("Poisson/gamma simple model: draw values") {
 TEST_CASE("Very simple manual MCMC") {
     auto gen = make_generator();
 
-    auto param = distrib::exponential::make_node(1);
+    auto param = exponential::make_node(1);
     draw(param, gen);
-    auto array = make_probnode_array(
-        10, [&param](int) { return distrib::poisson::make_node(param.value.value); });
+    auto array =
+        make_probnode_array(10, [&param](int) { return poisson::make_node(param.value.value); });
     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
     vector<double> trace;
     for (int i = 0; i < 10000; i++) {
         for (int rep = 0; rep < 10; rep++) {
             auto param_backup = param;
-            double logprob_before = distrib::exponential::logprob(param.value.value, 1);
+            double logprob_before = exponential::logprob(param.value.value, 1);
             for (auto pnode : array) {
-                logprob_before += distrib::poisson::logprob(pnode.value.value, param.value.value);
+                logprob_before += poisson::logprob(pnode.value.value, param.value.value);
             }
             double log_hastings = scale(param.value.value, gen);
-            double logprob_after = distrib::exponential::logprob(param.value.value, 1);
+            double logprob_after = exponential::logprob(param.value.value, 1);
             for (auto pnode : array) {
-                logprob_after += distrib::poisson::logprob(pnode.value.value, param.value.value);
+                logprob_after += poisson::logprob(pnode.value.value, param.value.value);
             }
             double acceptance = logprob_after - logprob_before + log_hastings;
             bool accept = draw_uniform(gen) < exp(acceptance);
@@ -178,32 +181,64 @@ TEST_CASE("Very simple manual MCMC") {
 TEST_CASE("Very simple manual MCMC with partial log probs") {
     auto gen = make_generator();
 
-    auto param = distrib::exponential::make_node(1);
+    auto param = exponential::make_node(1);
     draw(param, gen);
-    auto array = make_probnode_array(
-        10, [&param](int) { return distrib::poisson::make_node(param.value.value); });
+    auto array =
+        make_probnode_array(10, [&param](int) { return poisson::make_node(param.value.value); });
     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
     vector<double> trace;
     for (int i = 0; i < 10000; i++) {
         for (int rep = 0; rep < 10; rep++) {
             auto param_backup = param;
-            double logprob_before =
-                distrib::exponential::partial_logprob_value(param.value.value, 1);
+            double logprob_before = exponential::partial_logprob_value(param.value.value, 1);
             for (auto pnode : array) {
                 logprob_before +=
-                    distrib::poisson::partial_logprob_param1(pnode.value.value, param.value.value);
+                    poisson::partial_logprob_param1(pnode.value.value, param.value.value);
             }
             double log_hastings = scale(param.value.value, gen);
-            double logprob_after =
-                distrib::exponential::partial_logprob_value(param.value.value, 1);
+            double logprob_after = exponential::partial_logprob_value(param.value.value, 1);
             for (auto pnode : array) {
                 logprob_after +=
-                    distrib::poisson::partial_logprob_param1(pnode.value.value, param.value.value);
+                    poisson::partial_logprob_param1(pnode.value.value, param.value.value);
             }
             double acceptance = logprob_after - logprob_before + log_hastings;
             bool accept = draw_uniform(gen) < exp(acceptance);
             if (!accept) { param.value.value = param_backup.value.value; }
+        }
+        trace.push_back(param.value.value);
+    }
+    double sum_trace = 0;
+    for (auto e : trace) { sum_trace += e; }
+    double sum_mean = sum_trace / 10000;
+    CHECK(1.8 < sum_mean);  // should be somewhere close to 2.0 but biaised down due to prior
+    CHECK(sum_mean < 2.1);
+}
+
+TEST_CASE("Better manual MCMC") {
+    auto gen = make_generator();
+
+    auto param = exponential::make_node(1);
+    draw(param, gen);
+    auto array =
+        make_probnode_array(10, [&param](int) { return poisson::make_node(param.value.value); });
+    clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
+
+    vector<double> trace;
+    for (int i = 0; i < 10000; i++) {
+        for (int rep = 0; rep < 10; rep++) {
+            auto param_backup = make_value_backup(param);
+            double logprob_before = exponential::logprob(param.value.value, 1);
+            for (auto pnode : array) {
+                logprob_before += poisson::logprob(pnode.value.value, param.value.value);
+            }
+            double log_hastings = scale(param.value.value, gen);
+            double logprob_after = exponential::logprob(param.value.value, 1);
+            for (auto pnode : array) {
+                logprob_after += poisson::logprob(pnode.value.value, param.value.value);
+            }
+            bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
+            if (!accept) { restore_from_backup(param, param_backup); }
         }
         trace.push_back(param.value.value);
     }
