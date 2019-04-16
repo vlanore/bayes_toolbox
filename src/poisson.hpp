@@ -47,7 +47,7 @@ struct poisson : Distrib {
 
     template <typename Rate>
     static auto make_params(Rate&& rate) {
-        return make_templated_struct<Param>(ParamFactory<double>::make(std::forward<Rate>(rate)));
+        return make_templated_struct<Param>(ParamFactory<double>::make(forward<Rate>(rate)));
     }
 
     template <typename Gen>
@@ -58,7 +58,7 @@ struct poisson : Distrib {
 
     template <typename Rate>
     static auto make_node(Rate&& rate) {
-        return make_templated_struct<ProbNode>(value_t{0}, make_params(std::forward<Rate>(rate)));
+        return make_templated_struct<ProbNode>(value_t{0}, make_params(forward<Rate>(rate)));
     }
 
     static double logprob(int x, double lambda) {

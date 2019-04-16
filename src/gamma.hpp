@@ -46,14 +46,14 @@ struct gamma : Distrib {
 
     template <typename Shape, typename Scale>
     static auto make_params(Shape&& shape, Scale&& scale) {
-        return make_templated_struct<Param>(ParamFactory<double>::make(std::forward<Shape>(shape)),
-                                            ParamFactory<double>::make(std::forward<Scale>(scale)));
+        return make_templated_struct<Param>(ParamFactory<double>::make(forward<Shape>(shape)),
+                                            ParamFactory<double>::make(forward<Scale>(scale)));
     }
 
     template <typename Shape, typename Scale>
     static auto make_node(Shape&& shape, Scale&& scale) {
         return make_templated_struct<ProbNode>(
-            value_t{0.}, make_params(std::forward<Shape>(shape), std::forward<Scale>(scale)));
+            value_t{0.}, make_params(forward<Shape>(shape), forward<Scale>(scale)));
     }
 
     template <typename Gen>

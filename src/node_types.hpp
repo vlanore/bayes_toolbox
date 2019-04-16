@@ -28,6 +28,7 @@ license and that you accept its terms.*/
 
 #include <vector>
 #include "param_types.hpp"
+using std::forward;
 
 template <typename Value, typename Params>
 struct ProbNode {
@@ -63,7 +64,7 @@ struct ProbNodeArray {
 
 template <typename Distrib, typename... Params>
 auto make_probnode_array(size_t size, Params&&... params) {
-    auto param_struct = Distrib::make_params(std::forward<Params>(params)...);
+    auto param_struct = Distrib::make_params(forward<Params>(params)...);
     ProbNodeArray<typename Distrib::value_t, decltype(param_struct)> result;
     result.values.reserve(size);
     result.params.reserve(size);

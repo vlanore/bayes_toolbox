@@ -26,7 +26,9 @@ license and that you accept its terms.*/
 
 #pragma once
 
+using std::forward;
+
 template <template <typename...> typename Struct, typename... Args>
 auto make_templated_struct(Args&&... args) {
-    return Struct<Args...>{std::forward<Args>(args)...};
+    return Struct<Args...>{forward<Args>(args)...};
 }
