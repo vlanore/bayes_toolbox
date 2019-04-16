@@ -28,7 +28,7 @@ license and that you accept its terms.*/
 
 using std::forward;
 
-template <template <typename...> typename Struct, typename... Args>
+template <template <typename...> class Struct, typename... Args>
 auto make_templated_struct(Args&&... args) {
     return Struct<Args...>{forward<Args>(args)...};
 }
