@@ -45,16 +45,12 @@ struct exponential : Distrib {
 
     template <typename Rate>
     static auto make_params(Rate&& rate) {
-        Param<decltype(ParamFactory<double>::make(std::forward<Rate>(rate)))> result = {
-            ParamFactory<double>::make(std::forward<Rate>(rate))};
-        return result;
+        return make_templated_struct<Param>(ParamFactory<double>::make(std::forward<Rate>(rate)));
     }
 
     template <typename Rate>
     static auto make_node(Rate&& rate) {
-        ProbNode<exponential::value_t, decltype(exponential::make_params(std::forward<Rate>(rate)))>
-            result = {{0.}, exponential::make_params(std::forward<Rate>(rate))};
-        return result;
+        return make_templated_struct<ProbNode>(value_t{0}, make_params(std::forward<Rate>(rate)));
     }
 
     template <typename Gen>

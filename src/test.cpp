@@ -260,7 +260,7 @@ TEST_CASE("Sum and mean functions") {
 TEST_CASE("Better manual MCMC with suffstats") {
     auto gen = make_generator();
 
-    auto param = exponential::make_node(1);
+    auto param = gamma::make_node(1, 1);
     draw(param, gen);
     auto array = make_probnode_array<poisson>(20, param.value.value);
     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);

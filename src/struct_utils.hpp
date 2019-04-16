@@ -26,14 +26,7 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include <cmath>
-#include <type_traits>
-#include "math_utils.hpp"
-#include "param_types.hpp"
-#include "random.hpp"
-#include "struct_utils.hpp"
-
-struct Distrib {};  // tag
-
-template <class Type>
-using is_distrib = std::integral_constant<bool, std::is_base_of<Type, Distrib>::value>;
+template <template <typename...> typename Struct, typename... Args>
+auto make_templated_struct(Args&&... args) {
+    return Struct<Args...>{std::forward<Args>(args)...};
+}
