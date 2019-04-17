@@ -284,3 +284,27 @@ TEST_CASE("Better manual MCMC with suffstats") {
     CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
     CHECK(mean_trace < 2);
 }
+
+struct poisson_gamma {
+    template <class Lambda, class K>
+    struct model_t {
+        Lambda lambda;
+        K k = poisson::make_node(lambda.value.value);
+        template <class... Params>
+        model_t(Params&&... params) : lambda(gamma::make_node(forward<Params>(params)...)) {}
+    };
+
+    // template <class LambdaArg, class KArg>
+    // auto make_model(LambdaArg&& larg, KArg&& karg) {
+
+    //     auto init_lambda = [](auto k, auto theta){ return ; };
+
+    // }
+};
+
+TEST_CASE("Trying to figure out a good 'model' paradigm") {
+    using dfunc = decltype(ParamFactory<double>::make(2));
+    using LT = ProbNode<gamma::value_t, gamma::Param<dfunc, dfunc>>;
+    using KT = ProbNode<poisson::value_t, poisson::Param<DRef>>;
+    poisson_gamma::model_t<LT, KT> model(1, 2);
+}
