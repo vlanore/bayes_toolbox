@@ -310,6 +310,10 @@ TEST_CASE("Automatic model arg deduction") {
     SUBCASE("Constant params") {
         auto model = poisson_gamma::make_model(1, 2);
 
+        using ptype = decltype(model.lambda.params);
+        using dfunc = decltype(ParamFactory<double>::make(1.0));
+        CHECK(std::is_same<ptype, gamma::Param<dfunc, dfunc>>::value);
+
         check_mean(model.lambda.value.value, [&]() { draw(model.lambda, gen); }, 2.0);
         check_mean(model.k.value.value,
                    [&]() {
@@ -324,6 +328,9 @@ TEST_CASE("Automatic model arg deduction") {
         auto model = poisson_gamma::make_model(p1, p2);
         p1 = 1.0;
         p2 = 2.0;
+
+        using ptype = decltype(model.lambda.params);
+        CHECK(std::is_same<ptype, gamma::Param<DRef, DRef>>::value);
 
         check_mean(model.lambda.value.value, [&]() { draw(model.lambda, gen); }, 2.0);
         check_mean(model.k.value.value,
