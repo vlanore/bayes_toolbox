@@ -285,20 +285,23 @@ TEST_CASE("Better manual MCMC with suffstats") {
     CHECK(mean_trace < 2);
 }
 
+#define AUTO_PARAM(name, init) decltype((init)) name = (init);
+#define AUTO_DPARAM(name, init) decltype((init)) name;
+#define CARG(type) std::declval<type>()
+#define FORW(value) std::forward<decltype((value))>((value))
+
 struct poisson_gamma {
     template <class P1, class P2>
     struct model_t {
-        decltype(gamma::make_node(std::declval<P1>(), std::declval<P2>())) lambda;
-        decltype(poisson::make_node(lambda.value.value)) k;
+        AUTO_DPARAM(lambda, gamma::make_node(CARG(P1), CARG(P2)));
+        AUTO_PARAM(k, poisson::make_node(lambda.value.value));
 
-        model_t(P1&& p1, P2&& p2)
-            : lambda(gamma::make_node(forward<P1>(p1), forward<P2>(p2))),
-              k(poisson::make_node(lambda.value.value)) {}
+        model_t(P1&& p1, P2&& p2) : lambda(gamma::make_node(FORW(p1), FORW(p2))) {}
     };
 
     template <class P1, class P2>
     static auto make_model(P1&& p1, P2&& p2) {
-        return make_templated_struct<model_t>(forward<P1>(p1), forward<P2>(p2));
+        return make_templated_struct<model_t>(FORW(p1), FORW(p2));
     }
 };
 
