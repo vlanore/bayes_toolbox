@@ -307,13 +307,30 @@ TEST_CASE("Automatic model arg deduction") {
     // using LT = ProbNode<gamma::value_t, gamma::Param<dfunc, dfunc>>;
     // using KT = ProbNode<poisson::value_t, poisson::Param<DRef>>;
     auto gen = make_generator();
-    auto model = poisson_gamma::make_model(1, 2);
+    SUBCASE("Constant params") {
+        auto model = poisson_gamma::make_model(1, 2);
 
-    check_mean(model.lambda.value.value, [&]() { draw(model.lambda, gen); }, 2.0);
-    check_mean(model.k.value.value,
-               [&]() {
-                   draw(model.lambda, gen);
-                   draw(model.k, gen);
-               },
-               2.0);
+        check_mean(model.lambda.value.value, [&]() { draw(model.lambda, gen); }, 2.0);
+        check_mean(model.k.value.value,
+                   [&]() {
+                       draw(model.lambda, gen);
+                       draw(model.k, gen);
+                   },
+                   2.0);
+    }
+    SUBCASE("Reference params") {
+        double p1 = 0.0;
+        double p2 = 0.0;
+        auto model = poisson_gamma::make_model(p1, p2);
+        p1 = 1.0;
+        p2 = 2.0;
+
+        check_mean(model.lambda.value.value, [&]() { draw(model.lambda, gen); }, 2.0);
+        check_mean(model.k.value.value,
+                   [&]() {
+                       draw(model.lambda, gen);
+                       draw(model.k, gen);
+                   },
+                   2.0);
+    }
 }
