@@ -344,3 +344,35 @@ TEST_CASE("Automatic model arg deduction") {
                    2.0);
     }
 }
+
+struct poisson_gamma_2 {
+    struct model_data_t {
+        gamma::value_t lambda;
+        poisson::value_t k;
+    };
+
+    struct model_t {
+        model_data_t data;
+        AUTO_PARAM(lambda, (make_probnode_vref(data.lambda, 1, 2)));
+        AUTO_PARAM(k, (make_probnode_vref(data.k, data.lambda.value)));
+    };
+};
+
+TEST_CASE("Another approach to models (with independent data") {
+    auto gen = make_generator();
+    poisson_gamma_2::model_t model;
+
+    using lptype = decltype(model.lambda.params);
+    using dfunc = decltype(ParamFactory<double>::make(1.0));
+    CHECK(std::is_same<lptype, gamma::Param<dfunc, dfunc>>::value);
+    using kptype = decltype(model.k.params);
+    CHECK(std::is_same<kptype, poisson::Param<DRef>>::value);
+
+    check_mean(model.lambda.value.value, [&]() { draw(model.lambda, gen); }, 2.0);
+    check_mean(model.k.value.value,
+               [&]() {
+                   draw(model.lambda, gen);
+                   draw(model.k, gen);
+               },
+               2.0);
+}

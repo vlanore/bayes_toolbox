@@ -43,9 +43,22 @@ struct ProbNodeRef {
 };
 
 template <typename Value, typename Params>
+struct ProbNodeValueRef {
+    Value& value;
+    Params params;
+};
+
+template <typename Value, typename Params>
 auto make_probnode_ref(Value& value, Params& params) {
     ProbNodeRef<Value, Params> result = {value, params};
     return result;
+}
+
+template <typename Value, typename... ParamsArgs>
+auto make_probnode_vref(Value& value, ParamsArgs&&... args) {
+    using distrib = typename Value::distrib;
+    auto params = distrib::make_params(forward<ParamsArgs>(args)...);
+    return ProbNodeValueRef<Value, decltype(params)>{value, params};
 }
 
 template <typename Constructor>

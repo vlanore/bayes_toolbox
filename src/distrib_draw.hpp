@@ -66,6 +66,11 @@ void draw(ProbNodeRef<Value, Params> noderef, Gen& gen) {
 }
 
 template <typename Value, typename Params, typename Gen>
+void draw(ProbNodeValueRef<Value, Params> noderef, Gen& gen) {
+    draw(noderef.value, noderef.params, gen);
+}
+
+template <typename Value, typename Params, typename Gen>
 void draw(ProbNode<Value, Params>& node, Gen& gen) {
     draw(node.value, node.params, gen);
 }
