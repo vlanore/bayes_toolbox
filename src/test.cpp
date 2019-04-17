@@ -286,25 +286,34 @@ TEST_CASE("Better manual MCMC with suffstats") {
 }
 
 struct poisson_gamma {
-    template <class Lambda, class K>
+    template <class P1, class P2>
     struct model_t {
-        Lambda lambda;
-        K k = poisson::make_node(lambda.value.value);
-        template <class... Params>
-        model_t(Params&&... params) : lambda(gamma::make_node(forward<Params>(params)...)) {}
+        decltype(gamma::make_node(std::declval<P1>(), std::declval<P2>())) lambda;
+        decltype(poisson::make_node(lambda.value.value)) k;
+
+        model_t(P1&& p1, P2&& p2)
+            : lambda(gamma::make_node(forward<P1>(p1), forward<P2>(p2))),
+              k(poisson::make_node(lambda.value.value)) {}
     };
 
-    // template <class LambdaArg, class KArg>
-    // auto make_model(LambdaArg&& larg, KArg&& karg) {
-
-    //     auto init_lambda = [](auto k, auto theta){ return ; };
-
-    // }
+    template <class P1, class P2>
+    static auto make_model(P1&& p1, P2&& p2) {
+        return make_templated_struct<model_t>(forward<P1>(p1), forward<P2>(p2));
+    }
 };
 
-TEST_CASE("Trying to figure out a good 'model' paradigm") {
-    using dfunc = decltype(ParamFactory<double>::make(2));
-    using LT = ProbNode<gamma::value_t, gamma::Param<dfunc, dfunc>>;
-    using KT = ProbNode<poisson::value_t, poisson::Param<DRef>>;
-    poisson_gamma::model_t<LT, KT> model(1, 2);
+TEST_CASE("Automatic model arg deduction") {
+    // using dfunc = decltype(ParamFactory<double>::make(2));
+    // using LT = ProbNode<gamma::value_t, gamma::Param<dfunc, dfunc>>;
+    // using KT = ProbNode<poisson::value_t, poisson::Param<DRef>>;
+    auto gen = make_generator();
+    auto model = poisson_gamma::make_model(1, 2);
+
+    check_mean(model.lambda.value.value, [&]() { draw(model.lambda, gen); }, 2.0);
+    check_mean(model.k.value.value,
+               [&]() {
+                   draw(model.lambda, gen);
+                   draw(model.k, gen);
+               },
+               2.0);
 }
