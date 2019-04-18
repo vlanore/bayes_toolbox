@@ -19,4 +19,6 @@ endif(COVERAGE_MODE)
 include_directories("src")
 include_directories("utils")
 
-add_executable(all_tests "src/test.cpp")
+add_executable(basic_test "src/test.cpp")
+add_executable(model_test "src/model_test.cpp")
+add_executable(experimental_test "src/experimental_test.cpp")
