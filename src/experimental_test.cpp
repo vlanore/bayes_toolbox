@@ -29,24 +29,36 @@ license and that you accept its terms.*/
 
 #include <string>
 #include <tuple>
+using std::get;
+using std::string;
+using std::tuple;
 
 template <class Tag, class Type>
 struct field {};
 
 // tag -> index correspondance
-template <int>
-auto helper() {
-    return std::tuple<>();
-}
+auto helper(std::tuple<>) { return std::tuple<>(); }
 
-template <int index, class Tag, class Type, class... Rest>
-auto helper(field<Tag, Type>, Rest... rest) {
-    return std::tuple_cat(std::make_tuple(Tag()), helper<index + 1>(rest...));
+template <class Tag, class Type, class... Rest>
+auto helper(tuple<field<Tag, Type>, Rest...>) {
+    return std::tuple_cat(std::make_tuple(Tag()), helper(tuple<Rest...>()));
 }
 
 template <class... Fields>
-auto make_named_tuple_type(Fields... fields) {
-    return helper<0>(fields...);
+auto get_tags(tuple<Fields...> fields) {
+    return helper(fields);
+}
+
+auto tuple_helper(std::tuple<>) { return std::tuple<>(); }
+
+template <class Tag, class Type, class... Rest>
+auto tuple_helper(tuple<field<Tag, Type>, Rest...>) {
+    return std::tuple_cat(std::make_tuple(Type()), tuple_helper(tuple<Rest...>()));
+}
+
+template <class... Fields>
+auto get_tuple(tuple<Fields...> fields) {
+    return tuple_helper(fields);
 }
 
 // INDEXES
@@ -70,15 +82,50 @@ constexpr auto get_index(std::tuple<Tags...> tags) {
     return result::value;
 }
 
+template <class Tags, class Tuple>
+struct tagged_tuple {
+    Tuple data;
+};
+
+template <class Fields>
+auto make_tagged_tuple_type() {
+    using tags = decltype(get_tags(Fields()));
+    using data = decltype(get_tuple(Fields()));
+    return tagged_tuple<tags, data>();
+}
+
+template <class Tag, class Tags, class Tuple>
+auto get(tagged_tuple<Tags, Tuple> ttuple) {
+    return get<get_index<Tag>(Tags())>(ttuple.data);
+}
+
 TEST_CASE("Basic tuple test") {
     struct alpha {};
     struct beta {};
     struct gamma {};
 
+    using my_fields = std::tuple<field<alpha, int>, field<beta, std::string>>;
+    using my_tags = decltype(get_tags(my_fields()));
+    using my_tuple_t = decltype(get_tuple(my_fields()));
+
+    my_tuple_t my_tuple = {2, "hello"};
+
     using tlist = std::tuple<alpha, beta>;
+    bool ok_tags = std::is_same<my_tags, tlist>::value;
+    CHECK(ok_tags);
     CHECK(get_index<alpha>(tlist()) == 0);
     CHECK(get_index<beta>(tlist()) == 1);
     // CHECK(get_index<gamma>(tlist()) == -1); // triggers static assert
 
-    // auto t = make_named_tuple_type(field<alpha, int>(), field<beta, std::string>());
+    auto a = get<get_index<beta>(tlist())>(my_tuple);
+    CHECK(a == "hello");
+    auto b = get<get_index<alpha>(tlist())>(my_tuple);
+    CHECK(b == 2);
+
+    using hello_t = decltype(make_tagged_tuple_type<my_fields>());
+    hello_t my_other_struct = {{3, "hi"}};
+    auto c = get<alpha>(my_other_struct);
+    auto d = get<beta>(my_other_struct);
+    CHECK(c == 3);
+    CHECK(d == "hi");
 }
