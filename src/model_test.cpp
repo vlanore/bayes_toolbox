@@ -111,54 +111,54 @@ TEST_CASE("Automatic model arg deduction") {
     }
 }
 
-struct poisson_gamma_2 {
-    struct model_data_t {
-        gamma::value_t lambda;
-        poisson::value_t k;
-    };
+// struct poisson_gamma_2 {
+//     struct model_data_t {
+//         gamma::value_t lambda;
+//         poisson::value_t k;
+//     };
 
-    template <class P1, class P2>
-    struct params_t {
-        P1 p1;
-        P2 p2;
-    };
+//     template <class P1, class P2>
+//     struct params_t {
+//         P1 p1;
+//         P2 p2;
+//     };
 
-    template <class P1, class P2>
-    static auto make_params(P1&& p1, P2&& p2) {
-        return make_templated_struct<params_t>(ParamFactory<double>::make(forward<P1>(p1)),
-                                               ParamFactory<double>::make(forward<P2>(p2)));
-    }
+//     template <class P1, class P2>
+//     static auto make_params(P1&& p1, P2&& p2) {
+//         return make_templated_struct<params_t>(ParamFactory<double>::make(forward<P1>(p1)),
+//                                                ParamFactory<double>::make(forward<P2>(p2)));
+//     }
 
-    template <class Params>
-    struct model_t {
-        Params params;
-        model_data_t data;
-        AUTO_PARAM(lambda, (make_probnode_vref(data.lambda, params.p1, params.p2)));
-        AUTO_PARAM(k, (make_probnode_vref(data.k, data.lambda.value)));
-    };
+//     template <class Params>
+//     struct model_t {
+//         Params params;
+//         model_data_t data;
+//         AUTO_PARAM(lambda, (make_probnode_vref(data.lambda, params.p1, params.p2)));
+//         AUTO_PARAM(k, (make_probnode_vref(data.k, data.lambda.value)));
+//     };
 
-    template <class... ParamArgs>
-    static auto make_model(ParamArgs&&... args) {
-        auto params = make_params(forward<ParamArgs>(args)...);
-        return model_t<decltype(params)>{.params = params};
-    }
-};
+//     template <class... ParamArgs>
+//     static auto make_model(ParamArgs&&... args) {
+//         auto params = make_params(forward<ParamArgs>(args)...);
+//         return model_t<decltype(params)>{.params = params};
+//     }
+// };
 
-TEST_CASE("Another approach to models (with independent data") {
-    auto gen = make_generator();
-    auto model = poisson_gamma_2::make_model(1, 2);
+// TEST_CASE("Another approach to models (with independent data") {
+//     auto gen = make_generator();
+//     auto model = poisson_gamma_2::make_model(1, 2);
 
-    // using lptype = decltype(model.lambda.params);
-    // using dfunc = decltype(ParamFactory<double>::make(1.0));
-    // CHECK(std::is_same<lptype, gamma::Param<dfunc, dfunc>>::value);
-    // using kptype = decltype(model.k.params);
-    // CHECK(std::is_same<kptype, poisson::Param<DRef>>::value);
+//     // using lptype = decltype(model.lambda.params);
+//     // using dfunc = decltype(ParamFactory<double>::make(1.0));
+//     // CHECK(std::is_same<lptype, gamma::Param<dfunc, dfunc>>::value);
+//     // using kptype = decltype(model.k.params);
+//     // CHECK(std::is_same<kptype, poisson::Param<DRef>>::value);
 
-    check_mean(model.lambda.value.value, [&]() { draw(model.lambda, gen); }, 2.0);
-    check_mean(model.k.value.value,
-               [&]() {
-                   draw(model.lambda, gen);
-                   draw(model.k, gen);
-               },
-               2.0);
-}
+//     check_mean(model.lambda.value.value, [&]() { draw(model.lambda, gen); }, 2.0);
+//     check_mean(model.k.value.value,
+//                [&]() {
+//                    draw(model.lambda, gen);
+//                    draw(model.k, gen);
+//                },
+//                2.0);
+// }
