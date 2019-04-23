@@ -85,6 +85,8 @@ constexpr auto get_index(std::tuple<Tags...> tags) {
 template <class Tags, class Tuple>
 struct tagged_tuple {
     Tuple data;
+    template <class... Args>
+    tagged_tuple(Args&&... args) : data(std::forward<Args>(args)...) {}
 };
 
 template <class Fields>
@@ -98,7 +100,7 @@ template <class Fields>
 using ttuple = decltype(make_tagged_tuple_type<Fields>());
 
 template <class Tag, class Tags, class Tuple>
-auto get(tagged_tuple<Tags, Tuple> ttuple) {
+auto get(const tagged_tuple<Tags, Tuple>& ttuple) {
     return get<get_index<Tag>(Tags())>(ttuple.data);
 }
 
@@ -126,9 +128,7 @@ TEST_CASE("Basic tuple test") {
     CHECK(b == 2);
 
     using hello_t = ttuple<my_fields>;
-    hello_t my_other_struct{{3, "hi"}};
-    auto c = get<alpha>(my_other_struct);
-    auto d = get<beta>(my_other_struct);
-    CHECK(c == 3);
-    CHECK(d == "hi");
+    hello_t my_other_struct{3, "hi"};
+    CHECK(get<alpha>(my_other_struct) == 3);
+    CHECK(get<beta>(my_other_struct) == "hi");
 }
