@@ -144,7 +144,7 @@ TEST_CASE("Basic tuple test") {
     SUBCASE("Multiple levels") {
         using sttuple_t = ttuple<std::tuple<field<alpha, int>>>;
         using cttuple_t = ttuple<std::tuple<field<beta, sttuple_t>>>;
-        cttuple_t my_tuple{7};
+        cttuple_t my_tuple{sttuple_t{7}};
         CHECK(get<beta, alpha>(my_tuple) == 7);
     }
 }
