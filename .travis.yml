@@ -7,6 +7,7 @@ matrix:
     compiler: clang
     env:
       - COMPILER=clang++
+      - TRAVIS_CXX_FLAGS=-stdlib=libc++
     script:
       - make debug && make test
 
