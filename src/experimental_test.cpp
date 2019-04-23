@@ -94,6 +94,9 @@ auto make_tagged_tuple_type() {
     return tagged_tuple<tags, data>();
 }
 
+template <class Fields>
+using ttuple = decltype(make_tagged_tuple_type<Fields>());
+
 template <class Tag, class Tags, class Tuple>
 auto get(tagged_tuple<Tags, Tuple> ttuple) {
     return get<get_index<Tag>(Tags())>(ttuple.data);
@@ -122,7 +125,7 @@ TEST_CASE("Basic tuple test") {
     auto b = get<get_index<alpha>(tlist())>(my_tuple);
     CHECK(b == 2);
 
-    using hello_t = decltype(make_tagged_tuple_type<my_fields>());
+    using hello_t = ttuple<my_fields>;
     hello_t my_other_struct{{3, "hi"}};
     auto c = get<alpha>(my_other_struct);
     auto d = get<beta>(my_other_struct);
