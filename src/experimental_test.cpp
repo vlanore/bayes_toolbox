@@ -100,9 +100,14 @@ namespace ttuple_helper {  // tag -> index correspondance
 template <class Fields>
 using ttuple = decltype(ttuple_helper::make_tagged_tuple_type<Fields>());
 
-template <class Tag, class Tags, class Tuple>
+template <class AddressFirst, class Tags, class Tuple>
 auto get(const ttuple_helper::tagged_tuple<Tags, Tuple>& ttuple) {
-    return get<ttuple_helper::get_index<Tag>(Tags())>(ttuple.data);
+    return get<ttuple_helper::get_index<AddressFirst>(Tags())>(ttuple.data);
+}
+
+template <class AddressFirst, class... AddressRest, class TTuple>
+auto get(const TTuple& ttuple) {
+    return get<AddressRest...>(get<AddressFirst>(ttuple));
 }
 
 TEST_CASE("Basic tuple test") {
@@ -111,7 +116,7 @@ TEST_CASE("Basic tuple test") {
     struct gamma {};
 
     using my_fields = std::tuple<field<alpha, int>, field<beta, std::string>>;
-    {
+    SUBCASE("Manual tests of under-the-hood things") {
         using namespace ttuple_helper;
         using my_tags = decltype(get_tags(my_fields()));
         using my_tuple_t = decltype(get_tuple(my_fields()));
@@ -130,9 +135,16 @@ TEST_CASE("Basic tuple test") {
         auto b = get<get_index<alpha>(tlist())>(my_tuple);
         CHECK(b == 2);
     }
-
-    using hello_t = ttuple<my_fields>;
-    hello_t my_other_struct{3, "hi"};
-    CHECK(get<alpha>(my_other_struct) == 3);
-    CHECK(get<beta>(my_other_struct) == "hi");
+    SUBCASE("Using user-level interface") {
+        using hello_t = ttuple<my_fields>;
+        hello_t my_other_struct{3, "hi"};
+        CHECK(get<alpha>(my_other_struct) == 3);
+        CHECK(get<beta>(my_other_struct) == "hi");
+    }
+    SUBCASE("Multiple levels") {
+        using sttuple_t = ttuple<std::tuple<field<alpha, int>>>;
+        using cttuple_t = ttuple<std::tuple<field<beta, sttuple_t>>>;
+        cttuple_t my_tuple{7};
+        CHECK(get<beta, alpha>(my_tuple) == 7);
+    }
 }
