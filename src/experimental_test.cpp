@@ -36,6 +36,15 @@ using std::tuple;
 template <class Tag, class Type>
 struct field {};
 
+template <class Tags, class Tuple>
+struct tagged_tuple {
+    Tuple data;
+    template <class... Args>
+    tagged_tuple(Args&&... args) : data(std::forward<Args>(args)...) {}
+    tagged_tuple(const tagged_tuple<Tags, Tuple>&) = default;
+    tagged_tuple(tagged_tuple<Tags, Tuple>&&) = default;
+};
+
 namespace ttuple_helper {  // tag -> index correspondance
     auto helper(std::tuple<>) { return std::tuple<>(); }
 
@@ -82,13 +91,6 @@ namespace ttuple_helper {  // tag -> index correspondance
         return result::value;
     }
 
-    template <class Tags, class Tuple>
-    struct tagged_tuple {
-        Tuple data;
-        template <class... Args>
-        tagged_tuple(Args&&... args) : data(std::forward<Args>(args)...) {}
-    };
-
     template <class Fields>
     auto make_tagged_tuple_type() {
         using tags = decltype(get_tags(Fields()));
@@ -101,7 +103,7 @@ template <class Fields>
 using ttuple = decltype(ttuple_helper::make_tagged_tuple_type<Fields>());
 
 template <class AddressFirst, class Tags, class Tuple>
-auto get(const ttuple_helper::tagged_tuple<Tags, Tuple>& ttuple) {
+auto get(const tagged_tuple<Tags, Tuple>& ttuple) {
     return get<ttuple_helper::get_index<AddressFirst>(Tags())>(ttuple.data);
 }
 
@@ -110,11 +112,11 @@ auto get(const TTuple& ttuple) {
     return get<AddressRest...>(get<AddressFirst>(ttuple));
 }
 
-TEST_CASE("Basic tuple test") {
-    struct alpha {};
-    struct beta {};
-    struct gamma {};
+struct alpha {};
+struct beta {};
+struct gamma {};
 
+TEST_CASE("Basic tuple test") {
     using my_fields = std::tuple<field<alpha, int>, field<beta, std::string>>;
     SUBCASE("Manual tests of under-the-hood things") {
         using namespace ttuple_helper;
@@ -141,10 +143,11 @@ TEST_CASE("Basic tuple test") {
         CHECK(get<alpha>(my_other_struct) == 3);
         CHECK(get<beta>(my_other_struct) == "hi");
     }
-    SUBCASE("Multiple levels") {
-        using sttuple_t = ttuple<std::tuple<field<alpha, int>>>;
-        using cttuple_t = ttuple<std::tuple<field<beta, sttuple_t>>>;
-        cttuple_t my_tuple{sttuple_t{7}};
-        CHECK(get<beta, alpha>(my_tuple) == 7);
-    }
+}
+
+TEST_CASE("Multiple levels") {
+    using sttuple_t = ttuple<std::tuple<field<alpha, int>>>;
+    using cttuple_t = ttuple<std::tuple<field<beta, sttuple_t>>>;
+    cttuple_t my_tuple{sttuple_t{7}};
+    CHECK(get<beta, alpha>(my_tuple) == 7);
 }
