@@ -108,7 +108,7 @@ TEST_CASE("Basic tuple test") {
     using my_tags = decltype(get_tags(my_fields()));
     using my_tuple_t = decltype(get_tuple(my_fields()));
 
-    my_tuple_t my_tuple = {2, "hello"};
+    my_tuple_t my_tuple{2, "hello"};
 
     using tlist = std::tuple<alpha, beta>;
     bool ok_tags = std::is_same<my_tags, tlist>::value;
@@ -123,7 +123,7 @@ TEST_CASE("Basic tuple test") {
     CHECK(b == 2);
 
     using hello_t = decltype(make_tagged_tuple_type<my_fields>());
-    hello_t my_other_struct = {{3, "hi"}};
+    hello_t my_other_struct{{3, "hi"}};
     auto c = get<alpha>(my_other_struct);
     auto d = get<beta>(my_other_struct);
     CHECK(c == 3);
