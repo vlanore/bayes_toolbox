@@ -104,21 +104,21 @@ TEST_CASE("Node construction") {
     auto gen = make_generator();
     SUBCASE("exponential") {
         auto alpha = exponential::make_node(4);
-        check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 0.25);
+        check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 0.25, 2.0);
     }
     SUBCASE("gamma") {
         auto alpha = gamma::make_node(2, 3);
-        check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 6.0);
+        check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 6.0, 2.0);
     }
     SUBCASE("poisson") {
         auto alpha = poisson::make_node(3);
-        check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 3.0);
+        check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 3.0, 2.0);
     }
     SUBCASE("exponential with ref") {
         double my_param = 17;
         auto alpha = exponential::make_node(my_param);
         my_param = 4;
-        check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 0.25);
+        check_mean(alpha.value.value, [&]() { draw(alpha, gen); }, 0.25, 2.0);
     }
 }
 
