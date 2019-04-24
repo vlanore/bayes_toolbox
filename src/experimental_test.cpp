@@ -43,6 +43,7 @@ struct Node {
 
 struct alpha {};
 struct beta {};
+struct gamma {};
 
 class MyModel {  // model with tag-addressable fields
     Node alpha{nullptr};
@@ -74,26 +75,29 @@ struct TypeMap {
         return TypeMap<Decls..., TypePair<Key, Type>>();
     }
 
-    template <class Tag>
+    template <class Key>
     static auto helper(tuple<>) {
         return NotFound();
     }
 
-    template <class Tag, class Key, class Value, class... DeclRest>
+    template <class RequestedKey, class Key, class Value, class... DeclRest>
     static auto helper(tuple<TypePair<Key, Value>, DeclRest...>) {
         using if_equal = Value;
-        using if_not_equal = decltype(helper<Tag>(tuple<DeclRest...>()));
-        constexpr bool equality = std::is_same<Tag, Key>::value;
+        using if_not_equal = decltype(helper<RequestedKey>(tuple<DeclRest...>()));
+        constexpr bool equality = std::is_same<RequestedKey, Key>::value;
         return std::conditional_t<equality, if_equal, if_not_equal>();
     }
 
-    template <class Tag>
+    template <class Key>
     static auto get() {
-        return helper<Tag>(tuple<Decls...>());
+        return helper<Key>(tuple<Decls...>());
     }
 
-    template <class Tag>
-    using get_t = decltype(get<Tag>());
+    template <class Key>
+    using get_t = decltype(get<Key>());
+
+    template <class Key, class Type>
+    using add_t = decltype(add<Key, Type>());
 };
 
 // template <class Tag, class Type, class Model, class... Args>
