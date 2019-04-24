@@ -28,8 +28,10 @@ license and that you accept its terms.*/
 #include "doctest.h"
 
 #include <memory>
+#include <tuple>
 using std::unique_ptr;
 using std::make_unique;
+using std::tuple;
 
 struct AbstractNode {
     virtual ~AbstractNode() = default;
@@ -42,7 +44,7 @@ struct Node {
 struct alpha {};
 struct beta {};
 
-class MyModel {
+class MyModel {  // model with tag-addressable fields
     Node alpha{nullptr};
     Node beta{nullptr};
     Node& get(::alpha) { return alpha; }
@@ -55,13 +57,66 @@ class MyModel {
     }
 };
 
-struct MyNode : AbstractNode {
+struct MyNode : AbstractNode {  // concrete node implem
     int i{0};
     MyNode(int i) : i(i) {}
 };
 
+template <class Tag, class Type>
+struct TypePair {};
+
+struct NotFound {};
+
+template <class... Decls>
+struct TypeMap {
+    template <class Key, class Type>
+    static auto add() {
+        return TypeMap<Decls..., TypePair<Key, Type>>();
+    }
+
+    template <class Tag>
+    static auto helper(tuple<>) {
+        return NotFound();
+    }
+
+    template <class Tag, class Key, class Value, class... DeclRest>
+    static auto helper(tuple<TypePair<Key, Value>, DeclRest...>) {
+        using if_equal = Value;
+        using if_not_equal = decltype(helper<Tag>(tuple<DeclRest...>()));
+        constexpr bool equality = std::is_same<Tag, Key>::value;
+        return std::conditional_t<equality, if_equal, if_not_equal>();
+    }
+
+    template <class Tag>
+    static auto get() {
+        return helper<Tag>(tuple<Decls...>());
+    }
+
+    template <class Tag>
+    using get_t = decltype(get<Tag>());
+};
+
+// template <class Tag, class Type, class Model, class... Args>
+// auto set_node(Model& model, Args&&... args) {
+//     model.get<Tag>().ptr = make_unique<Type>(std::forward<Args>(args)...);
+//     return TypeDecl<Tag, Type>();
+// }
+
+TEST_CASE("Type map") {
+    using my_map = TypeMap<TypePair<alpha, int>, TypePair<beta, double>>;
+    using alpha_t = typename my_map::get_t<alpha>;
+    using beta_t = typename my_map::get_t<beta>;
+
+    CHECK((std::is_same<alpha_t, int>::value));
+    CHECK((std::is_same<beta_t, double>::value));
+}
+
 TEST_CASE("Hello world") {
     MyModel model;
+    // auto info = set_node<alpha, MyNode>(model, 1);
+    // auto info2 = set_node<beta, MyNode>(model, 2);
+    // using tinfo = TypeInfo<decltype(info), decltype(info2)>;
+
     model.get<alpha>().ptr = make_unique<MyNode>(1);
     model.get<beta>().ptr = make_unique<MyNode>(2);
     auto& a_ref = dynamic_cast<MyNode&>(*model.get<alpha>().ptr);
