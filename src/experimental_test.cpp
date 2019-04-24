@@ -27,4 +27,45 @@ license and that you accept its terms.*/
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-TEST_CASE("Hello world") {}
+#include <memory>
+using std::unique_ptr;
+using std::make_unique;
+
+struct AbstractNode {
+    virtual ~AbstractNode() = default;
+};
+
+struct Node {
+    unique_ptr<AbstractNode> ptr;
+};
+
+struct alpha {};
+struct beta {};
+
+class MyModel {
+    Node alpha{nullptr};
+    Node beta{nullptr};
+    Node& get(::alpha) { return alpha; }
+    Node& get(::beta) { return beta; }
+
+  public:
+    template <class Tag>
+    Node& get() {
+        return get(Tag());
+    }
+};
+
+struct MyNode : AbstractNode {
+    int i{0};
+    MyNode(int i) : i(i) {}
+};
+
+TEST_CASE("Hello world") {
+    MyModel model;
+    model.get<alpha>().ptr = make_unique<MyNode>(1);
+    model.get<beta>().ptr = make_unique<MyNode>(2);
+    auto& a_ref = dynamic_cast<MyNode&>(*model.get<alpha>().ptr);
+    auto& b_ref = dynamic_cast<MyNode&>(*model.get<beta>().ptr);
+    CHECK(a_ref.i == 1);
+    CHECK(b_ref.i == 2);
+}
