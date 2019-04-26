@@ -48,7 +48,7 @@ struct tagged_tuple {
     tagged_tuple(tagged_tuple<Tags, Tuple>&&) = default;
 };
 
-namespace ttuple_helper {  // tag -> index correspondance
+namespace helper {  // tag -> index correspondance
     auto helper(std::tuple<>) { return std::tuple<>(); }
 
     template <class Tag, class Type, class... Rest>
@@ -100,22 +100,17 @@ namespace ttuple_helper {  // tag -> index correspondance
         using data = decltype(get_tuple(Fields()));
         return tagged_tuple<tags, data>();
     }
-};  // namespace ttuple_helper
+};  // namespace helper
 
 template <class Fields>
-using ttuple = decltype(ttuple_helper::make_tagged_tuple_type<Fields>());
+using ttuple = decltype(helper::make_tagged_tuple_type<Fields>());
 
 template <class AddressFirst, class Tags, class Tuple>
-auto get(const tagged_tuple<Tags, Tuple>& ttuple) {
-    return get<ttuple_helper::get_index<AddressFirst>(Tags())>(ttuple.data);
-}
-
-template <class AddressFirst, class Tags, class Tuple>
-auto& get_ref(const tagged_tuple<Tags, Tuple>& ttuple) {
-    return get<ttuple_helper::get_index<AddressFirst>(Tags())>(ttuple.data);
+auto& get(const tagged_tuple<Tags, Tuple>& ttuple) {
+    return get<helper::get_index<AddressFirst>(Tags())>(ttuple.data);
 }
 
 template <class AddressFirst, class... AddressRest, class TTuple>
-auto get(const TTuple& ttuple) {
+auto& get(const TTuple& ttuple) {
     return get<AddressRest...>(get<AddressFirst>(ttuple));
 }

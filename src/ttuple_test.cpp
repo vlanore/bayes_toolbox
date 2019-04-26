@@ -36,7 +36,7 @@ struct gamma {};
 TEST_CASE("Basic tuple test") {
     using my_fields = std::tuple<field<alpha, int>, field<beta, std::string>>;
     SUBCASE("Manual tests of under-the-hood things") {
-        using namespace ttuple_helper;
+        using namespace helper;
         using my_tags = decltype(get_tags(my_fields()));
         using my_tuple_t = decltype(get_tuple(my_fields()));
 
@@ -65,6 +65,6 @@ TEST_CASE("Basic tuple test") {
 TEST_CASE("Multiple levels") {
     using sttuple_t = ttuple<std::tuple<field<alpha, int>>>;
     using cttuple_t = ttuple<std::tuple<field<beta, sttuple_t>>>;
-    cttuple_t my_tuple;
+    cttuple_t my_tuple(7);
     CHECK(get<beta, alpha>(my_tuple) == 7);
 }

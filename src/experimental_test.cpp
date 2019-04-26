@@ -52,7 +52,7 @@ struct Model {
     TTuple data;
     template <class Tag>
     auto& get() {
-        return *get_ref<Tag>(data);
+        return *::get<Tag>(data);
     }
 };
 
