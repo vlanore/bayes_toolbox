@@ -56,11 +56,21 @@ struct Model {
     }
 };
 
+template <class Tag, class Type>
+struct _node {
+    unique_ptr<Type> ptr;
+};
+
+template <class Tag, class Type>
+auto node(unique_ptr<Type>& ptr) {
+    return _node<Tag, Type>{move(ptr)};
+}
+
 template <class Tag1, class Type1, class Tag2, class Type2>
-auto make_model(Tag1, unique_ptr<Type1>& ptr1, Tag2, unique_ptr<Type2>& ptr2) {
+auto make_model(_node<Tag1, Type1>&& node1, _node<Tag2, Type2>&& node2) {
     using fields = tuple<field<Tag1, unique_ptr<Type1>>, field<Tag2, unique_ptr<Type2>>>;
-    return Model<decltype(ttuple<fields>(move(ptr1), move(ptr2)))>{
-        ttuple<fields>(move(ptr1), move(ptr2))};
+    return Model<decltype(ttuple<fields>(move(node1.ptr), move(node2.ptr)))>{
+        ttuple<fields>(move(node1.ptr), move(node2.ptr))};
 };
 
 struct alpha {};
@@ -70,7 +80,7 @@ struct poisson_gamma {
     static auto make() {
         auto a = IntNode::make(3);
         auto b = RefNode::make(a->i);
-        return make_model(alpha(), a, beta(), b);
+        return make_model(node<alpha>(a), node<beta>(b));
     }
 };
 
