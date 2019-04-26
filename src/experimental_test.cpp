@@ -29,50 +29,18 @@ license and that you accept its terms.*/
 
 #include <memory>
 #include <tuple>
+#include "gamma.hpp"
+#include "poisson.hpp"
+#include "tagged_tuple.hpp"
 using std::make_unique;
 using std::tuple;
 using std::unique_ptr;
 
-struct AbstractNode {
-    virtual ~AbstractNode() = default;
-};
-
-struct Node {
-    unique_ptr<AbstractNode> ptr;
-};
-
-struct alpha {};
-struct beta {};
-struct gamma {};
-
-class MyModel {  // model with tag-addressable fields
-    Node alpha{nullptr};
-    Node beta{nullptr};
-    Node& get(::alpha) { return alpha; }
-    Node& get(::beta) { return beta; }
-
-  public:
-    template <class Tag>
-    Node& get() {
-        return get(Tag());
+struct poisson_gamma {
+    static auto make_model() {
+        auto lambda = gamma::make_node(1, 2);
+        auto k = poisson::make_node(lambda.value.value);
     }
 };
 
-struct MyNode : AbstractNode {  // concrete node implem
-    int i{0};
-    MyNode(int i) : i(i) {}
-};
-
-TEST_CASE("Hello world") {
-    MyModel model;
-    // auto info = set_node<alpha, MyNode>(model, 1);
-    // auto info2 = set_node<beta, MyNode>(model, 2);
-    // using tinfo = TypeInfo<decltype(info), decltype(info2)>;
-
-    model.get<alpha>().ptr = make_unique<MyNode>(1);
-    model.get<beta>().ptr = make_unique<MyNode>(2);
-    auto& a_ref = dynamic_cast<MyNode&>(*model.get<alpha>().ptr);
-    auto& b_ref = dynamic_cast<MyNode&>(*model.get<beta>().ptr);
-    CHECK(a_ref.i == 1);
-    CHECK(b_ref.i == 2);
-}
+TEST_CASE("Hello world") {}

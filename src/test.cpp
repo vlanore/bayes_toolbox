@@ -286,14 +286,14 @@ TEST_CASE("Better manual MCMC with suffstats") {
     CHECK(mean_trace < 2);
 }
 
-struct alpha {};
-struct beta {};
+struct prop1 {};
+struct prop2 {};
 
 TEST_CASE("Type map") {
-    using my_map = TypeMap<TypePair<alpha, int>, TypePair<beta, double>>;
-    using alpha_t = typename my_map::get_t<alpha>;
-    using beta_t = typename my_map::get_t<beta>;
+    using my_map = TypeMap<TypePair<prop1, int>, TypePair<prop2, double>>;
+    using prop1_t = typename my_map::get_t<prop1>;
+    using prop2_t = typename my_map::get_t<prop2>;
 
-    CHECK((std::is_same<alpha_t, int>::value));
-    CHECK((std::is_same<beta_t, double>::value));
+    CHECK((std::is_same<prop1_t, int>::value));
+    CHECK((std::is_same<prop2_t, double>::value));
 }
