@@ -29,18 +29,37 @@ license and that you accept its terms.*/
 
 #include <memory>
 #include <tuple>
-#include "gamma.hpp"
-#include "poisson.hpp"
 #include "tagged_tuple.hpp"
 using std::make_unique;
+using std::move;
 using std::tuple;
 using std::unique_ptr;
 
+struct IntNode {
+    int i{0};
+    IntNode(int i) : i(i) {}
+    static auto make(int value) { return make_unique<IntNode>(value); }
+};
+
+struct RefNode {
+    int& i;
+    RefNode(int& i) : i(i) {}
+    static auto make(int& ref) { return make_unique<RefNode>(ref); }
+};
+
+struct alpha {};
+struct beta {};
+
 struct poisson_gamma {
     static auto make_model() {
-        auto lambda = gamma::make_node(1, 2);
-        auto k = poisson::make_node(lambda.value.value);
+        auto a = IntNode::make(3);
+        auto b = RefNode::make(a->i);
+        return std::make_pair(move(a), move(b));
     }
 };
 
-TEST_CASE("Hello world") {}
+TEST_CASE("Hello world") {
+    auto model = poisson_gamma::make_model();
+    CHECK(model.first->i == 3);
+    CHECK(model.second->i == 3);
+}
