@@ -35,6 +35,7 @@ license and that you accept its terms.*/
 #include "math_utils.hpp"
 #include "mcmc_utils.hpp"
 #include "poisson.hpp"
+#include "type_map.hpp"
 using namespace std;
 
 #define NB_POINTS 10000
@@ -283,4 +284,16 @@ TEST_CASE("Better manual MCMC with suffstats") {
     double mean_trace = mean(trace);
     CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
     CHECK(mean_trace < 2);
+}
+
+struct alpha {};
+struct beta {};
+
+TEST_CASE("Type map") {
+    using my_map = TypeMap<TypePair<alpha, int>, TypePair<beta, double>>;
+    using alpha_t = typename my_map::get_t<alpha>;
+    using beta_t = typename my_map::get_t<beta>;
+
+    CHECK((std::is_same<alpha_t, int>::value));
+    CHECK((std::is_same<beta_t, double>::value));
 }

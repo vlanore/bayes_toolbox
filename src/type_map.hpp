@@ -24,55 +24,42 @@ more generally, to use and operate it in the same conditions as regards security
 The fact that you are presently reading this means that you have had knowledge of the CeCILL-C
 license and that you accept its terms.*/
 
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "doctest.h"
-
-#include <memory>
 #include <tuple>
-using std::make_unique;
 using std::tuple;
-using std::unique_ptr;
 
-struct AbstractNode {
-    virtual ~AbstractNode() = default;
-};
+template <class Tag, class Type>
+struct TypePair {};
 
-struct Node {
-    unique_ptr<AbstractNode> ptr;
-};
+struct NotFound {};
 
-struct alpha {};
-struct beta {};
-struct gamma {};
-
-class MyModel {  // model with tag-addressable fields
-    Node alpha{nullptr};
-    Node beta{nullptr};
-    Node& get(::alpha) { return alpha; }
-    Node& get(::beta) { return beta; }
-
-  public:
-    template <class Tag>
-    Node& get() {
-        return get(Tag());
+template <class... Decls>
+struct TypeMap {
+    template <class Key, class Type>
+    static auto add() {
+        return TypeMap<Decls..., TypePair<Key, Type>>();
     }
+
+    template <class Key>
+    static auto helper(tuple<>) {
+        return NotFound();
+    }
+
+    template <class RequestedKey, class Key, class Value, class... DeclRest>
+    static auto helper(tuple<TypePair<Key, Value>, DeclRest...>) {
+        using if_equal = Value;
+        using if_not_equal = decltype(helper<RequestedKey>(tuple<DeclRest...>()));
+        constexpr bool equality = std::is_same<RequestedKey, Key>::value;
+        return std::conditional_t<equality, if_equal, if_not_equal>();
+    }
+
+    template <class Key>
+    static auto get() {
+        return helper<Key>(tuple<Decls...>());
+    }
+
+    template <class Key>
+    using get_t = decltype(get<Key>());
+
+    template <class Key, class Type>
+    using add_t = decltype(add<Key, Type>());
 };
-
-struct MyNode : AbstractNode {  // concrete node implem
-    int i{0};
-    MyNode(int i) : i(i) {}
-};
-
-TEST_CASE("Hello world") {
-    MyModel model;
-    // auto info = set_node<alpha, MyNode>(model, 1);
-    // auto info2 = set_node<beta, MyNode>(model, 2);
-    // using tinfo = TypeInfo<decltype(info), decltype(info2)>;
-
-    model.get<alpha>().ptr = make_unique<MyNode>(1);
-    model.get<beta>().ptr = make_unique<MyNode>(2);
-    auto& a_ref = dynamic_cast<MyNode&>(*model.get<alpha>().ptr);
-    auto& b_ref = dynamic_cast<MyNode&>(*model.get<beta>().ptr);
-    CHECK(a_ref.i == 1);
-    CHECK(b_ref.i == 2);
-}
