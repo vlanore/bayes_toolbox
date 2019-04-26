@@ -47,19 +47,25 @@ struct RefNode {
     static auto make(int& ref) { return make_unique<RefNode>(ref); }
 };
 
+template <class Tag1, class Type1, class Tag2, class Type2>
+auto make_model(Tag1, unique_ptr<Type1>& ptr1, Tag2, unique_ptr<Type2>& ptr2) {
+    using fields = tuple<field<Tag1, unique_ptr<Type1>>, field<Tag2, unique_ptr<Type2>>>;
+    return ttuple<fields>(move(ptr1), move(ptr2));
+};
+
 struct alpha {};
 struct beta {};
 
 struct poisson_gamma {
-    static auto make_model() {
+    static auto make() {
         auto a = IntNode::make(3);
         auto b = RefNode::make(a->i);
-        return std::make_pair(move(a), move(b));
+        return make_model(alpha(), a, beta(), b);
     }
 };
 
 TEST_CASE("Hello world") {
-    auto model = poisson_gamma::make_model();
-    CHECK(model.first->i == 3);
-    CHECK(model.second->i == 3);
+    auto model = poisson_gamma::make();
+    CHECK(get_ref<alpha>(model)->i == 3);
+    CHECK(get_ref<beta>(model)->i == 3);
 }

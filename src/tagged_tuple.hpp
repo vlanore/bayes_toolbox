@@ -110,6 +110,11 @@ auto get(const tagged_tuple<Tags, Tuple>& ttuple) {
     return get<ttuple_helper::get_index<AddressFirst>(Tags())>(ttuple.data);
 }
 
+template <class AddressFirst, class Tags, class Tuple>
+auto& get_ref(const tagged_tuple<Tags, Tuple>& ttuple) {
+    return get<ttuple_helper::get_index<AddressFirst>(Tags())>(ttuple.data);
+}
+
 template <class AddressFirst, class... AddressRest, class TTuple>
 auto get(const TTuple& ttuple) {
     return get<AddressRest...>(get<AddressFirst>(ttuple));
