@@ -285,15 +285,3 @@ TEST_CASE("Better manual MCMC with suffstats") {
     CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
     CHECK(mean_trace < 2);
 }
-
-struct prop1 {};
-struct prop2 {};
-
-TEST_CASE("Type map") {
-    using my_map = TypeMap<TypePair<prop1, int>, TypePair<prop2, double>>;
-    using prop1_t = typename my_map::get_t<prop1>;
-    using prop2_t = typename my_map::get_t<prop2>;
-
-    CHECK((std::is_same<prop1_t, int>::value));
-    CHECK((std::is_same<prop2_t, double>::value));
-}
