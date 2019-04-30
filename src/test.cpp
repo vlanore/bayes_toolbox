@@ -139,6 +139,13 @@ TEST_CASE("Node construction") {
     }
 }
 
+TEST_CASE("auto detection of nodes in make_param") {
+    auto k = make_node<exponential>(0.5);
+    auto k2 = make_params<exponential>(k);
+    auto my_rate = k2.get<rate>();
+    CHECK((std::is_same<DRef, decltype(my_rate)>::value));
+}
+
 TEST_CASE("Poisson/gamma simple model: draw values") {
     auto gen = make_generator();
 
