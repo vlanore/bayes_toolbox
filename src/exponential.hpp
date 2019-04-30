@@ -28,7 +28,7 @@ license and that you accept its terms.*/
 
 #include "distrib_utils.hpp"
 
-struct exponential : Distrib {
+struct exponential {
     using raw_type = double;
 
     struct value_t {

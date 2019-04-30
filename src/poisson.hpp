@@ -30,7 +30,7 @@ license and that you accept its terms.*/
 
 double log_factorial(int n) { return std::lgamma(n + 1); }
 
-struct poisson : Distrib {
+struct poisson {
     using raw_type = int;
 
     struct value_t {

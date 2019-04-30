@@ -48,6 +48,5 @@ format:
 .PHONY: test
 test: all
 	@echo "" && _build/basic_test
-	@echo "" && _build/model_test
 	@echo "" && _build/experimental_test
 

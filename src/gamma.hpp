@@ -28,33 +28,12 @@ license and that you accept its terms.*/
 
 #include "distrib_utils.hpp"
 
-struct gamma : Distrib {
+struct gamma {
     using raw_type = double;
 
-    struct value_t {
-        double value;
-        using distrib = gamma;
-    };
+    using value_t = tagged_tuple<field<raw_value, double>>;
 
-    template <typename Rate, typename Scale>
-    struct Param {
-        Rate shape;
-        Scale scale;
-        auto unpack() { return std::make_tuple(shape, scale); }
-        using distrib = gamma;
-    };
-
-    template <typename Shape, typename Scale>
-    static auto make_params(Shape&& shape, Scale&& scale) {
-        return make_templated_struct<Param>(ParamFactory<double>::make(forward<Shape>(shape)),
-                                            ParamFactory<double>::make(forward<Scale>(scale)));
-    }
-
-    template <typename Shape, typename Scale>
-    static auto make_node(Shape&& shape, Scale&& scale) {
-        return make_templated_struct<ProbNode>(
-            value_t{0.}, make_params(forward<Shape>(shape), forward<Scale>(scale)));
-    }
+    using param_decl = param_decl<param<shape, double>, param<struct scale, double>>;
 
     template <typename Gen>
     static double draw(double shape, double scale, Gen& gen) {

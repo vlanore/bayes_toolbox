@@ -33,8 +33,39 @@ license and that you accept its terms.*/
 #include "param_types.hpp"
 #include "random.hpp"
 #include "struct_utils.hpp"
+#include "tagged_tuple/src/tagged_tuple.hpp"
 
-struct Distrib {};  // tag
+// tags for struct indexation
+struct raw_value {};
+struct rate {};
+struct shape {};
+struct scale {};
 
-template <class Type>
-using is_distrib = std::integral_constant<bool, std::is_base_of<Type, Distrib>::value>;
+template <class... Pairs>
+using param_decl = type_map::Map<Pairs...>;
+
+template <class ParamTag, class ParamRawValue>
+using param = type_map::Pair<ParamTag, ParamRawValue>;
+
+namespace helper {
+    template <class ParamDecl, int index>
+    auto make_params_helper() {
+        return tagged_tuple<>();
+    }
+
+    template <class ParamDecl, int index, class First, class... Rest>
+    auto make_params_helper(First&& first, Rest&&... rest) {
+        using field_tag = typename ParamDecl::template get_tag<index>;
+        using field_type = typename ParamDecl::template get<field_tag>;
+        auto param = ParamFactory<field_type>::make(std::forward<First>(first));
+        auto recursive_call = make_params_helper<ParamDecl, index + 1>(std::forward<Rest>(rest)...);
+        return recursive_call.template expand<field_tag>(std::move(param));
+    }
+};  // namespace helper
+
+template <class ParamDecl, class... ParamArgs>
+auto make_params(ParamArgs&&... args) {
+    static_assert(sizeof...(ParamArgs) == ParamDecl::size(),
+                  "Number of args does not match expected number");
+    return helper::make_params_helper<ParamDecl, 0>(std::forward<ParamArgs>(args)...);
+}
