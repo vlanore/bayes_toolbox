@@ -59,10 +59,20 @@ TEST_CASE("Check that dist types have correct size") {
 }
 
 TEST_CASE("Param making") {
+    double x = 0;
     gamma::value_t lambda;
-    auto params = make_params<struct gamma>(2, 3);
+    auto params = make_params<struct gamma>(2, x);
+    x = 3;
+
+    // order in tuple is important for unpacking in calls
+    CHECK(std::get<0>(params.data)() == 2);
+    CHECK(std::get<1>(params.data)() == 3);
     CHECK(params.get<shape>()() == 2);
     CHECK(params.get<struct scale>()() == 3);
+
+    // types
+    CHECK((std::is_same<decltype(params)::type_of<struct scale>, DRef>::value));
+    // not checking shape because it's supposed to be a lambda :/
 }
 
 TEST_CASE("Draw in various distribs") {
@@ -87,25 +97,25 @@ TEST_CASE("Draw in various distribs") {
     }
 }
 
-// TEST_CASE("Lambda and rvalue constants as draw parameters") {
-//     auto gen = make_generator();
+TEST_CASE("Lambda and rvalue constants as draw parameters") {
+    auto gen = make_generator();
 
-//     exponential::value_t alpha;
-//     SUBCASE("lambda param") {
-//         auto alpha_param = exponential::make_params([]() { return 2; });
-//         check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 0.5);
-//     }
-//     SUBCASE("rvalue param") {
-//         auto alpha_param = exponential::make_params(2);
-//         check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 0.5);
-//     }
-//     SUBCASE("lvalue param") {
-//         double my_param = 17;
-//         auto alpha_param = exponential::make_params(my_param);
-//         my_param = 2;
-//         check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 0.5);
-//     }
-// }
+    exponential::value_t alpha;
+    SUBCASE("lambda param") {
+        auto alpha_param = make_params<exponential>([]() { return 2; });
+        check_mean(alpha.get<raw_value>(), [&]() { draw(alpha, alpha_param, gen); }, 0.5);
+    }
+    SUBCASE("rvalue param") {
+        auto alpha_param = make_params<exponential>(2);
+        check_mean(alpha.get<raw_value>(), [&]() { draw(alpha, alpha_param, gen); }, 0.5);
+    }
+    SUBCASE("lvalue param") {
+        double my_param = 17;
+        auto alpha_param = make_params<exponential>(my_param);
+        my_param = 2;
+        check_mean(alpha.get<raw_value>(), [&]() { draw(alpha, alpha_param, gen); }, 0.5);
+    }
+}
 
 // TEST_CASE("Node construction") {
 //     auto gen = make_generator();
