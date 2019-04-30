@@ -32,3 +32,5 @@ struct rate {};
 struct shape {};
 struct scale {};
 struct distrib {};
+struct value {};
+struct params {};

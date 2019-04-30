@@ -58,17 +58,7 @@ void draw(Value& node, Param& param, Gen& gen) {
 /*==================================================================================================
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
-template <typename Value, typename Params, typename Gen>
-void draw(ProbNodeRef<Value, Params> noderef, Gen& gen) {
-    draw(noderef.value, noderef.params, gen);
-}
-
-template <typename Value, typename Params, typename Gen>
-void draw(ProbNodeValueRef<Value, Params> noderef, Gen& gen) {
-    draw(noderef.value, noderef.params, gen);
-}
-
-template <typename Value, typename Params, typename Gen>
-void draw(ProbNode<Value, Params>& node, Gen& gen) {
-    draw(node.value, node.params, gen);
+template <class ProbNode, typename Gen>
+void draw(ProbNode& node, Gen& gen) {
+    draw(node.template get<value>(), node.template get<params>(), gen);
 }

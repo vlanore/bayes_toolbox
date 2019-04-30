@@ -65,3 +65,10 @@ auto make_params(ParamArgs&&... args) {
                   "Number of args does not match expected number");
     return helper::make_params_helper<param_decl, 0>(std::forward<ParamArgs>(args)...);
 }
+
+template <class Distrib, class... ParamArgs>
+auto make_node(ParamArgs&&... args) {
+    auto value = typename Distrib::value_t();
+    auto params = make_params<Distrib>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple(field_from<struct value>(value), field_from<struct params>(params));
+}
