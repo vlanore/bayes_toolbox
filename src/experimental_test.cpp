@@ -52,9 +52,9 @@ struct beta {};
 
 struct poisson_gamma {
     static auto make() {
-        auto a = IntNode::make(3);
-        auto b = RefNode::make(a->i);
-        return make_tagged_tuple(field_from<alpha>(a), field_from<beta>(b));
+        auto a = field_from<alpha>(IntNode::make(3));
+        auto b = field_from<beta>(RefNode::make(a.data->i));
+        return make_tagged_tuple(a, b);
     }
 };
 
