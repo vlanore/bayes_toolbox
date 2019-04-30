@@ -60,7 +60,7 @@ TEST_CASE("Check that dist types have correct size") {
 
 TEST_CASE("Param making") {
     gamma::value_t lambda;
-    auto params = make_params<gamma::param_decl>(2, 3);
+    auto params = make_params<struct gamma>(2, 3);
     CHECK(params.get<shape>()() == 2);
     CHECK(params.get<struct scale>()() == 3);
 }
@@ -76,15 +76,15 @@ TEST_CASE("Draw in various distribs") {
 
     SUBCASE("gamma distribution") {
         gamma::value_t lambda;
-        auto params = make_params<gamma::param_decl>(2, 3);
+        auto params = make_params<struct gamma>(2, 3);
         check_mean(lambda.get<raw_value>(), [&]() { draw(lambda, params, gen); }, 6);
     }
 
-    // SUBCASE("poisson distribution") {
-    //     poisson::value_t alpha;
-    //     auto alpha_param = poisson::make_params(4);
-    //     check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 4);
-    // }
+    SUBCASE("poisson distribution") {
+        poisson::value_t alpha;
+        auto params = make_params<poisson>(4);
+        check_mean(alpha.get<raw_value>(), [&]() { draw(alpha, params, gen); }, 4);
+    }
 }
 
 // TEST_CASE("Lambda and rvalue constants as draw parameters") {

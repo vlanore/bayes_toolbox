@@ -58,9 +58,10 @@ namespace helper {
     }
 };  // namespace helper
 
-template <class ParamDecl, class... ParamArgs>
+template <class Distrib, class... ParamArgs>
 auto make_params(ParamArgs&&... args) {
-    static_assert(sizeof...(ParamArgs) == ParamDecl::size(),
+    using param_decl = typename Distrib::param_decl;
+    static_assert(sizeof...(ParamArgs) == param_decl::size(),
                   "Number of args does not match expected number");
-    return helper::make_params_helper<ParamDecl, 0>(std::forward<ParamArgs>(args)...);
+    return helper::make_params_helper<param_decl, 0>(std::forward<ParamArgs>(args)...);
 }

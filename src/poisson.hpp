@@ -33,32 +33,14 @@ double log_factorial(int n) { return std::lgamma(n + 1); }
 struct poisson {
     using raw_type = int;
 
-    struct value_t {
-        int value;
-        using distrib = poisson;
-    };
+    using value_t = tagged_tuple<field<raw_value, raw_type>, field<distrib, poisson>>;
 
-    template <typename Rate>
-    struct Param {
-        Rate rate;
-        auto unpack() { return std::make_tuple(rate); }
-        using distrib = poisson;
-    };
-
-    template <typename Rate>
-    static auto make_params(Rate&& rate) {
-        return make_templated_struct<Param>(ParamFactory<double>::make(forward<Rate>(rate)));
-    }
+    using param_decl = ::param_decl<param<rate, double>>;
 
     template <typename Gen>
     static int draw(double rate, Gen& gen) {
         std::poisson_distribution<int> distrib(positive_real(rate));
         return distrib(gen);
-    }
-
-    template <typename Rate>
-    static auto make_node(Rate&& rate) {
-        return make_templated_struct<ProbNode>(value_t{0}, make_params(forward<Rate>(rate)));
     }
 
     static double logprob(int x, double lambda) {
@@ -71,14 +53,15 @@ struct poisson {
 
     static double partial_logprob_param1(int x, double lambda) { return x * log(lambda) - lambda; }
 
-    struct sum_suffstat {
-        int sum;
-        size_t N;
+    // struct sum_suffstat {
+    //     int sum;
+    //     size_t N;
 
-        static sum_suffstat gather(const std::vector<value_t>& v) { return {::sum(v), v.size()}; }
-    };
+    //     static sum_suffstat gather(const std::vector<value_t>& v) { return {::sum(v), v.size()};
+    //     }
+    // };
 
-    static double partial_array_logprob_param1(sum_suffstat ss, double lambda) {
-        return ss.sum * log(lambda) - ss.N * lambda;
-    }
+    // static double partial_array_logprob_param1(sum_suffstat ss, double lambda) {
+    //     return ss.sum * log(lambda) - ss.N * lambda;
+    // }
 };
