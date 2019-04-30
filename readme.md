@@ -5,4 +5,5 @@
 A collection of structs and functions to help with MCMC-style Bayesian inference.
 
 Bayes' toolbox uses the following header-only libraries:
+* tagged_tuple - [github repo](https://github.com/vlanore/tagged_tuple) - [CeCill-C license](LICENSE.txt)
 * doctest - [github repo](https://github.com/onqtam/doctest) - [MIT license](utils/LICENSE.txt)
