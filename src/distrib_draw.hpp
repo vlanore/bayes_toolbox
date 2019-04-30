@@ -29,6 +29,7 @@ license and that you accept its terms.*/
 #include <assert.h>
 #include "node_types.hpp"
 #include "random.hpp"
+#include "tags.hpp"
 
 /*==================================================================================================
 ~~ Raw drawing functions ~~
@@ -42,19 +43,16 @@ double draw_uniform(Gen& gen) {
 /*==================================================================================================
 ~~ Overloads that unpack parameters ~~
 ==================================================================================================*/
-template <typename D, typename Param, typename Gen>
-auto draw_helper(std::tuple<Param> param, Gen& gen) {
-    return D::draw(std::get<0>(param)(), gen);
-}
-
-template <typename D, typename Param1, typename Param2, typename Gen>
-auto draw_helper(std::tuple<Param1, Param2> param, Gen& gen) {
-    return D::draw(std::get<0>(param)(), std::get<1>(param)(), gen);
+template <typename Distrib, typename Param, typename Gen, size_t... Is>
+auto draw_helper(Param& param, Gen& gen, std::index_sequence<Is...>) {
+    return Distrib::draw(std::get<Is>(param.data)()..., gen);
 }
 
 template <typename Value, typename Param, typename Gen>
 void draw(Value& node, Param& param, Gen& gen) {
-    node.value = draw_helper<typename Value::distrib>(param.unpack(), gen);
+    auto is = std::make_index_sequence<Param::tag_map::size()>();
+    using distrib = typename std::remove_reference<decltype(node)>::type::template type_of<distrib>;
+    node.template get<raw_value>() = draw_helper<distrib>(param, gen, is);
 }
 
 /*==================================================================================================

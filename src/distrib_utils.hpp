@@ -34,12 +34,7 @@ license and that you accept its terms.*/
 #include "random.hpp"
 #include "struct_utils.hpp"
 #include "tagged_tuple/src/tagged_tuple.hpp"
-
-// tags for struct indexation
-struct raw_value {};
-struct rate {};
-struct shape {};
-struct scale {};
+#include "tags.hpp"
 
 template <class... Pairs>
 using param_decl = type_map::Map<Pairs...>;
