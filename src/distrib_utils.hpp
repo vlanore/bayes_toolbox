@@ -43,6 +43,16 @@ template <class ParamTag, class ParamRawValue>
 using param = type_map::Pair<ParamTag, ParamRawValue>;
 
 namespace helper {
+    template <class RawParamType, class Value>
+    auto param_builder(std::true_type /* is a node */, Value& v) {
+        return ParamFactory<RawParamType>::make(v.template get<value, raw_value>());
+    }
+
+    template <class RawParamType, class Value>
+    auto param_builder(std::false_type /* is not a node */, Value&& value) {
+        return ParamFactory<RawParamType>::make(std::forward<Value>(value));
+    }
+
     template <class ParamDecl, int index>
     auto make_params_helper() {
         return tagged_tuple<>();
@@ -52,7 +62,13 @@ namespace helper {
     auto make_params_helper(First&& first, Rest&&... rest) {
         using field_tag = typename ParamDecl::template get_tag<index>;
         using field_type = typename ParamDecl::template get<field_tag>;
-        auto param = ParamFactory<field_type>::make(std::forward<First>(first));
+
+        constexpr bool param_is_tuple =
+            is_tagged_tuple<typename std::remove_reference<First>::type>;  // assuming tuple means
+                                                                           // it's a node
+        auto param = param_builder<field_type>(std::integral_constant<bool, param_is_tuple>(),
+                                               std::forward<First>(first));
+
         auto recursive_call = make_params_helper<ParamDecl, index + 1>(std::forward<Rest>(rest)...);
         return recursive_call.template expand<field_tag>(std::move(param));
     }

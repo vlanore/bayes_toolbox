@@ -144,8 +144,8 @@ TEST_CASE("Poisson/gamma simple model: draw values") {
 
     auto k = make_node<exponential>(0.5);
     auto theta = make_node<exponential>(0.5);
-    auto lambda = make_node<struct gamma>(k.get<value, raw_value>(), theta.get<value, raw_value>());
-    auto counts = make_node<poisson>(lambda.get<value, raw_value>());
+    auto lambda = make_node<struct gamma>(k, theta);
+    auto counts = make_node<poisson>(lambda);
 
     check_mean(counts.get<value, raw_value>(),
                [&]() {
