@@ -139,34 +139,23 @@ TEST_CASE("Node construction") {
     }
 }
 
-// TEST_CASE("Node ref") {
-//     auto gen = make_generator();
+TEST_CASE("Poisson/gamma simple model: draw values") {
+    auto gen = make_generator();
 
-//     double two = 2.;
-//     exponential::value_t alpha;
-//     auto alpha_param = exponential::make_params(two);
-//     auto alpha_ref = make_probnode_ref(alpha, alpha_param);
+    auto k = make_node<exponential>(0.5);
+    auto theta = make_node<exponential>(0.5);
+    auto lambda = make_node<struct gamma>(k.get<value, raw_value>(), theta.get<value, raw_value>());
+    auto counts = make_node<poisson>(lambda.get<value, raw_value>());
 
-//     check_mean(alpha.value, [&]() { draw(alpha_ref, gen); }, 0.5);
-// }
-
-// TEST_CASE("Poisson/gamma simple model: draw values") {
-//     auto gen = make_generator();
-
-//     auto k = exponential::make_node(0.5);
-//     auto theta = exponential::make_node(0.5);
-//     auto lambda = gamma::make_node(k.value.value, theta.value.value);
-//     auto counts = poisson::make_node(lambda.value.value);
-
-//     check_mean(counts.value.value,
-//                [&]() {
-//                    draw(k, gen);
-//                    draw(theta, gen);
-//                    draw(lambda, gen);
-//                    draw(counts, gen);
-//                },
-//                4, 3.0);
-// }
+    check_mean(counts.get<value, raw_value>(),
+               [&]() {
+                   draw(k, gen);
+                   draw(theta, gen);
+                   draw(lambda, gen);
+                   draw(counts, gen);
+               },
+               4, 3.0);
+}
 
 // TEST_CASE("Very simple manual MCMC") {
 //     auto gen = make_generator();
