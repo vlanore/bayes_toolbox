@@ -29,6 +29,7 @@ license and that you accept its terms.*/
 
 #include <memory>
 #include <tuple>
+#include "tagged_tuple/src/tagged_tuple.hpp"
 using std::make_unique;
 using std::move;
 using std::tuple;
@@ -46,45 +47,19 @@ struct RefNode {
     static auto make(int& ref) { return make_unique<RefNode>(ref); }
 };
 
-// template <class TTuple>
-// struct Model {
-//     TTuple data;
-//     template <class Tag>
-//     auto& get() {
-//         return *::get<Tag>(data);
-//     }
-// };
+struct alpha {};
+struct beta {};
 
-// template <class Tag, class Type>
-// struct _node {
-//     unique_ptr<Type> ptr;
-// };
+struct poisson_gamma {
+    static auto make() {
+        auto a = IntNode::make(3);
+        auto b = RefNode::make(a->i);
+        return make_tagged_tuple(field_from<alpha>(a), field_from<beta>(b));
+    }
+};
 
-// template <class Tag, class Type>
-// auto node(unique_ptr<Type>& ptr) {
-//     return _node<Tag, Type>{move(ptr)};
-// }
-
-// template <class Tag1, class Type1, class Tag2, class Type2>
-// auto make_model(_node<Tag1, Type1>&& node1, _node<Tag2, Type2>&& node2) {
-//     using fields = tuple<field<Tag1, unique_ptr<Type1>>, field<Tag2, unique_ptr<Type2>>>;
-//     return Model<decltype(ttuple<fields>(move(node1.ptr), move(node2.ptr)))>{
-//         ttuple<fields>(move(node1.ptr), move(node2.ptr))};
-// };
-
-// struct alpha {};
-// struct beta {};
-
-// struct poisson_gamma {
-//     static auto make() {
-//         auto a = IntNode::make(3);
-//         auto b = RefNode::make(a->i);
-//         return make_model(node<alpha>(a), node<beta>(b));
-//     }
-// };
-
-// TEST_CASE("Hello world") {
-//     auto model = poisson_gamma::make();
-//     CHECK(model.get<alpha>().i == 3);
-//     CHECK(model.get<beta>().i == 3);
-// }
+TEST_CASE("Hello world") {
+    auto model = poisson_gamma::make();
+    CHECK(model.get<alpha>()->i == 3);
+    CHECK(model.get<beta>()->i == 3);
+}
