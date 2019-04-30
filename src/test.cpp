@@ -68,11 +68,11 @@ TEST_CASE("Param making") {
 TEST_CASE("Draw in various distribs") {
     auto gen = make_generator();
 
-    // SUBCASE("exponential distribution") {
-    //     exponential::value_t alpha;
-    //     auto alpha_param = exponential::make_params(4);
-    //     check_mean(alpha.value, [&]() { draw(alpha, alpha_param, gen); }, 0.25);
-    // }
+    SUBCASE("exponential distribution") {
+        exponential::value_t alpha;
+        auto alpha_param = make_params<exponential>(4);
+        check_mean(alpha.get<raw_value>(), [&]() { draw(alpha, alpha_param, gen); }, 0.25);
+    }
 
     SUBCASE("gamma distribution") {
         gamma::value_t lambda;

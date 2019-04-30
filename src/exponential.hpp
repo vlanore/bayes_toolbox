@@ -31,27 +31,9 @@ license and that you accept its terms.*/
 struct exponential {
     using raw_type = double;
 
-    struct value_t {
-        double value;
-        using distrib = exponential;
-    };
+    using value_t = tagged_tuple<field<raw_value, raw_type>, field<distrib, exponential>>;
 
-    template <typename Rate>
-    struct Param {
-        Rate rate;
-        using distrib = exponential;
-        auto unpack() { return std::make_tuple(rate); }
-    };
-
-    template <typename Rate>
-    static auto make_params(Rate&& rate) {
-        return make_templated_struct<Param>(ParamFactory<double>::make(forward<Rate>(rate)));
-    }
-
-    template <typename Rate>
-    static auto make_node(Rate&& rate) {
-        return make_templated_struct<ProbNode>(value_t{0}, make_params(forward<Rate>(rate)));
-    }
+    using param_decl = ::param_decl<param<rate, double>>;
 
     template <typename Gen>
     static double draw(double rate, Gen& gen) {
