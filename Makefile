@@ -50,5 +50,4 @@ test: all
 	@echo "" && _build/basic_test
 	@echo "" && _build/model_test
 	@echo "" && _build/experimental_test
-	@echo "" && _build/ttuple_test
 

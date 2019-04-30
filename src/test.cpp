@@ -35,7 +35,6 @@ license and that you accept its terms.*/
 #include "math_utils.hpp"
 #include "mcmc_utils.hpp"
 #include "poisson.hpp"
-#include "type_map.hpp"
 using namespace std;
 
 #define NB_POINTS 10000
