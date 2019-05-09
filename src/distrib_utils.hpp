@@ -85,7 +85,8 @@ auto make_params(ParamArgs&&... args) {
 
 template <class Distrib, class... ParamArgs>
 auto make_node(ParamArgs&&... args) {
-    auto value = typename Distrib::value_t();
+    auto v = typename Distrib::value_t();
     auto params = make_params<Distrib>(std::forward<ParamArgs>(args)...);
-    return make_tagged_tuple(value_field<struct value>(value), value_field<struct params>(params));
+    return make_tagged_tuple(unique_ptr_field<struct value>(std::move(v)),
+                             value_field<struct params>(params));
 }

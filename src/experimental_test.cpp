@@ -27,39 +27,8 @@ license and that you accept its terms.*/
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-#include <memory>
-#include <tuple>
+#include "exponential.hpp"
+#include "gamma.hpp"
 #include "tagged_tuple/src/tagged_tuple.hpp"
-using std::make_unique;
-using std::move;
-using std::tuple;
-using std::unique_ptr;
 
-struct IntNode {
-    int i{0};
-    IntNode(int i) : i(i) {}
-    static auto make(int value) { return make_unique<IntNode>(value); }
-};
-
-struct RefNode {
-    int& i;
-    RefNode(int& i) : i(i) {}
-    static auto make(int& ref) { return make_unique<RefNode>(ref); }
-};
-
-struct alpha {};
-struct beta {};
-
-struct poisson_gamma {
-    static auto make() {
-        auto a = value_field<alpha>(IntNode::make(3));
-        auto b = value_field<beta>(RefNode::make(a.data->i));
-        return make_tagged_tuple(a, b);
-    }
-};
-
-TEST_CASE("Hello world") {
-    auto model = poisson_gamma::make();
-    CHECK(model.get<alpha>()->i == 3);
-    CHECK(model.get<beta>()->i == 3);
-}
+TEST_CASE("Model with unique_pointers") {}
