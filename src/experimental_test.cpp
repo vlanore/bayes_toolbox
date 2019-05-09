@@ -27,8 +27,47 @@ license and that you accept its terms.*/
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
+#include "distrib_draw.hpp"
 #include "exponential.hpp"
 #include "gamma.hpp"
 #include "tagged_tuple/src/tagged_tuple.hpp"
 
-TEST_CASE("Model with unique_pointers") {}
+struct alpha_ {};
+struct beta_ {};
+struct gamma_ {};
+
+#define NB_POINTS 10000
+#define PRECISION 0.025
+
+template <class T>
+void check_mean(T& target, std::function<void()> draw, double expected_mean,
+                double precision_fact = 1.0) {
+    T sum = 0;
+    for (int i = 0; i < NB_POINTS; i++) {
+        draw();
+        sum += target;
+    }
+    CHECK(double(sum) / NB_POINTS ==
+          doctest::Approx(expected_mean).epsilon(precision_fact * PRECISION));
+}
+
+auto make_my_model() {
+    auto a = make_node<exponential>(1);
+    auto b = make_node<exponential>(1);
+    auto c = make_node<struct gamma>(a, b);
+    return make_tagged_tuple(value_field<alpha_>(std::move(a)), value_field<beta_>(std::move(b)),
+                             value_field<gamma_>(std::move(c)));
+}
+
+TEST_CASE("Model with unique_pointers") {
+    auto gen = make_generator();
+    auto m = make_my_model();
+
+    check_mean(m.get<gamma_, value, raw_value>(),
+               [&]() {
+                   draw(m.get<alpha_>(), gen);
+                   draw(m.get<beta_>(), gen);
+                   draw(m.get<gamma_>(), gen);
+               },
+               1);
+}
