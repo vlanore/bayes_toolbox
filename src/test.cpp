@@ -60,7 +60,6 @@ TEST_CASE("Check that dist types have correct size") {
 
 TEST_CASE("Param making") {
     double x = 0;
-    gamma::value_t lambda;
     auto params = make_params<struct gamma>(2, x);
     x = 3;
 
