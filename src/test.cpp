@@ -70,8 +70,7 @@ TEST_CASE("Param making") {
     CHECK(params.get<struct scale>()() == 3);
 
     // types
-    constexpr auto scale_index = decltype(params)::tag_map::get_index<struct scale>();
-    using scale_t = std::tuple_element_t<scale_index, decltype(params)::tuple_t>;
+    using scale_t = decltype(params)::type_of<struct scale>;
     CHECK((std::is_same<scale_t, DRef>::value));
     // not checking shape because it's supposed to be a lambda :/
 }

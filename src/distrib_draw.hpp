@@ -51,9 +51,7 @@ auto draw_helper(Param& param, Gen& gen, std::index_sequence<Is...>) {
 template <typename Value, typename Param, typename Gen>
 void draw(Value& node, Param& param, Gen& gen) {
     auto is = std::make_index_sequence<Param::tag_map::size()>();
-    using node_t = std::remove_reference_t<decltype(node)>;
-    using distrib = std::tuple_element_t<node_t::tag_map::template get_index<distrib>(),
-                                         typename node_t::tuple_t>;
+    using distrib = typename Value::template type_of<distrib>;
     node.template get<raw_value>() = draw_helper<distrib>(param, gen, is);
 }
 
