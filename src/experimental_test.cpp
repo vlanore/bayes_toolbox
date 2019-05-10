@@ -55,7 +55,7 @@ template <class A>
 auto make_my_model(A&& a) {
     auto b = make_node<exponential>(1);
     auto c = make_node<struct gamma>(std::forward<A>(a), b);
-    return make_tagged_tuple(value_field<beta_>(std::move(b)), value_field<gamma_>(std::move(c)));
+    return make_tagged_tuple(move_field<beta_>(b), move_field<gamma_>(c));
 }
 
 TEST_CASE("Model with unique_pointers") {
