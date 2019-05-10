@@ -70,8 +70,8 @@ TEST_CASE("Param making") {
     CHECK(get<struct scale>(params)() == 3);
 
     // types
-    using scale_t = decltype(params)::type_of<struct scale>;
-    CHECK((std::is_same<scale_t, DRef>::value));
+    // using scale_t = decltype(params)::type_of<struct scale>;
+    // CHECK((std::is_same<scale_t, DRef>::value));
     // not checking shape because it's supposed to be a lambda :/
 }
 
@@ -141,9 +141,10 @@ TEST_CASE("Node construction") {
 
 TEST_CASE("auto detection of nodes in make_param") {
     auto k = make_node<exponential>(0.5);
+    get<value, raw_value>(k) = 17;
     auto k2 = make_params<exponential>(k);
-    auto my_rate = get<rate>(k2);
-    CHECK((std::is_same<DRef, decltype(my_rate)>::value));
+    get<value, raw_value>(k) = 7;
+    CHECK(get<rate>(k2)() == 7);  // check it's by reference
 }
 
 TEST_CASE("Poisson/gamma simple model: draw values") {

@@ -60,6 +60,7 @@ auto make_my_model(A&& a) {
 
 TEST_CASE("Model with unique_pointers") {
     auto gen = make_generator();
+
     auto a = make_node<exponential>(1);
     auto m = make_my_model(a);
 
