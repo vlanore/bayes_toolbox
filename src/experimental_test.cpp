@@ -51,23 +51,31 @@ void check_mean(T& target, std::function<void()> draw, double expected_mean,
           doctest::Approx(expected_mean).epsilon(precision_fact * PRECISION));
 }
 
-auto make_my_model() {
-    auto a = make_node<exponential>(1);
+template <class A>
+auto make_my_model(A&& a) {
     auto b = make_node<exponential>(1);
-    auto c = make_node<struct gamma>(a, b);
-    return make_tagged_tuple(value_field<alpha_>(std::move(a)), value_field<beta_>(std::move(b)),
-                             value_field<gamma_>(std::move(c)));
+    auto c = make_node<struct gamma>(std::forward<A>(a), b);
+    return make_tagged_tuple(value_field<beta_>(std::move(b)), value_field<gamma_>(std::move(c)));
 }
 
 TEST_CASE("Model with unique_pointers") {
     auto gen = make_generator();
-    auto m = make_my_model();
+    auto a = make_node<exponential>(1);
+    auto m = make_my_model(a);
 
     check_mean(get<gamma_, value, raw_value>(m),
                [&]() {
-                   draw(get<alpha_>(m), gen);
+                   draw(a, gen);
                    draw(get<beta_>(m), gen);
                    draw(get<gamma_>(m), gen);
+               },
+               1);
+
+    auto m2 = make_my_model(1);
+    check_mean(get<gamma_, value, raw_value>(m2),
+               [&]() {
+                   draw(get<beta_>(m2), gen);
+                   draw(get<gamma_>(m2), gen);
                },
                1);
 }
