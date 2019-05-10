@@ -31,7 +31,6 @@ license and that you accept its terms.*/
 #include "math_utils.hpp"
 #include "param_types.hpp"
 #include "random.hpp"
-#include "struct_utils.hpp"
 #include "tagged_tuple/src/tagged_tuple.hpp"
 #include "tags.hpp"
 
