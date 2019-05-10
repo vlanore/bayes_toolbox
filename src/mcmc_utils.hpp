@@ -28,15 +28,15 @@ license and that you accept its terms.*/
 
 #include "distrib_draw.hpp"
 
-template <typename Value, typename Params>
-auto make_value_backup(ProbNode<Value, Params>& node) {
-    return node.value;  // not .value.value to preserve distrib typing
-}
+// template <typename Value, typename Params>
+// auto make_value_backup(ProbNode<Value, Params>& node) {
+//     return node.value;  // not .value.value to preserve distrib typing
+// }
 
-template <typename Value, typename Params>
-void restore_from_backup(ProbNode<Value, Params>& node, const Value& backup) {
-    node.value = backup;
-}
+// template <typename Value, typename Params>
+// void restore_from_backup(ProbNode<Value, Params>& node, const Value& backup) {
+//     node.value = backup;
+// }
 
 template <typename Gen>
 bool decide(double logprob, Gen& gen) {

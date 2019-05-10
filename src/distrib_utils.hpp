@@ -29,7 +29,6 @@ license and that you accept its terms.*/
 #include <cmath>
 #include <type_traits>
 #include "math_utils.hpp"
-#include "node_types.hpp"
 #include "param_types.hpp"
 #include "random.hpp"
 #include "struct_utils.hpp"

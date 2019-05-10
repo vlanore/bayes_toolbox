@@ -51,22 +51,22 @@ double logprob(Value value, Param param) {
 /*==================================================================================================
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
-template <typename Value, typename Params>
-double logprob(ProbNodeRef<Value, Params> noderef) {
-    return logprob(noderef.value, noderef.params);
-}
+// template <typename Value, typename Params>
+// double logprob(ProbNodeRef<Value, Params> noderef) {
+//     return logprob(noderef.value, noderef.params);
+// }
 
-template <typename Value, typename Params>
-double logprob(ProbNode<Value, Params> node) {
-    return logprob(node.value, node.params);
-}
+// template <typename Value, typename Params>
+// double logprob(ProbNode<Value, Params> node) {
+//     return logprob(node.value, node.params);
+// }
 
-/*==================================================================================================
-~~ Array unpackers ~~
-==================================================================================================*/
-template <typename Value, typename Params>
-double logprob(ProbNodeArray<Value, Params> array) {
-    double sum = 0;
-    for (auto e : array.nodes) { sum += logprob(e); }
-    return sum;
-}
+// /*==================================================================================================
+// ~~ Array unpackers ~~
+// ==================================================================================================*/
+// template <typename Value, typename Params>
+// double logprob(ProbNodeArray<Value, Params> array) {
+//     double sum = 0;
+//     for (auto e : array.nodes) { sum += logprob(e); }
+//     return sum;
+// }

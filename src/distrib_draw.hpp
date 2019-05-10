@@ -27,7 +27,6 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <assert.h>
-#include "node_types.hpp"
 #include "random.hpp"
 #include "tags.hpp"
 
