@@ -66,8 +66,8 @@ TEST_CASE("Param making") {
     // order in tuple is important for unpacking in calls
     CHECK(std::get<0>(params.data)() == 2);
     CHECK(std::get<1>(params.data)() == 3);
-    CHECK(params.get<shape>()() == 2);
-    CHECK(params.get<struct scale>()() == 3);
+    CHECK(get<shape>(params)() == 2);
+    CHECK(get<struct scale>(params)() == 3);
 
     // types
     using scale_t = decltype(params)::type_of<struct scale>;
@@ -81,19 +81,19 @@ TEST_CASE("Draw in various distribs") {
     SUBCASE("exponential distribution") {
         exponential::value_t alpha;
         auto alpha_param = make_params<exponential>(4);
-        check_mean(alpha.get<raw_value>(), [&]() { draw(alpha, alpha_param, gen); }, 0.25);
+        check_mean(get<raw_value>(alpha), [&]() { draw(alpha, alpha_param, gen); }, 0.25);
     }
 
     SUBCASE("gamma distribution") {
         gamma::value_t lambda;
         auto params = make_params<struct gamma>(2, 3);
-        check_mean(lambda.get<raw_value>(), [&]() { draw(lambda, params, gen); }, 6);
+        check_mean(get<raw_value>(lambda), [&]() { draw(lambda, params, gen); }, 6);
     }
 
     SUBCASE("poisson distribution") {
         poisson::value_t alpha;
         auto params = make_params<poisson>(4);
-        check_mean(alpha.get<raw_value>(), [&]() { draw(alpha, params, gen); }, 4);
+        check_mean(get<raw_value>(alpha), [&]() { draw(alpha, params, gen); }, 4);
     }
 }
 
@@ -103,17 +103,17 @@ TEST_CASE("Lambda and rvalue constants as draw parameters") {
     exponential::value_t alpha;
     SUBCASE("lambda param") {
         auto alpha_param = make_params<exponential>([]() { return 2; });
-        check_mean(alpha.get<raw_value>(), [&]() { draw(alpha, alpha_param, gen); }, 0.5);
+        check_mean(get<raw_value>(alpha), [&]() { draw(alpha, alpha_param, gen); }, 0.5);
     }
     SUBCASE("rvalue param") {
         auto alpha_param = make_params<exponential>(2);
-        check_mean(alpha.get<raw_value>(), [&]() { draw(alpha, alpha_param, gen); }, 0.5);
+        check_mean(get<raw_value>(alpha), [&]() { draw(alpha, alpha_param, gen); }, 0.5);
     }
     SUBCASE("lvalue param") {
         double my_param = 17;
         auto alpha_param = make_params<exponential>(my_param);
         my_param = 2;
-        check_mean(alpha.get<raw_value>(), [&]() { draw(alpha, alpha_param, gen); }, 0.5);
+        check_mean(get<raw_value>(alpha), [&]() { draw(alpha, alpha_param, gen); }, 0.5);
     }
 }
 
@@ -121,28 +121,28 @@ TEST_CASE("Node construction") {
     auto gen = make_generator();
     SUBCASE("exponential") {
         auto alpha = make_node<exponential>(4);
-        check_mean(alpha.get<value, raw_value>(), [&]() { draw(alpha, gen); }, 0.25, 2.0);
+        check_mean(get<value, raw_value>(alpha), [&]() { draw(alpha, gen); }, 0.25, 2.0);
     }
     SUBCASE("gamma") {
         auto alpha = make_node<struct gamma>(2, 3);
-        check_mean(alpha.get<value, raw_value>(), [&]() { draw(alpha, gen); }, 6.0, 2.0);
+        check_mean(get<value, raw_value>(alpha), [&]() { draw(alpha, gen); }, 6.0, 2.0);
     }
     SUBCASE("poisson") {
         auto alpha = make_node<poisson>(3);
-        check_mean(alpha.get<value, raw_value>(), [&]() { draw(alpha, gen); }, 3.0, 2.0);
+        check_mean(get<value, raw_value>(alpha), [&]() { draw(alpha, gen); }, 3.0, 2.0);
     }
     SUBCASE("exponential with ref") {
         double my_param = 17;
         auto alpha = make_node<exponential>(my_param);
         my_param = 4;
-        check_mean(alpha.get<value, raw_value>(), [&]() { draw(alpha, gen); }, 0.25, 2.0);
+        check_mean(get<value, raw_value>(alpha), [&]() { draw(alpha, gen); }, 0.25, 2.0);
     }
 }
 
 TEST_CASE("auto detection of nodes in make_param") {
     auto k = make_node<exponential>(0.5);
     auto k2 = make_params<exponential>(k);
-    auto my_rate = k2.get<rate>();
+    auto my_rate = get<rate>(k2);
     CHECK((std::is_same<DRef, decltype(my_rate)>::value));
 }
 
@@ -154,7 +154,7 @@ TEST_CASE("Poisson/gamma simple model: draw values") {
     auto lambda = make_node<struct gamma>(k, theta);
     auto counts = make_node<poisson>(lambda);
 
-    check_mean(counts.get<value, raw_value>(),
+    check_mean(get<value, raw_value>(counts),
                [&]() {
                    draw(k, gen);
                    draw(theta, gen);

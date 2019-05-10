@@ -28,6 +28,7 @@ license and that you accept its terms.*/
 
 #include <assert.h>
 #include "random.hpp"
+#include "tagged_tuple/src/tagged_tuple.hpp"
 #include "tags.hpp"
 
 /*==================================================================================================
@@ -51,7 +52,7 @@ template <typename Value, typename Param, typename Gen>
 void draw(Value& node, Param& param, Gen& gen) {
     auto is = std::make_index_sequence<Param::tag_map::size()>();
     using distrib = typename Value::template type_of<distrib>;
-    node.template get<raw_value>() = draw_helper<distrib>(param, gen, is);
+    get<raw_value>(node) = draw_helper<distrib>(param, gen, is);
 }
 
 /*==================================================================================================
@@ -59,5 +60,5 @@ void draw(Value& node, Param& param, Gen& gen) {
 ==================================================================================================*/
 template <class ProbNode, typename Gen>
 void draw(ProbNode& node, Gen& gen) {
-    draw(node.template get<value>(), node.template get<params>(), gen);
+    draw(get<value>(node), get<params>(node), gen);
 }

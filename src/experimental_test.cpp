@@ -63,11 +63,11 @@ TEST_CASE("Model with unique_pointers") {
     auto gen = make_generator();
     auto m = make_my_model();
 
-    check_mean(m.get<gamma_, value, raw_value>(),
+    check_mean(get<gamma_, value, raw_value>(m),
                [&]() {
-                   draw(m.get<alpha_>(), gen);
-                   draw(m.get<beta_>(), gen);
-                   draw(m.get<gamma_>(), gen);
+                   draw(get<alpha_>(m), gen);
+                   draw(get<beta_>(m), gen);
+                   draw(get<gamma_>(m), gen);
                },
                1);
 }

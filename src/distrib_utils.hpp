@@ -44,7 +44,7 @@ using param = utils::Pair<ParamTag, ParamRawValue>;
 namespace helper {
     template <class RawParamType, class Value>
     auto param_builder(std::true_type /* is a node */, Value& v) {
-        return ParamFactory<RawParamType>::make(v.template get<value, raw_value>());
+        return ParamFactory<RawParamType>::make(get<value, raw_value>(v));
     }
 
     template <class RawParamType, class Value>
