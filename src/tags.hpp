@@ -34,3 +34,4 @@ struct scale {};
 struct distrib {};
 struct value {};
 struct params {};
+struct value_array {};
