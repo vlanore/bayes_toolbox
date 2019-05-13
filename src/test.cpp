@@ -28,6 +28,7 @@ license and that you accept its terms.*/
 
 #include "doctest.h"
 
+#include "arrays.hpp"
 #include "basic_moves.hpp"
 #include "exponential.hpp"
 #include "gamma.hpp"
@@ -163,6 +164,12 @@ TEST_CASE("Poisson/gamma simple model: draw values") {
                    draw(counts, gen);
                },
                4, 3.0);
+}
+
+TEST_CASE("Make array params") {
+    auto p = make_array_params<struct gamma>([](int) { return 1.0; }, [](int) { return 2.0; });
+    CHECK(get<shape>(p)(2) == 1.0);
+    CHECK(get<struct scale>(p)(17) == 2.0);
 }
 
 // TEST_CASE("Very simple manual MCMC") {
