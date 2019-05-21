@@ -26,7 +26,9 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "distrib_utils.hpp"
+#include <cmath>
+#include <random>
+#include "params.hpp"
 
 double log_factorial(int n) { return std::lgamma(n + 1); }
 

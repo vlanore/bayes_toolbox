@@ -28,7 +28,6 @@ license and that you accept its terms.*/
 
 #include "doctest.h"
 
-#include "arrays.hpp"
 #include "basic_moves.hpp"
 #include "exponential.hpp"
 #include "gamma.hpp"
