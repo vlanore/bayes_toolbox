@@ -79,5 +79,5 @@ TEST_CASE("Model with unique_pointers") {
                    draw(get<beta_>(m2), gen);
                    draw(get<gamma_>(m2), gen);
                },
-               1);
+               1, 2.0);
 }

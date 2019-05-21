@@ -172,6 +172,20 @@ TEST_CASE("Make array params") {
     CHECK(get<struct scale>(p)(17) == 2.0);
 }
 
+TEST_CASE("make array") {
+    auto a = make_node_array<exponential>(12, [](int) { return 1.0; });
+    auto b = make_node_array<exponential>(12, [](int) { return 1.0; });
+    auto c = make_node_array<struct gamma>(
+        12, [&a](int i) { return get<raw_value>(get<value>(a).at(i)); },
+        [&b](int i) { return get<raw_value>(get<value>(b).at(i)); });
+    CHECK(get<value>(a).size() == 12);
+    CHECK(get<params, rate>(a)(10) == 1.0);
+    get<raw_value>(get<value>(a).at(2)) = 17.0;
+    get<raw_value>(get<value>(b).at(2)) = 19.0;
+    CHECK(get<params, shape>(c)(2) == 17.0);
+    CHECK(get<params, struct scale>(c)(2) == 19.0);
+}
+
 // TEST_CASE("Very simple manual MCMC") {
 //     auto gen = make_generator();
 
