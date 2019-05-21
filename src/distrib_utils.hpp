@@ -35,12 +35,14 @@ license and that you accept its terms.*/
 #include "tags.hpp"
 
 template <class... Pairs>
-using param_decl = type_map::Map<Pairs...>;
+using param_decl = minimpl::map<Pairs...>;
 
 template <class ParamTag, class ParamRawValue>
-using param = utils::Pair<ParamTag, ParamRawValue>;
+using param = minimpl::pair<ParamTag, ParamRawValue>;
 
 namespace helper {
+    using namespace minimpl;
+
     template <class RawParamType, class Value>
     auto param_builder(std::true_type /* is a node */, Value& v) {
         return ParamFactory<RawParamType>::make(get<value, raw_value>(v));
@@ -58,12 +60,13 @@ namespace helper {
 
     template <class ParamDecl, int index, class First, class... Rest>
     auto make_params_helper(First&& first, Rest&&... rest) {
-        using field_tag = typename ParamDecl::template get_tag<index>;
-        using field_type = typename ParamDecl::template get<field_tag>;
+        using field = list_element_t<ParamDecl, index>;
+        using field_tag = first_t<field>;
+        using field_type = second_t<field>;
 
-        constexpr bool param_is_tuple =
-            is_tagged_tuple<typename std::remove_reference<First>::type>;  // assuming tuple means
-                                                                           // it's a node
+        constexpr bool param_is_tuple =  // assuming tuple means it's a node
+            is_tagged_tuple<typename std::remove_reference<First>::type>::value;
+
         auto param = param_builder<field_type>(std::integral_constant<bool, param_is_tuple>(),
                                                std::forward<First>(first));
 
@@ -76,7 +79,7 @@ namespace helper {
 template <class Distrib, class... ParamArgs>
 auto make_params(ParamArgs&&... args) {
     using param_decl = typename Distrib::param_decl;
-    static_assert(sizeof...(ParamArgs) == param_decl::size(),
+    static_assert(sizeof...(ParamArgs) == param_decl::size,
                   "Number of args does not match expected number");
     return helper::make_params_helper<param_decl, 0>(std::forward<ParamArgs>(args)...);
 }

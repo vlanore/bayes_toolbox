@@ -47,10 +47,13 @@ namespace helper {
     auto make_array_param_impl(First&& first, Rest&&... rest) {
         auto recursive_call =
             make_array_param_impl<index + 1, ParamDecl>(std::forward<Rest>(rest)...);
-        using param_tag = typename ParamDecl::template get_tag<index>;
-        using param_type = typename ParamDecl::template get<param_tag>;
-        auto param = ArrayParamFactory<param_type>::make(std::forward<First>(first));
-        return push_front<param_tag>(recursive_call, std::move(param));
+
+        using field = list_element_t<ParamDecl, index>;
+        using field_tag = first_t<field>;
+        using field_type = second_t<field>;
+
+        auto param = ArrayParamFactory<field_type>::make(std::forward<First>(first));
+        return push_front<field_tag>(recursive_call, std::move(param));
     }
 };  // namespace helper
 
