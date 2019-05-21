@@ -43,36 +43,36 @@ using param = minimpl::pair<ParamTag, ParamRawValue>;
 namespace helper {
     using namespace minimpl;
 
-    template <class RawParamType, class Value>
+    template <class Factory, class Value>
     auto param_builder(std::true_type /* is a node */, Value& v) {
-        return ParamFactory<RawParamType>::make(get<value, raw_value>(v));
+        return Factory::make(get<value, raw_value>(v));
     }
 
-    template <class RawParamType, class Value>
+    template <class Factory, class Value>
     auto param_builder(std::false_type /* is not a node */, Value&& value) {
-        return ParamFactory<RawParamType>::make(std::forward<Value>(value));
+        return Factory::make(std::forward<Value>(value));
     }
 
-    template <class ParamDecl, int index>
+    template <class, int, template <class> class>
     auto make_params_helper() {
         return tagged_tuple<>();
     }
 
-    template <class ParamDecl, int index, class First, class... Rest>
+    template <class ParamDecl, int index, template <class> class Factory, class First,
+              class... Rest>
     auto make_params_helper(First&& first, Rest&&... rest) {
         using field = list_element_t<ParamDecl, index>;
         using field_tag = first_t<field>;
         using field_type = second_t<field>;
+        using specialized_factory = Factory<field_type>;
+        using param_is_tuple = is_tagged_tuple<std::remove_reference_t<First>>;
 
-        constexpr bool param_is_tuple =  // assuming tuple means it's a node
-            is_tagged_tuple<typename std::remove_reference<First>::type>::value;
+        auto param =
+            param_builder<specialized_factory>(param_is_tuple(), std::forward<First>(first));
+        auto recursive_call =
+            make_params_helper<ParamDecl, index + 1, Factory>(std::forward<Rest>(rest)...);
 
-        auto param = param_builder<field_type>(std::integral_constant<bool, param_is_tuple>(),
-                                               std::forward<First>(first));
-
-        auto recursive_call = make_params_helper<ParamDecl, index + 1>(std::forward<Rest>(rest)...);
         return push_front<field_tag>(recursive_call, std::move(param));
-        // return recursive_call.template push_front<field_tag>(std::move(param));
     }
 };  // namespace helper
 
@@ -81,7 +81,8 @@ auto make_params(ParamArgs&&... args) {
     using param_decl = typename Distrib::param_decl;
     static_assert(sizeof...(ParamArgs) == param_decl::size,
                   "Number of args does not match expected number");
-    return helper::make_params_helper<param_decl, 0>(std::forward<ParamArgs>(args)...);
+    return helper::make_params_helper<param_decl, 0, ParamFactory>(
+        std::forward<ParamArgs>(args)...);
 }
 
 template <class Distrib, class... ParamArgs>
