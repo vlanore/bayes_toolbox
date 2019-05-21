@@ -30,6 +30,7 @@ license and that you accept its terms.*/
 #include "distrib_draw.hpp"
 #include "exponential.hpp"
 #include "gamma.hpp"
+#include "node.hpp"
 #include "tagged_tuple/src/tagged_tuple.hpp"
 
 struct alpha_ {};

@@ -31,12 +31,14 @@ license and that you accept its terms.*/
 #include "tagged_tuple/src/tagged_tuple.hpp"
 #include "tags.hpp"
 
+//==================================================================================================
 template <class... Pairs>
 using param_decl = minimpl::map<Pairs...>;
 
 template <class ParamTag, class ParamRawValue>
 using param = minimpl::pair<ParamTag, ParamRawValue>;
 
+//==================================================================================================
 template <class T>
 struct ParamFactory {
     static auto make(const T& value) {
@@ -60,6 +62,7 @@ struct ArrayParamFactory {
     static auto make(std::function<T(int)> f) { return f; }
 };
 
+//==================================================================================================
 namespace helper {
     using namespace minimpl;
 
@@ -96,6 +99,7 @@ namespace helper {
     }
 };  // namespace helper
 
+//==================================================================================================
 template <class Distrib, class... ParamArgs>
 auto make_params(ParamArgs&&... args) {
     using param_decl = typename Distrib::param_decl;
@@ -112,12 +116,4 @@ auto make_array_params(ParamArgs&&... args) {
                   "Number of args does not match expected number");
     return helper::make_params_helper<param_decl, 0, ArrayParamFactory>(
         std::forward<ParamArgs>(args)...);
-}
-
-template <class Distrib, class... ParamArgs>
-auto make_node(ParamArgs&&... args) {
-    auto v = typename Distrib::value_t();
-    auto params = make_params<Distrib>(std::forward<ParamArgs>(args)...);
-    return make_tagged_tuple(unique_ptr_field<struct value>(std::move(v)),
-                             value_field<struct params>(params));
 }

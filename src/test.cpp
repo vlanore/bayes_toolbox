@@ -34,6 +34,7 @@ license and that you accept its terms.*/
 #include "logprob.hpp"
 #include "math_utils.hpp"
 #include "mcmc_utils.hpp"
+#include "node.hpp"
 #include "poisson.hpp"
 using namespace std;
 
