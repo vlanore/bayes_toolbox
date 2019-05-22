@@ -43,14 +43,9 @@ double draw_uniform(Gen& gen) {
 /*==================================================================================================
 ~~ Overloads that unpack parameters ~~
 ==================================================================================================*/
-template <typename Distrib, typename Param, typename Gen, class... ParamKeys>
-auto draw_helper(Param& param, Gen& gen, std::tuple<ParamKeys...>) {
-    return Distrib::draw(get<ParamKeys>(param)()..., gen);
-}
-
-template <typename Distrib, typename Param, typename Gen, class... ParamKeys>
-auto draw_helper(Param& param, size_t index, Gen& gen, std::tuple<ParamKeys...>) {
-    return Distrib::draw(get<ParamKeys>(param)(index)..., gen);
+template <typename Distrib, typename Param, typename Gen, class... ParamKeys, class... Indexes>
+auto draw_helper(Param& param, Gen& gen, std::tuple<ParamKeys...>, Indexes... indexes) {
+    return Distrib::draw(get<ParamKeys>(param)(indexes...)..., gen);
 }
 
 template <class Distrib, class Param, class Gen>
@@ -63,7 +58,7 @@ template <class Distrib, class Param, class Gen>
 void draw(std::vector<typename Distrib::T>& array, Param& param, Gen& gen) {
     using keys = minimpl::map_key_tuple_t<typename Distrib::param_decl>;
     for (size_t i = 0; i < array.size(); i++) {
-        get<raw_value>(array[i]) = draw_helper<Distrib>(param, i, gen, keys());
+        get<raw_value>(array[i]) = draw_helper<Distrib>(param, gen, keys(), i);
     }
 }
 
