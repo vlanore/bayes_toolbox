@@ -27,9 +27,8 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <assert.h>
+#include "node.hpp"
 #include "random.hpp"
-#include "tagged_tuple/src/tagged_tuple.hpp"
-#include "tags.hpp"
 
 /*==================================================================================================
 ~~ Raw drawing functions ~~
@@ -43,16 +42,15 @@ double draw_uniform(Gen& gen) {
 /*==================================================================================================
 ~~ Overloads that unpack parameters ~~
 ==================================================================================================*/
-template <typename Distrib, typename Param, typename Gen, size_t... Is>
-auto draw_helper(Param& param, Gen& gen, std::index_sequence<Is...>) {
-    return Distrib::draw(std::get<Is>(param.data)()..., gen);
+template <typename Distrib, typename Param, typename Gen, class... ParamKeys>
+auto draw_helper(Param& param, Gen& gen, std::tuple<ParamKeys...>) {
+    return Distrib::draw(get<ParamKeys>(param)()..., gen);
 }
 
-template <typename Value, typename Param, typename Gen>
-void draw(Value& node, Param& param, Gen& gen) {
-    auto is = std::make_index_sequence<Param::fields::size>();
-    using distrib = minimpl::map_element_t<typename Value::fields, distrib>;
-    get<raw_value>(node) = draw_helper<distrib>(param, gen, is);
+template <class Distrib, class Param, class Gen>
+void draw(typename Distrib::value_t& value, Param& param, Gen& gen) {
+    using keys = minimpl::map_key_tuple_t<typename Distrib::param_decl>;
+    get<raw_value>(value) = draw_helper<Distrib>(param, gen, keys());
 }
 
 /*==================================================================================================
@@ -60,5 +58,6 @@ void draw(Value& node, Param& param, Gen& gen) {
 ==================================================================================================*/
 template <class ProbNode, typename Gen>
 void draw(ProbNode& node, Gen& gen) {
-    draw(get<value>(node), get<params>(node), gen);
+    using distrib = node_distrib<ProbNode>;
+    draw<distrib>(get<value>(node), get<params>(node), gen);
 }
