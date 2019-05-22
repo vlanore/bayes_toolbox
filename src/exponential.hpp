@@ -33,7 +33,8 @@ license and that you accept its terms.*/
 struct exponential {
     using raw_type = double;
 
-    using value_t = tagged_tuple<field<raw_value, raw_type>, field<distrib, exponential>>;
+    using value_t = tagged_tuple_t<minimpl::map<field<raw_value, raw_type>>, minimpl::list<>,
+                                   minimpl::map<field<distrib, exponential>>>;
 
     using param_decl = ::param_decl<param<rate, double>>;
 

@@ -35,7 +35,8 @@ double log_factorial(int n) { return std::lgamma(n + 1); }
 struct poisson {
     using raw_type = int;
 
-    using value_t = tagged_tuple<field<raw_value, raw_type>, field<distrib, poisson>>;
+    using value_t = tagged_tuple_t<minimpl::map<field<raw_value, raw_type>>, minimpl::list<>,
+                                   minimpl::map<field<distrib, poisson>>>;
 
     using param_decl = ::param_decl<param<rate, double>>;
 

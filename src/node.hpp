@@ -34,7 +34,7 @@ auto make_node(ParamArgs&&... args) {
     auto v = typename Distrib::value_t();
     auto params = make_params<Distrib>(std::forward<ParamArgs>(args)...);
     return make_tagged_tuple(unique_ptr_field<struct value>(std::move(v)),
-                             value_field<struct params>(params));
+                             value_field<struct params>(params), property<distrib, Distrib>());
 }
 
 template <class Distrib, class... ParamArgs>
@@ -42,8 +42,15 @@ auto make_node_array(size_t size, ParamArgs&&... args) {
     std::vector<typename Distrib::value_t> values(size);
     auto params = make_array_params<Distrib>(std::forward<ParamArgs>(args)...);
     return make_tagged_tuple(value_field<struct value>(std::move(values)),
-                             value_field<struct params>(params));
+                             value_field<struct params>(params), property<distrib, Distrib>());
 }
 
 template <class Node>
-using node_distrib = std::remove_reference_t<decltype(get<value, distrib>(std::declval<Node>()))>;
+using node_value_t = std::remove_reference_t<decltype(get<value>(std::declval<Node>()))>;
+
+template <class Value>
+using get_distrib_t = get_property<Value, distrib>;
+
+template <class NodeArray>
+using node_array_value_t =
+    typename std::remove_reference_t<decltype(get<value>(std::declval<NodeArray>()))>::T;

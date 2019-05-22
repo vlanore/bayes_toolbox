@@ -186,6 +186,12 @@ TEST_CASE("make array") {
     CHECK(get<params, struct scale>(c)(2) == 19.0);
 }
 
+TEST_CASE("Draw in array") {
+    auto gen = make_generator();
+    auto a = make_node_array<exponential>(12, [](int) { return 1.0; });
+    draw(a, gen);
+}
+
 // TEST_CASE("Very simple manual MCMC") {
 //     auto gen = make_generator();
 
