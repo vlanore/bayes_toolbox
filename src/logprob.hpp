@@ -26,47 +26,36 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include <tuple>
-#include <vector>
+#include "distrib_utils.hpp"
+#include "node.hpp"
 
 /*==================================================================================================
-~~ Unpacking params ~~
+~~ Overloads that unpack parameters ~~
 ==================================================================================================*/
-template <typename D, typename Param1>
-auto logprob_helper(typename D::value_t value, std::tuple<Param1> param) {
-    return D::logprob(value.value, std::get<0>(param)());
+template <typename Distrib, typename Param, typename Gen, class... ParamKeys, class... Indexes>
+auto logprob_helper(Param& param, Gen& gen, std::tuple<ParamKeys...>, Indexes... indexes) {
+    return Distrib::logprob(get<ParamKeys>(param)(indexes...)..., gen);
 }
 
-template <typename D, typename Param1, typename Param2>
-auto logprob_helper(typename D::value_t value, std::tuple<Param1, Param2> param) {
-    return D::logprob(value.value, std::get<0>(param)(), std::get<1>(param)());
+template <class Distrib, class Param, class Gen>
+void logprob(typename Distrib::T& value, Param& param, Gen& gen) {
+    using keys = minimpl::map_key_tuple_t<typename Distrib::param_decl>;
+    get<raw_value>(value) = logprob_helper<Distrib>(param, gen, keys());
 }
 
-template <typename Value, typename Param>
-double logprob(Value value, Param param) {
-    using distrib = typename Value::distrib;
-    return logprob_helper<distrib>(value, param.unpack());
+template <class Distrib, class Param, class Gen>
+void logprob(std::vector<typename Distrib::T>& array, Param& param, Gen& gen) {
+    using keys = minimpl::map_key_tuple_t<typename Distrib::param_decl>;
+    for (size_t i = 0; i < array.size(); i++) {
+        get<raw_value>(array[i]) = logprob_helper<Distrib>(param, gen, keys(), i);
+    }
 }
 
 /*==================================================================================================
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
-// template <typename Value, typename Params>
-// double logprob(ProbNodeRef<Value, Params> noderef) {
-//     return logprob(noderef.value, noderef.params);
-// }
-
-// template <typename Value, typename Params>
-// double logprob(ProbNode<Value, Params> node) {
-//     return logprob(node.value, node.params);
-// }
-
-// /*==================================================================================================
-// ~~ Array unpackers ~~
-// ==================================================================================================*/
-// template <typename Value, typename Params>
-// double logprob(ProbNodeArray<Value, Params> array) {
-//     double sum = 0;
-//     for (auto e : array.nodes) { sum += logprob(e); }
-//     return sum;
-// }
+template <class ProbNode, typename Gen>
+void logprob(ProbNode& node, Gen& gen) {
+    using distrib = get_distrib_t<ProbNode>;
+    logprob<distrib>(get<value>(node), get<params>(node), gen);
+}

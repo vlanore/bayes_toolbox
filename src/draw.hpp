@@ -26,10 +26,8 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include <assert.h>
 #include "distrib_utils.hpp"
 #include "node.hpp"
-#include "random.hpp"
 
 /*==================================================================================================
 ~~ Raw drawing functions ~~

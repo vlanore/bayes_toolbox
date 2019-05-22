@@ -26,19 +26,14 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "draw.hpp"
+#include <assert.h>
+#include "node.hpp"
 
-template <class ProbNode>
-auto make_value_backup(ProbNode& node) {
-    return get<value>(node);
-}
-
-template <class ProbNode, class Backup>
-void restore_from_backup(ProbNode& node, const Backup& backup) {
-    get<value>(node) = backup;
-}
-
-template <typename Gen>
-bool decide(double logprob, Gen& gen) {
-    return draw_uniform(gen) < exp(logprob);
+template <class ProbNode, class Distrib = get_distrib_t<ProbNode>, class... Rest>
+void clamp_array(ProbNode& node, typename Distrib::raw_type first, Rest... rest) {
+    std::vector<typename Distrib::raw_type> values{first, rest...};
+    assert(values.size() == get<value>(node).size());
+    for (size_t i = 0; i < values.size(); i++) {
+        get<raw_value>(get<value>(node).at(i)) = values.at(i);
+    }
 }

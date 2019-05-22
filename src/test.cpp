@@ -28,6 +28,7 @@ license and that you accept its terms.*/
 
 #include "doctest.h"
 
+#include "array_utils.hpp"
 #include "basic_moves.hpp"
 #include "exponential.hpp"
 #include "gamma.hpp"
@@ -265,30 +266,31 @@ TEST_CASE("Draw in array") {
 //     CHECK(sum_mean < 2);
 // }
 
-// TEST_CASE("Better manual MCMC") {
-//     auto gen = make_generator();
+TEST_CASE("Better manual MCMC") {
+    auto gen = make_generator();
 
-//     auto param = exponential::make_node(1);
-//     draw(param, gen);
-//     auto array = make_probnode_array<poisson>(20, param.value.value);
-//     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
+    auto param = make_node<exponential>(1);
+    draw(param, gen);
+    auto array =
+        make_node_array<poisson>(20, [&param](int) { return get<value, raw_value>(param); });
+    clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
-//     vector<double> trace;
-//     for (int i = 0; i < 10000; i++) {
-//         for (int rep = 0; rep < 10; rep++) {
-//             auto param_backup = make_value_backup(param);
-//             double logprob_before = logprob(param) + logprob(array);
-//             double log_hastings = scale(param.value.value, gen);
-//             double logprob_after = logprob(param) + logprob(array);
-//             bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
-//             if (!accept) { restore_from_backup(param, param_backup); }
-//         }
-//         trace.push_back(param.value.value);
-//     }
-//     double mean_trace = mean(trace);
-//     CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
-//     CHECK(mean_trace < 2);
-// }
+    vector<double> trace;
+    for (int i = 0; i < 10000; i++) {
+        for (int rep = 0; rep < 10; rep++) {
+            auto param_backup = make_value_backup(param);
+            double logprob_before = logprob(param) + logprob(array);
+            double log_hastings = scale(get<value, raw_value>(param), gen);
+            double logprob_after = logprob(param) + logprob(array);
+            bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
+            if (!accept) { restore_from_backup(param, param_backup); }
+        }
+        trace.push_back(get<value, raw_value>(param));
+    }
+    double mean_trace = mean(trace);
+    CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
+    CHECK(mean_trace < 2);
+}
 
 // TEST_CASE("Sum and mean functions") {
 //     vector<double> vd = {1, 2, 3, 4.2, 5.1, 6};

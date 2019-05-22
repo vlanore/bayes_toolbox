@@ -29,10 +29,8 @@ license and that you accept its terms.*/
 #include <cmath>
 #include <random>
 #include "params.hpp"
+#include "random.hpp"
 #include "tagged_tuple/src/tagged_tuple.hpp"
-
-template <class Value>
-using get_distrib_t = get_property<Value, distrib>;
 
 template <class RawType, class Distrib>
 using distrib_value_type = tagged_tuple_t<minimpl::map<field<raw_value, RawType>>, minimpl::list<>,

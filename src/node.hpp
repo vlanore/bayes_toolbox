@@ -45,6 +45,9 @@ auto make_node_array(size_t size, ParamArgs&&... args) {
                              value_field<struct params>(params), property<distrib, Distrib>());
 }
 
+template <class Value>
+using get_distrib_t = get_property<Value, distrib>;
+
 template <class Node>
 using node_value_t = std::remove_reference_t<decltype(get<value>(std::declval<Node>()))>;
 
