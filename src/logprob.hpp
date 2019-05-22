@@ -32,30 +32,34 @@ license and that you accept its terms.*/
 /*==================================================================================================
 ~~ Overloads that unpack parameters ~~
 ==================================================================================================*/
-template <typename Distrib, typename Param, typename Gen, class... ParamKeys, class... Indexes>
-auto logprob_helper(Param& param, Gen& gen, std::tuple<ParamKeys...>, Indexes... indexes) {
-    return Distrib::logprob(get<ParamKeys>(param)(indexes...)..., gen);
+template <typename Distrib, typename Param, class T = typename Distrib::raw_value,
+          class... ParamKeys, class... Indexes>
+auto logprob_helper(const T& value, const Param& param, std::tuple<ParamKeys...>,
+                    Indexes... indexes) {
+    return Distrib::logprob(value, get<ParamKeys>(param)(indexes...)...);
 }
 
-template <class Distrib, class Param, class Gen>
-void logprob(typename Distrib::T& value, Param& param, Gen& gen) {
+template <class Distrib, class T = typename Distrib::T, class Param>
+double logprob(const std::vector<T>& value, const Param& param) {
     using keys = minimpl::map_key_tuple_t<typename Distrib::param_decl>;
-    get<raw_value>(value) = logprob_helper<Distrib>(param, gen, keys());
-}
-
-template <class Distrib, class Param, class Gen>
-void logprob(std::vector<typename Distrib::T>& array, Param& param, Gen& gen) {
-    using keys = minimpl::map_key_tuple_t<typename Distrib::param_decl>;
-    for (size_t i = 0; i < array.size(); i++) {
-        get<raw_value>(array[i]) = logprob_helper<Distrib>(param, gen, keys(), i);
+    double result = 0;
+    for (size_t i = 0; i < value.size(); i++) {
+        result += logprob_helper<Distrib>(get<raw_value>(value[i]), param, keys(), i);
     }
+    return result;
+}
+
+template <class Distrib, class T = typename Distrib::T, class Param>
+double logprob(const T& value, const Param& param) {
+    using keys = minimpl::map_key_tuple_t<typename Distrib::param_decl>;
+    return logprob_helper<Distrib>(get<raw_value>(value), param, keys());
 }
 
 /*==================================================================================================
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
-template <class ProbNode, typename Gen>
-void logprob(ProbNode& node, Gen& gen) {
+template <class ProbNode>
+double logprob(ProbNode& node) {
     using distrib = get_distrib_t<ProbNode>;
-    logprob<distrib>(get<value>(node), get<params>(node), gen);
+    return logprob<distrib>(get<value>(node), get<params>(node));
 }
