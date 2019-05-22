@@ -76,47 +76,51 @@ TEST_CASE("Param making") {
     // not checking shape because it's supposed to be a lambda :/
 }
 
-// TEST_CASE("Draw in various distribs") {
-//     auto gen = make_generator();
+TEST_CASE("Draw in various distribs") {
+    auto gen = make_generator();
 
-//     SUBCASE("exponential distribution") {
-//         exponential::value_t alpha;
-//         auto alpha_param = make_params<exponential>(4);
-//         check_mean(get<raw_value>(alpha), [&]() { draw(alpha, alpha_param, gen); }, 0.25);
-//     }
+    SUBCASE("exponential distribution") {
+        exponential::T alpha;
+        auto alpha_param = make_params<exponential>(4);
+        check_mean(get<raw_value>(alpha), [&]() { draw<exponential>(alpha, alpha_param, gen); },
+                   0.25);
+    }
 
-//     SUBCASE("gamma distribution") {
-//         gamma::value_t lambda;
-//         auto params = make_params<gamma_ss>(2, 3);
-//         check_mean(get<raw_value>(lambda), [&]() { draw(lambda, params, gen); }, 6);
-//     }
+    SUBCASE("gamma distribution") {
+        gamma_ss::T lambda;
+        auto params = make_params<gamma_ss>(2, 3);
+        check_mean(get<raw_value>(lambda), [&]() { draw<gamma_ss>(lambda, params, gen); }, 6);
+    }
 
-//     SUBCASE("poisson distribution") {
-//         poisson::value_t alpha;
-//         auto params = make_params<poisson>(4);
-//         check_mean(get<raw_value>(alpha), [&]() { draw(alpha, params, gen); }, 4);
-//     }
-// }
+    SUBCASE("poisson distribution") {
+        poisson::T alpha;
+        auto params = make_params<poisson>(4);
+        check_mean(get<raw_value>(alpha), [&]() { draw<poisson>(alpha, params, gen); }, 4);
+    }
+}
 
-// TEST_CASE("Lambda and rvalue constants as draw parameters") {
-//     auto gen = make_generator();
+TEST_CASE("Lambda and rvalue constants as draw parameters") {
+    auto gen = make_generator();
 
-//     exponential::value_t alpha;
-//     SUBCASE("lambda param") {
-//         auto alpha_param = make_params<exponential>([]() { return 2; });
-//         check_mean(get<raw_value>(alpha), [&]() { draw(alpha, alpha_param, gen); }, 0.5);
-//     }
-//     SUBCASE("rvalue param") {
-//         auto alpha_param = make_params<exponential>(2);
-//         check_mean(get<raw_value>(alpha), [&]() { draw(alpha, alpha_param, gen); }, 0.5);
-//     }
-//     SUBCASE("lvalue param") {
-//         double my_param = 17;
-//         auto alpha_param = make_params<exponential>(my_param);
-//         my_param = 2;
-//         check_mean(get<raw_value>(alpha), [&]() { draw(alpha, alpha_param, gen); }, 0.5);
-//     }
-// }
+    exponential::T alpha;
+    SUBCASE("lambda param") {
+        auto alpha_param = make_params<exponential>([]() { return 2; });
+        check_mean(get<raw_value>(alpha), [&]() { draw<exponential>(alpha, alpha_param, gen); },
+                   0.5);
+    }
+    SUBCASE("rvalue param") {
+        auto alpha_param = make_params<exponential>(2);
+        check_mean(get<raw_value>(alpha), [&]() { draw<exponential>(alpha, alpha_param, gen); },
+                   0.5);
+    }
+    SUBCASE("lvalue param") {
+        double my_param = 17;
+        auto alpha_param = make_params<exponential>(my_param);
+        my_param = 2;
+        check_mean(get<raw_value>(alpha), [&]() { draw<exponential>(alpha, alpha_param, gen); },
+                   0.5);
+    }
+}
 
 TEST_CASE("Node construction") {
     auto gen = make_generator();
