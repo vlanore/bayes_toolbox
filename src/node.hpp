@@ -44,3 +44,6 @@ auto make_node_array(size_t size, ParamArgs&&... args) {
     return make_tagged_tuple(value_field<struct value>(std::move(values)),
                              value_field<struct params>(params));
 }
+
+template <class Node>
+using node_distrib = std::remove_reference_t<decltype(get<value, distrib>(std::declval<Node>()))>;
