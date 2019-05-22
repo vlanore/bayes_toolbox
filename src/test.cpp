@@ -35,6 +35,7 @@ license and that you accept its terms.*/
 #include "logprob.hpp"
 #include "math_utils.hpp"
 #include "mcmc_utils.hpp"
+#include "model.hpp"
 #include "node.hpp"
 #include "poisson.hpp"
 using namespace std;
@@ -225,6 +226,31 @@ TEST_CASE("Sum and mean functions") {
     CHECK(sum(vd) == doctest::Approx(21.3));
     CHECK(sum(vi) == 15);
     CHECK(mean(vi) == doctest::Approx(3));
+}
+
+struct n1 {};
+struct n2 {};
+
+template <class Arg>
+auto my_model(Arg&& arg) {
+    auto a = make_node<exponential>(1.0);
+    auto b = make_node<gamma_ss>(a, std::forward<Arg>(arg));
+    return make_model(node<n1>(a), node<n2>(b));
+}
+
+TEST_CASE("Basic model test") {
+    auto gen = make_generator();
+
+    auto a = make_node<exponential>(1.0);
+    auto m = my_model(a);
+
+    check_mean(get<n2, value, raw_value>(m),
+               [&]() {
+                   draw(a, gen);
+                   draw(get<n1>(m), gen);
+                   draw(get<n2>(m), gen);
+               },
+               1, 2.0);
 }
 
 // TEST_CASE("Better manual MCMC with suffstats") {

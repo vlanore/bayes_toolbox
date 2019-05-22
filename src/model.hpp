@@ -26,12 +26,18 @@ license and that you accept its terms.*/
 
 #pragma once
 
-// tags for struct indexation
-struct raw_value {};
-struct rate {};
-struct shape {};
-struct scale {};
-struct distrib {};
-struct value {};
-struct params {};
-struct prob_model {};
+#include "node.hpp"
+
+template <class... Args>
+auto make_model(Args&&... args) {
+    // return add_tag<prob_model>(make_tagged_tuple(std::forward<Args>(args)...));
+    return make_tagged_tuple(std::forward<Args>(args)...);
+}
+
+template <class Tag, class... Args>
+auto node(Args&&... args) {
+    return move_field<Tag>(std::forward<Args>(args)...);
+}
+
+template <class M>
+using model_nodes = minimpl::map_key_tuple_t<M>;
