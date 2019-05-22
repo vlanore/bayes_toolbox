@@ -70,11 +70,6 @@ TEST_CASE("Param making") {
     CHECK(std::get<1>(params.data)() == 3);
     CHECK(get<shape>(params)() == 2);
     CHECK(get<struct scale>(params)() == 3);
-
-    // types
-    // using scale_t = decltype(params)::type_of<struct scale>;
-    // CHECK((std::is_same<scale_t, DRef>::value));
-    // not checking shape because it's supposed to be a lambda :/
 }
 
 TEST_CASE("Draw in various distribs") {
@@ -197,76 +192,7 @@ TEST_CASE("Draw in array") {
     draw(a, gen);
 }
 
-// TEST_CASE("Very simple manual MCMC") {
-//     auto gen = make_generator();
-
-//     auto param = exponential::make_node(1);
-//     draw(param, gen);
-//     auto array = make_probnode_array<poisson>(20, param.value.value);
-//     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
-
-//     vector<double> trace;
-//     for (int i = 0; i < 10000; i++) {
-//         for (int rep = 0; rep < 10; rep++) {
-//             auto param_backup = param;
-//             double logprob_before = exponential::logprob(param.value.value, 1);
-//             for (auto pnode : array.values) {
-//                 logprob_before += poisson::logprob(pnode.value, param.value.value);
-//             }
-//             double log_hastings = scale(param.value.value, gen);
-//             double logprob_after = exponential::logprob(param.value.value, 1);
-//             for (auto pnode : array.values) {
-//                 logprob_after += poisson::logprob(pnode.value, param.value.value);
-//             }
-//             double acceptance = logprob_after - logprob_before + log_hastings;
-//             bool accept = draw_uniform(gen) < exp(acceptance);
-//             if (!accept) { param.value.value = param_backup.value.value; }
-//         }
-//         trace.push_back(param.value.value);
-//     }
-//     double sum_trace = 0;
-//     for (auto e : trace) { sum_trace += e; }
-//     double sum_mean = sum_trace / 10000;
-//     CHECK(1.9 < sum_mean);  // should be somewhere close to 2.0 but biaised down due to prior
-//     CHECK(sum_mean < 2);
-// }
-
-// TEST_CASE("Very simple manual MCMC with partial log probs") {
-//     auto gen = make_generator();
-
-//     auto param = exponential::make_node(1);
-//     draw(param, gen);
-//     auto array = make_probnode_array<poisson>(20, param.value.value);
-//     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
-
-//     vector<double> trace;
-//     for (int i = 0; i < 10000; i++) {
-//         for (int rep = 0; rep < 10; rep++) {
-//             auto param_backup = param;
-//             double logprob_before = exponential::partial_logprob_value(param.value.value, 1);
-//             for (auto pnode : array.values) {
-//                 logprob_before += poisson::partial_logprob_param1(pnode.value,
-//                 param.value.value);
-//             }
-//             double log_hastings = scale(param.value.value, gen);
-//             double logprob_after = exponential::partial_logprob_value(param.value.value, 1);
-//             for (auto pnode : array.values) {
-//                 logprob_after += poisson::partial_logprob_param1(pnode.value, param.value.value);
-//             }
-//             double acceptance = logprob_after - logprob_before + log_hastings;
-//             bool accept = draw_uniform(gen) < exp(acceptance);
-//             if (!accept) { param.value.value = param_backup.value.value; }
-//         }
-//         trace.push_back(param.value.value);
-//     }
-//     double sum_trace = 0;
-//     for (auto e : trace) { sum_trace += e; }
-//     double sum_mean = sum_trace / 10000;
-//     CHECK(1.9 < sum_mean);  // should be somewhere close to 2.0 but biaised down due to prior
-//     CHECK(sum_mean < 2);
-// }
-
-TEST_CASE("Better manual MCMC") {
+TEST_CASE("MCMC with nodes") {
     auto gen = make_generator();
 
     auto param = make_node<exponential>(1);
@@ -292,18 +218,14 @@ TEST_CASE("Better manual MCMC") {
     CHECK(mean_trace < 2);
 }
 
-// TEST_CASE("Sum and mean functions") {
-//     vector<double> vd = {1, 2, 3, 4.2, 5.1, 6};
-//     vector<int> vi = {1, 2, 3, 4, 5};
-//     vector<exponential::value_t> ve = {{1.2}, {2.3}, {3.4}};
-//     vector<poisson::value_t> vp = {{11}, {2}, {3}};
-//     CHECK(sum(vd) == doctest::Approx(21.3));
-//     CHECK(sum(vi) == 15);
-//     CHECK(sum(ve) == doctest::Approx(6.9));
-//     CHECK(mean(vi) == doctest::Approx(3));
-//     CHECK(sum(vp) == 16);
-//     CHECK(std::is_same<int, decltype(sum(vp))>::value);
-// }
+TEST_CASE("Sum and mean functions") {
+    vector<double> vd = {1, 2, 3, 4.2, 5.1, 6};
+    vector<int> vi = {1, 2, 3, 4, 5};
+
+    CHECK(sum(vd) == doctest::Approx(21.3));
+    CHECK(sum(vi) == 15);
+    CHECK(mean(vi) == doctest::Approx(3));
+}
 
 // TEST_CASE("Better manual MCMC with suffstats") {
 //     auto gen = make_generator();
