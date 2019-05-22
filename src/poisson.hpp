@@ -26,19 +26,16 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include <cmath>
-#include <random>
-#include "params.hpp"
+#include "distrib_utils.hpp"
 
 double log_factorial(int n) { return std::lgamma(n + 1); }
 
 struct poisson {
     using raw_type = int;
 
-    using value_t = tagged_tuple_t<minimpl::map<field<raw_value, raw_type>>, minimpl::list<>,
-                                   minimpl::map<field<distrib, poisson>>>;
+    using T = distrib_value_type<raw_type, poisson>;
 
-    using param_decl = ::param_decl<param<rate, double>>;
+    using param_decl = param_decl_t<param<rate, double>>;
 
     template <typename Gen>
     static int draw(double rate, Gen& gen) {

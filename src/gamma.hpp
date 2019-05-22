@@ -26,17 +26,14 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include <cmath>
-#include <random>
-#include "params.hpp"
+#include "distrib_utils.hpp"
 
-struct gamma {
+struct gamma_ss {
     using raw_type = double;
 
-    using value_t = tagged_tuple_t<minimpl::map<field<raw_value, raw_type>>, minimpl::list<>,
-                                   minimpl::map<field<distrib, gamma>>>;
+    using T = distrib_value_type<raw_type, gamma_ss>;
 
-    using param_decl = ::param_decl<param<shape, double>, param<struct scale, double>>;
+    using param_decl = param_decl_t<param<shape, double>, param<struct scale, double>>;
 
     template <typename Gen>
     static double draw(double shape, double scale, Gen& gen) {

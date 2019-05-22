@@ -55,13 +55,13 @@ void check_mean(T& target, function<void()> draw, double expected_mean,
 
 TEST_CASE("Check that dist types have correct size") {
     size_t ds = sizeof(double);
-    size_t es = sizeof(exponential::value_t);
+    size_t es = sizeof(exponential::T);
     CHECK(ds == es);
 }
 
 TEST_CASE("Param making") {
     double x = 0;
-    auto params = make_params<struct gamma>(2, x);
+    auto params = make_params<gamma_ss>(2, x);
     x = 3;
 
     // order in tuple is important for unpacking in calls
@@ -87,7 +87,7 @@ TEST_CASE("Param making") {
 
 //     SUBCASE("gamma distribution") {
 //         gamma::value_t lambda;
-//         auto params = make_params<struct gamma>(2, 3);
+//         auto params = make_params<gamma_ss>(2, 3);
 //         check_mean(get<raw_value>(lambda), [&]() { draw(lambda, params, gen); }, 6);
 //     }
 
@@ -125,7 +125,7 @@ TEST_CASE("Node construction") {
         check_mean(get<value, raw_value>(alpha), [&]() { draw(alpha, gen); }, 0.25, 2.0);
     }
     SUBCASE("gamma") {
-        auto alpha = make_node<struct gamma>(2, 3);
+        auto alpha = make_node<gamma_ss>(2, 3);
         check_mean(get<value, raw_value>(alpha), [&]() { draw(alpha, gen); }, 6.0, 2.0);
     }
     SUBCASE("poisson") {
@@ -153,7 +153,7 @@ TEST_CASE("Poisson/gamma simple model: draw values") {
 
     auto k = make_node<exponential>(0.5);
     auto theta = make_node<exponential>(0.5);
-    auto lambda = make_node<struct gamma>(k, theta);
+    auto lambda = make_node<gamma_ss>(k, theta);
     auto counts = make_node<poisson>(lambda);
 
     check_mean(get<value, raw_value>(counts),
@@ -167,7 +167,7 @@ TEST_CASE("Poisson/gamma simple model: draw values") {
 }
 
 TEST_CASE("Make array params") {
-    auto p = make_array_params<struct gamma>([](int) { return 1.0; }, [](int) { return 2.0; });
+    auto p = make_array_params<gamma_ss>([](int) { return 1.0; }, [](int) { return 2.0; });
     CHECK(get<shape>(p)(2) == 1.0);
     CHECK(get<struct scale>(p)(17) == 2.0);
 }
@@ -175,9 +175,9 @@ TEST_CASE("Make array params") {
 TEST_CASE("make array") {
     auto a = make_node_array<exponential>(12, [](int) { return 1.0; });
     auto b = make_node_array<exponential>(12, [](int) { return 1.0; });
-    auto c = make_node_array<struct gamma>(
-        12, [&a](int i) { return get<raw_value>(get<value>(a).at(i)); },
-        [&b](int i) { return get<raw_value>(get<value>(b).at(i)); });
+    auto c =
+        make_node_array<gamma_ss>(12, [&a](int i) { return get<raw_value>(get<value>(a).at(i)); },
+                                  [&b](int i) { return get<raw_value>(get<value>(b).at(i)); });
     CHECK(get<value>(a).size() == 12);
     CHECK(get<params, rate>(a)(10) == 1.0);
     get<raw_value>(get<value>(a).at(2)) = 17.0;

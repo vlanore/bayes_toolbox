@@ -27,6 +27,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <assert.h>
+#include "distrib_utils.hpp"
 #include "node.hpp"
 #include "random.hpp"
 
@@ -53,13 +54,13 @@ auto draw_helper(Param& param, size_t index, Gen& gen, std::tuple<ParamKeys...>)
 }
 
 template <class Distrib, class Param, class Gen>
-void draw(typename Distrib::value_t& value, Param& param, Gen& gen) {
+void draw(typename Distrib::T& value, Param& param, Gen& gen) {
     using keys = minimpl::map_key_tuple_t<typename Distrib::param_decl>;
     get<raw_value>(value) = draw_helper<Distrib>(param, gen, keys());
 }
 
 template <class Distrib, class Param, class Gen>
-void draw(std::vector<typename Distrib::value_t>& array, Param& param, Gen& gen) {
+void draw(std::vector<typename Distrib::T>& array, Param& param, Gen& gen) {
     using keys = minimpl::map_key_tuple_t<typename Distrib::param_decl>;
     for (size_t i = 0; i < array.size(); i++) {
         get<raw_value>(array[i]) = draw_helper<Distrib>(param, i, gen, keys());

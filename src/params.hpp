@@ -33,7 +33,7 @@ license and that you accept its terms.*/
 
 //==================================================================================================
 template <class... Pairs>
-using param_decl = minimpl::map<Pairs...>;
+using param_decl_t = minimpl::map<Pairs...>;
 
 template <class ParamTag, class ParamRawValue>
 using param = minimpl::pair<ParamTag, ParamRawValue>;

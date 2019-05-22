@@ -26,27 +26,14 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "distrib_utils.hpp"
+#include <cmath>
+#include <random>
+#include "params.hpp"
+#include "tagged_tuple/src/tagged_tuple.hpp"
 
-struct exponential {
-    using raw_type = double;
+template <class Value>
+using get_distrib_t = get_property<Value, distrib>;
 
-    using T = distrib_value_type<raw_type, exponential>;
-
-    using param_decl = param_decl_t<param<rate, double>>;
-
-    template <typename Gen>
-    static double draw(double rate, Gen& gen) {
-        std::exponential_distribution<double> distrib(positive_real(rate));
-        return distrib(gen);
-        // printf("drawn %f from param %f\n", node, rate);
-    }
-
-    static double logprob(double x, double lambda) { return log(lambda) - lambda * x; }
-
-    static double partial_logprob_value(double x, double lambda) { return -lambda * x; }
-
-    static double partial_logprob_param1(double x, double lambda) {
-        return log(lambda) - lambda * x;
-    }
-};
+template <class RawType, class Distrib>
+using distrib_value_type = tagged_tuple_t<minimpl::map<field<raw_value, RawType>>, minimpl::list<>,
+                                          minimpl::map<field<distrib, Distrib>>>;
