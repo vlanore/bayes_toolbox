@@ -21,4 +21,3 @@ include_directories("utils")
 include_directories("utils/tagged_tuple/utils")
 
 add_executable(basic_test "src/test.cpp")
-add_executable(experimental_test "src/experimental_test.cpp")
