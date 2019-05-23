@@ -27,7 +27,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "distrib_utils.hpp"
-#include "node.hpp"
+#include "model.hpp"
 
 /*==================================================================================================
 ~~ Raw drawing functions ~~
@@ -63,7 +63,7 @@ void draw(std::vector<typename Distrib::T>& array, const Param& param, Gen& gen)
 /*==================================================================================================
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
-template <class ProbNode, typename Gen>
+template <class ProbNode, typename Gen, typename = std::enable_if_t<is_node<ProbNode>::value>>
 void draw(ProbNode& node, Gen& gen) {
     using distrib = get_distrib_t<ProbNode>;
     draw<distrib>(get<value>(node), get<params>(node), gen);

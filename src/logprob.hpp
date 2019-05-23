@@ -58,7 +58,7 @@ double logprob(const T& value, const Param& param) {
 /*==================================================================================================
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
-template <class ProbNode>
+template <class ProbNode, typename = std::enable_if_t<is_node<ProbNode>::value>>
 double logprob(ProbNode& node) {
     using distrib = get_distrib_t<ProbNode>;
     return logprob<distrib>(get<value>(node), get<params>(node));

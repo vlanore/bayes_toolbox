@@ -39,8 +39,11 @@ auto node(Args&&... args) {
     return move_field<Tag>(std::forward<Args>(args)...);
 }
 
+template <class T>
+using is_prob_model = ttuple_has_tag<T, prob_model_tag>;
+
 template <class Model, class L = minimpl::list<>>
-struct view : view_tag {
+struct view {
     static_assert(minimpl::is_list<L>::value, "L is not a list");
     using list = L;
     Model& model;
