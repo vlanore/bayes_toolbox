@@ -31,7 +31,7 @@ license and that you accept its terms.*/
 template <class... Args>
 auto make_model(Args&&... args) {
     // return add_tag<prob_model>(make_tagged_tuple(std::forward<Args>(args)...));
-    return make_tagged_tuple(std::forward<Args>(args)...);
+    return make_tagged_tuple(std::forward<Args>(args)..., tag<prob_model_tag>());
 }
 
 template <class Tag, class... Args>
@@ -39,5 +39,41 @@ auto node(Args&&... args) {
     return move_field<Tag>(std::forward<Args>(args)...);
 }
 
+template <class Model, class L = minimpl::list<>>
+struct view : view_tag {
+    static_assert(minimpl::is_list<L>::value, "L is not a list");
+    using list = L;
+    Model& model;
+    view(Model& model) : model(model) {}
+};
+
+template <class... Names, class Model>
+auto make_view(Model& model) {
+    return view<Model, minimpl::list<Names...>>{model};
+}
+
+template <class View, class F, class... Tags>
+void forall_in_view_impl(View& view, const F& f, std::tuple<Tags...>) {
+    std::vector<int> ignore = {(f(get<Tags>(view.model)), 0)...};
+}
+
+template <class View, class F>
+void forall_in_view(View& view, const F& f) {
+    forall_in_view_impl(view, f, typename View::list::tuple());
+}
+
 template <class M>
 using model_nodes = minimpl::map_key_tuple_t<M>;
+
+TEST_CASE("Forall on views") {
+    struct n1 {};
+    struct n2 {};
+    struct n3 {};
+    auto f = [](auto& x) { x += x; };
+    auto m = make_model(value_field<n1>(5), value_field<n2, std::string>("ab"));
+    auto v = make_view<n1, n2>(m);
+    forall_in_view(v, f);
+    forall_in_view(v, f);
+    CHECK(get<n1>(m) == 20);
+    CHECK(get<n2>(m) == "abababab");
+}

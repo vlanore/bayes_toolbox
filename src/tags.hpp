@@ -34,4 +34,7 @@ struct scale {};
 struct distrib {};
 struct value {};
 struct params {};
-struct prob_model {};
+
+// tags for class typing
+struct prob_model_tag {};
+struct view_tag {};

@@ -253,6 +253,12 @@ TEST_CASE("Basic model test") {
                1, 2.0);
 }
 
+TEST_CASE("Basic model test") {
+    auto a = make_node<exponential>(1.0);
+    auto m = my_model(a);
+    auto v = make_view<n1, n2>(m);
+}
+
 // TEST_CASE("Better manual MCMC with suffstats") {
 //     auto gen = make_generator();
 
