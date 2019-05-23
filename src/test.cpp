@@ -198,8 +198,8 @@ TEST_CASE("MCMC with nodes") {
 
     auto param = make_node<exponential>(1);
     draw(param, gen);
-    auto array =
-        make_node_array<poisson>(20, [&param](int) { return get<value, raw_value>(param); });
+    auto array = make_node_array<poisson>(
+        20, [& raw_param = get<value, raw_value>(param)](int) { return raw_param; });
     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
     vector<double> trace;
@@ -273,14 +273,12 @@ TEST_CASE("MCMC with views") {
     struct n2 {};
     auto gen = make_generator();
 
-    auto m = []() {
-        auto param = make_node<exponential>(1);
-        auto array =
-            make_node_array<poisson>(20, [&param](int) { return get<value, raw_value>(param); });
-        clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
+    auto param = make_node<exponential>(1);
+    auto array = make_node_array<poisson>(
+        20, [& raw_param = get<value, raw_value>(param)](int) { return raw_param; });
+    clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
-        return make_model(node<n1>(param), node<n2>(array));
-    }();
+    auto m = make_model(node<n1>(param), node<n2>(array));
     draw(get<n1>(m), gen);
     auto v = make_view<n1, n2>(m);
 
