@@ -43,7 +43,7 @@ template <class T>
 using is_prob_model = ttuple_has_tag<T, prob_model_tag>;
 
 template <class Model, class L = minimpl::list<>>
-struct view {
+struct view : view_tag {
     static_assert(minimpl::is_list<L>::value, "L is not a list");
     using list = L;
     Model& model;
@@ -67,6 +67,9 @@ void forall_in_view(View& view, const F& f) {
 
 template <class M>
 using model_nodes = minimpl::map_key_tuple_t<M>;
+
+template <class T>
+using is_view = std::is_base_of<view_tag, T>;
 
 TEST_CASE("Forall on views") {
     struct n1 {};

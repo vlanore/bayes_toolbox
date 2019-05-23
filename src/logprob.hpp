@@ -63,3 +63,10 @@ double logprob(ProbNode& node) {
     using distrib = get_distrib_t<ProbNode>;
     return logprob<distrib>(get<value>(node), get<params>(node));
 }
+
+template <class... ViewParams>
+double logprob(view<ViewParams...>& view) {
+    double result = 0;
+    forall_in_view(view, [&result](auto& node) { result += logprob(node); });
+    return result;
+}

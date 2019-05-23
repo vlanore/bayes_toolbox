@@ -38,3 +38,4 @@ struct params {};
 // tags for class typing
 struct prob_model_tag {};
 struct node_tag {};
+struct view_tag {};

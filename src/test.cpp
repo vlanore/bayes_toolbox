@@ -253,10 +253,51 @@ TEST_CASE("Basic model test") {
                1, 2.0);
 }
 
-TEST_CASE("Basic model test") {
+TEST_CASE("Basic view test") {
+    auto gen = make_generator();
     auto a = make_node<exponential>(1.0);
     auto m = my_model(a);
     auto v = make_view<n1, n2>(m);
+    CHECK(is_view<decltype(v)>::value);
+    CHECK(not is_view<decltype(m)>::value);
+    check_mean(get<n2, value, raw_value>(m),
+               [&]() {
+                   draw(a, gen);
+                   draw(v, gen);
+               },
+               1, 2.0);
+}
+
+TEST_CASE("MCMC with views") {
+    struct n1 {};
+    struct n2 {};
+    auto gen = make_generator();
+
+    auto m = []() {
+        auto param = make_node<exponential>(1);
+        auto array =
+            make_node_array<poisson>(20, [&param](int) { return get<value, raw_value>(param); });
+        clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
+
+        return make_model(node<n1>(param), node<n2>(array));
+    }();
+    draw(get<n1>(m), gen);
+    auto v = make_view<n1, n2>(m);
+
+    vector<double> trace;
+    for (int i = 0; i < 10000; i++) {
+        for (int rep = 0; rep < 10; rep++) {
+            auto param_backup = make_value_backup(get<n1>(m));
+            double logprob_before = logprob(v);
+            double log_hastings = scale(get<n1, value, raw_value>(m), gen);
+            bool accept = decide(logprob(v) - logprob_before + log_hastings, gen);
+            if (!accept) { restore_from_backup(get<n1>(m), param_backup); }
+        }
+        trace.push_back(get<n1, value, raw_value>(m));
+    }
+    double mean_trace = mean(trace);
+    CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
+    CHECK(mean_trace < 2);
 }
 
 // TEST_CASE("Better manual MCMC with suffstats") {

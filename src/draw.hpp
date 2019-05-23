@@ -68,3 +68,8 @@ void draw(ProbNode& node, Gen& gen) {
     using distrib = get_distrib_t<ProbNode>;
     draw<distrib>(get<value>(node), get<params>(node), gen);
 }
+
+template <class... ViewParams, typename Gen>
+void draw(view<ViewParams...>& view, Gen& gen) {
+    forall_in_view(view, [&gen](auto& node) { draw(node, gen); });
+}
