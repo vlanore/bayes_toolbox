@@ -59,3 +59,13 @@ using node_value_t = std::remove_reference_t<decltype(get<value>(std::declval<No
 template <class NodeArray>
 using node_array_value_t =
     typename std::remove_reference_t<decltype(get<value>(std::declval<NodeArray>()))>::T;
+
+template <class Node>
+auto& get_raw_value(Node& node) {
+    return get<value, raw_value>(node);
+}
+
+template <class Node>
+const auto& get_raw_value(const Node& node) {
+    return get<value, raw_value>(node);
+}

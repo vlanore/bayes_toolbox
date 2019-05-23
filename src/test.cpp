@@ -176,9 +176,7 @@ TEST_CASE("Make array params") {
 TEST_CASE("make array") {
     auto a = make_node_array<exponential>(12, [](int) { return 1.0; });
     auto b = make_node_array<exponential>(12, [](int) { return 1.0; });
-    auto c =
-        make_node_array<gamma_ss>(12, [&a](int i) { return get<raw_value>(get<value>(a).at(i)); },
-                                  [&b](int i) { return get<raw_value>(get<value>(b).at(i)); });
+    auto c = make_node_array<gamma_ss>(12, n_to_n(a), n_to_n(b));
     CHECK(get<value>(a).size() == 12);
     CHECK(get<params, rate>(a)(10) == 1.0);
     get<raw_value>(get<value>(a).at(2)) = 17.0;
@@ -198,8 +196,7 @@ TEST_CASE("MCMC with nodes") {
 
     auto param = make_node<exponential>(1);
     draw(param, gen);
-    auto array = make_node_array<poisson>(
-        20, [& raw_param = get<value, raw_value>(param)](int) { return raw_param; });
+    auto array = make_node_array<poisson>(20, n_to_one(param));
     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
     vector<double> trace;
@@ -274,8 +271,7 @@ TEST_CASE("MCMC with views") {
     auto gen = make_generator();
 
     auto param = make_node<exponential>(1);
-    auto array = make_node_array<poisson>(
-        20, [& raw_param = get<value, raw_value>(param)](int) { return raw_param; });
+    auto array = make_node_array<poisson>(20, n_to_one(param));
     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
     auto m = make_model(node<n1>(param), node<n2>(array));
