@@ -41,6 +41,11 @@ auto make_view(Model& model) {
     return view<Model, minimpl::list<Names...>>{model};
 }
 
+template <class Model>
+auto full_view(Model& model) {
+    return view<Model, model_nodes<Model>>{model};
+}
+
 template <class View, class F, class... Tags>
 void forall_in_view_impl(View& view, const F& f, std::tuple<Tags...>) {
     std::vector<int> ignore = {(f(get<Tags>(view.model)), 0)...};

@@ -43,7 +43,7 @@ template <class T>
 using is_prob_model = ttuple_has_tag<T, prob_model_tag>;
 
 template <class M>
-using model_nodes = minimpl::map_key_tuple_t<M>;
+using model_nodes = minimpl::map_key_list_t<typename M::fields>;
 
 template <class T>
 using is_view = std::is_base_of<view_tag, T>;

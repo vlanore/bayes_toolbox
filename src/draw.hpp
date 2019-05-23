@@ -48,13 +48,13 @@ auto draw_helper(Param& param, Gen& gen, std::tuple<ParamKeys...>, Indexes... in
 
 template <class Distrib, class Param, class Gen>
 void draw(typename Distrib::T& value, const Param& param, Gen& gen) {
-    using keys = minimpl::map_key_tuple_t<typename Distrib::param_decl>;
+    using keys = typename minimpl::map_key_list_t<typename Distrib::param_decl>::tuple;
     get<raw_value>(value) = draw_helper<Distrib>(param, gen, keys());
 }
 
 template <class Distrib, class Param, class Gen>
 void draw(std::vector<typename Distrib::T>& array, const Param& param, Gen& gen) {
-    using keys = minimpl::map_key_tuple_t<typename Distrib::param_decl>;
+    using keys = typename minimpl::map_key_list_t<typename Distrib::param_decl>::tuple;
     for (size_t i = 0; i < array.size(); i++) {
         get<raw_value>(array[i]) = draw_helper<Distrib>(param, gen, keys(), i);
     }

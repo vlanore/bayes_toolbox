@@ -41,7 +41,7 @@ auto logprob_helper(const T& value, const Param& param, std::tuple<ParamKeys...>
 
 template <class Distrib, class T = typename Distrib::T, class Param>
 double logprob(const std::vector<T>& value, const Param& param) {
-    using keys = minimpl::map_key_tuple_t<typename Distrib::param_decl>;
+    using keys = typename minimpl::map_key_list_t<typename Distrib::param_decl>::tuple;
     double result = 0;
     for (size_t i = 0; i < value.size(); i++) {
         result += logprob_helper<Distrib>(get<raw_value>(value[i]), param, keys(), i);
@@ -51,7 +51,7 @@ double logprob(const std::vector<T>& value, const Param& param) {
 
 template <class Distrib, class T = typename Distrib::T, class Param>
 double logprob(const T& value, const Param& param) {
-    using keys = minimpl::map_key_tuple_t<typename Distrib::param_decl>;
+    using keys = typename minimpl::map_key_list_t<typename Distrib::param_decl>::tuple;
     return logprob_helper<Distrib>(get<raw_value>(value), param, keys());
 }
 

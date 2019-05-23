@@ -275,7 +275,7 @@ TEST_CASE("MCMC with views") {
     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
     auto m = make_model(node<n1>(param), node<n2>(array));
-    auto v = make_view<n1, n2>(m);
+    auto v = full_view(m);
 
     vector<double> trace;
     for (int i = 0; i < 10000; i++) {
