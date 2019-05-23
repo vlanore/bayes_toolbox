@@ -35,9 +35,8 @@ license and that you accept its terms.*/
 #include "logprob.hpp"
 #include "math_utils.hpp"
 #include "mcmc_utils.hpp"
-#include "model.hpp"
-#include "node.hpp"
 #include "poisson.hpp"
+#include "view.hpp"
 using namespace std;
 
 #define NB_POINTS 10000
@@ -271,11 +270,11 @@ TEST_CASE("MCMC with views") {
     auto gen = make_generator();
 
     auto param = make_node<exponential>(1);
+    draw(param, gen);
     auto array = make_node_array<poisson>(20, n_to_one(param));
     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
     auto m = make_model(node<n1>(param), node<n2>(array));
-    draw(get<n1>(m), gen);
     auto v = make_view<n1, n2>(m);
 
     vector<double> trace;

@@ -27,7 +27,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "distrib_utils.hpp"
-#include "model.hpp"
+#include "view.hpp"
 
 /*==================================================================================================
 ~~ Raw drawing functions ~~
