@@ -92,13 +92,3 @@ auto make_backuped_node_array(size_t size, ParamArgs&&... args) {
     using vec_t = std::vector<typename Distrib::T>;
     return push_front<backup_value, vec_t>(node, vec_t(size));
 }
-
-template <class BN>
-void backup(BN& node) {
-    get<backup_value>(node) = get<value>(node);
-}
-
-template <class BN>
-void restore(BN& node) {
-    get<value>(node) = get<backup_value>(node);
-}

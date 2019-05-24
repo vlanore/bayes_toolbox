@@ -29,6 +29,7 @@ license and that you accept its terms.*/
 #include "doctest.h"
 
 #include "array_utils.hpp"
+#include "backup.hpp"
 #include "basic_moves.hpp"
 #include "exponential.hpp"
 #include "gamma.hpp"
@@ -226,6 +227,7 @@ TEST_CASE("Sum and mean functions") {
 
 struct n1 {};
 struct n2 {};
+struct n3 {};
 
 template <class Arg>
 auto my_model(Arg&& arg) {
@@ -295,9 +297,28 @@ TEST_CASE("node backups") {
     CHECK(a_3 == 8);
 }
 
+TEST_CASE("view backups") {
+    auto m = []() {
+        auto a = make_backuped_node<exponential>(1);
+        auto b = make_backuped_node<exponential>(1);
+        auto c = make_backuped_node<exponential>(1);
+        return make_model(node<n1>(a), node<n2>(b), node<n3>(c));
+    }();
+    get_raw_value(get<n1>(m)) = 1.;
+    get_raw_value(get<n2>(m)) = 2.;
+    get_raw_value(get<n3>(m)) = 3.;
+    auto v = make_view<n1, n3>(m);
+    backup(v);
+    get_raw_value(get<n1>(m)) = 4;
+    get_raw_value(get<n2>(m)) = 5;
+    get_raw_value(get<n3>(m)) = 6;
+    restore(v);
+    CHECK(get_raw_value(get<n1>(m)) == 1);
+    CHECK(get_raw_value(get<n2>(m)) == 5);
+    CHECK(get_raw_value(get<n3>(m)) == 3);
+}
+
 TEST_CASE("MCMC with views and backups") {
-    struct n1 {};
-    struct n2 {};
     auto gen = make_generator();
 
     auto param = make_backuped_node<exponential>(1);
