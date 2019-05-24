@@ -178,8 +178,8 @@ TEST_CASE("make array") {
     auto c = make_node_array<gamma_ss>(12, n_to_n(a), n_to_n(b));
     CHECK(get<value>(a).size() == 12);
     CHECK(get<params, rate>(a)(10) == 1.0);
-    get<raw_value>(get<value>(a).at(2)) = 17.0;
-    get<raw_value>(get<value>(b).at(2)) = 19.0;
+    get_array_raw_value(a, 2) = 17.0;
+    get_array_raw_value(b, 2) = 19.0;
     CHECK(get<params, shape>(c)(2) == 17.0);
     CHECK(get<params, struct scale>(c)(2) == 19.0);
 }
@@ -267,16 +267,32 @@ TEST_CASE("Basic view test") {
 TEST_CASE("node backups") {
     auto node = make_backuped_node<exponential>(1);
     auto array = make_backuped_node_array<poisson>(5, n_to_one(node));
+    auto& a_3 = get_array_raw_value(array, 3);
     get_raw_value(node) = 1.3;
     clamp_array(array, 2, 4, 5, 8, 9);
     backup(node);
     backup(array);
+    CHECK(a_3 == 8);
+
     get_raw_value(node) = 3.1;
     clamp_array(array, 8, 9, 0, 12, 3);
+    CHECK(get_raw_value(node) == 3.1);
+    CHECK(get_array_raw_value(array, 0) == 8);
+    CHECK(get_array_raw_value(array, 1) == 9);
+    CHECK(get_array_raw_value(array, 2) == 0);
+    CHECK(get_array_raw_value(array, 3) == 12);
+    CHECK(get_array_raw_value(array, 4) == 3);
+    CHECK(a_3 == 12);
+
     restore(node);
     restore(array);
     CHECK(get_raw_value(node) == 1.3);
-    CHECK(get<raw_value>(get<value>(array).at(0)) == 2);
+    CHECK(get_array_raw_value(array, 0) == 2);
+    CHECK(get_array_raw_value(array, 1) == 4);
+    CHECK(get_array_raw_value(array, 2) == 5);
+    CHECK(get_array_raw_value(array, 3) == 8);
+    CHECK(get_array_raw_value(array, 4) == 9);
+    CHECK(a_3 == 8);
 }
 
 TEST_CASE("MCMC with views and backups") {

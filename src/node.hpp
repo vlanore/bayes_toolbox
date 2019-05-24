@@ -70,6 +70,16 @@ const auto& get_raw_value(const Node& node) {
     return get<value, raw_value>(node);
 }
 
+template <class Node>
+auto& get_array_raw_value(Node& node, size_t i) {
+    return get<raw_value>(get<value>(node)[i]);
+}
+
+template <class Node>
+const auto& get_array_raw_value(const Node& node, size_t i) {
+    return get<raw_value>(get<value>(node)[i]);
+}
+
 template <class Distrib, class... ParamArgs>
 auto make_backuped_node(ParamArgs&&... args) {
     auto node = make_node<Distrib>(std::forward<ParamArgs>(args)...);

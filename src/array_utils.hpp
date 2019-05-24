@@ -33,7 +33,5 @@ template <class ProbNode, class Distrib = get_distrib_t<ProbNode>, class... Rest
 void clamp_array(ProbNode& node, typename Distrib::raw_type first, Rest... rest) {
     std::vector<typename Distrib::raw_type> values{first, rest...};
     assert(values.size() == get<value>(node).size());
-    for (size_t i = 0; i < values.size(); i++) {
-        get<raw_value>(get<value>(node).at(i)) = values.at(i);
-    }
+    for (size_t i = 0; i < values.size(); i++) { get_array_raw_value(node, i) = values.at(i); }
 }
