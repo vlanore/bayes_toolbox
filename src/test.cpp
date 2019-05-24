@@ -264,12 +264,12 @@ TEST_CASE("Basic view test") {
                1, 2.0);
 }
 
-TEST_CASE("MCMC with views") {
+TEST_CASE("MCMC with views and backups") {
     struct n1 {};
     struct n2 {};
     auto gen = make_generator();
 
-    auto param = make_node<exponential>(1);
+    auto param = make_backuped_node<exponential>(1);
     draw(param, gen);
     auto array = make_node_array<poisson>(20, n_to_one(param));
     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
@@ -280,11 +280,11 @@ TEST_CASE("MCMC with views") {
     vector<double> trace;
     for (int i = 0; i < 10000; i++) {
         for (int rep = 0; rep < 10; rep++) {
-            auto param_backup = make_value_backup(get<n1>(m));
+            backup(get<n1>(m));
             double logprob_before = logprob(v);
             double log_hastings = scale(get<n1, value, raw_value>(m), gen);
             bool accept = decide(logprob(v) - logprob_before + log_hastings, gen);
-            if (!accept) { restore_from_backup(get<n1>(m), param_backup); }
+            if (!accept) { restore(get<n1>(m)); }
         }
         trace.push_back(get<n1, value, raw_value>(m));
     }

@@ -69,3 +69,19 @@ template <class Node>
 const auto& get_raw_value(const Node& node) {
     return get<value, raw_value>(node);
 }
+
+template <class Distrib, class... ParamArgs>
+auto make_backuped_node(ParamArgs&&... args) {
+    auto node = make_node<Distrib>(std::forward<ParamArgs>(args)...);
+    return push_front<backup_value, typename Distrib::T>(node, {});
+}
+
+template <class BN>
+void backup(BN& node) {
+    get<backup_value>(node) = get<value>(node);
+}
+
+template <class BN>
+void restore(BN& node) {
+    get<value>(node) = get<backup_value>(node);
+}
