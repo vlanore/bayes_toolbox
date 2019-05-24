@@ -264,6 +264,21 @@ TEST_CASE("Basic view test") {
                1, 2.0);
 }
 
+TEST_CASE("node backups") {
+    auto node = make_backuped_node<exponential>(1);
+    auto array = make_backuped_node_array<poisson>(5, n_to_one(node));
+    get_raw_value(node) = 1.3;
+    clamp_array(array, 2, 4, 5, 8, 9);
+    backup(node);
+    backup(array);
+    get_raw_value(node) = 3.1;
+    clamp_array(array, 8, 9, 0, 12, 3);
+    restore(node);
+    restore(array);
+    CHECK(get_raw_value(node) == 1.3);
+    CHECK(get<raw_value>(get<value>(array).at(0)) == 2);
+}
+
 TEST_CASE("MCMC with views and backups") {
     struct n1 {};
     struct n2 {};
