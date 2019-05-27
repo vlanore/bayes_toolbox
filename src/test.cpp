@@ -358,21 +358,22 @@ TEST_CASE("MCMC with views and backups") {
 TEST_CASE("Suffstats") {
     auto array = make_node_array<poisson>(5, [](int) { return 1.0; });
     clamp_array(array, 1, 2, 3, 4, 5);
-    auto array_sum = make_suffstat<poisson::sum_suffstat>(array);
-    CHECK(!is_up_to_date(array_sum));
+    auto ss = make_suffstat<poisson_suffstat>(array);
+    CHECK(!is_up_to_date(ss));
 
-    gather(array_sum);
-    CHECK(get<suffstat>(array_sum).sum == 15);
-    CHECK(get<suffstat>(array_sum).N == 5);
-    CHECK(is_up_to_date(array_sum));
+    gather(ss);
+    CHECK(get<suffstat>(ss).sum == 15);
+    CHECK(get<suffstat>(ss).N == 5);
+    CHECK(is_up_to_date(ss));
 
     clamp_array(array, 1, 1, 1, 1, 1);
-    CHECK(!is_up_to_date(array_sum));
-    gather(array_sum);
-    CHECK(get<suffstat>(array_sum).sum == 5);
-    CHECK(is_up_to_date(array_sum));
+    CHECK(!is_up_to_date(ss));
+    gather(ss);
+    CHECK(get<suffstat>(ss).sum == 5);
+    CHECK(is_up_to_date(ss));
 
-    CHECK(get<params, rate>(array_sum)(0) == 1.0);
+    CHECK(get<params, rate>(ss)(0) == 1.0);
+    CHECK(logprob(ss) == logprob(array));
 }
 
 // TEST_CASE("Better manual MCMC with suffstats") {

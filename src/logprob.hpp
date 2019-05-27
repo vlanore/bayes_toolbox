@@ -27,12 +27,13 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "distrib_utils.hpp"
+#include "suffstat_utils.hpp"
 #include "view.hpp"
 
 /*==================================================================================================
 ~~ Overloads that unpack parameters ~~
 ==================================================================================================*/
-template <typename Distrib, typename Param, class T = typename Distrib::raw_value,
+template <typename Distrib, class T = typename Distrib::raw_value, typename Param,
           class... ParamKeys, class... Indexes>
 auto logprob_helper(const T& value, const Param& param, std::tuple<ParamKeys...>,
                     Indexes... indexes) {
@@ -49,19 +50,38 @@ double logprob(const std::vector<T>& value, const Param& param) {
     return result;
 }
 
-template <class Distrib, class T = typename Distrib::T, class Param>
-double logprob(const T& value, const Param& param) {
+template <class Distrib, class Param>
+double logprob(const typename Distrib::T& value, const Param& param) {
     using keys = typename minimpl::map_key_list_t<typename Distrib::param_decl>::tuple;
     return logprob_helper<Distrib>(value.value, param, keys());
+}
+
+template <class SS, class Param>
+double logprob(const SS& ss, const Param& param) {
+    using distrib = typename SS::distrib;
+    using keys = typename minimpl::map_key_list_t<typename distrib::param_decl>::tuple;
+    // TODO check that params are identical?
+    return logprob_helper<SS, SS>(ss, param, keys(), 0);
 }
 
 /*==================================================================================================
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
+template <class SS>
+double logprob_node_selector(std::true_type /* is_ss */, SS& ss) {
+    using ss_t = get_property<SS, suffstat_type>;
+    return logprob<ss_t>(get<suffstat>(ss), get<params>(ss));
+}
+
 template <class ProbNode, typename = std::enable_if_t<is_node<ProbNode>::value>>
-double logprob(ProbNode& node) {
+double logprob_node_selector(std::false_type /* is_ss */, ProbNode& node) {
     using distrib = node_distrib_t<ProbNode>;
     return logprob<distrib>(get<value>(node), get<params>(node));
+}
+
+template <class T>
+double logprob(T& something) {
+    return logprob_node_selector(std::integral_constant<bool, is_suffstat<T>::value>(), something);
 }
 
 template <class... ViewParams>

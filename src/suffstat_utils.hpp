@@ -32,8 +32,12 @@ license and that you accept its terms.*/
 template <class SS, class Target>
 auto make_suffstat(Target& t) {
     return make_tagged_tuple(value_field<suffstat>(SS()), ref_field<target>(get<value>(t)),
-                             value_field<params>(get<params>(t)), property<suffstat_type, SS>());
+                             value_field<params>(get<params>(t)), property<suffstat_type, SS>(),
+                             tag<suffstat>());
 }
+
+template <class T>
+using is_suffstat = ttuple_has_tag<T, suffstat>;
 
 template <class Node>
 void gather(Node& node) {

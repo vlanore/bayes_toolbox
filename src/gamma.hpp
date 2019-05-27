@@ -57,18 +57,20 @@ struct gamma_ss {
     static double partial_logprob_param2(double x, double k, double theta) {
         return -k * log(theta) - x / theta;
     }
+};
 
-    struct suffstats {
-        double sum;
-        double sum_log;
-        size_t N;
+struct gamma_ss_suffstats {
+    double sum;
+    double sum_log;
+    size_t N;
 
-        static suffstats gather(const std::vector<T>& array) {
-            return {::sum(array), ::sum(array), array.size()};
-        }
-    };
+    using distrib = gamma_ss;
 
-    static double logprob(double k, double theta, suffstats ss) {
+    static gamma_ss_suffstats gather(const std::vector<typename gamma_ss::T>& array) {
+        return {::sum(array), ::sum(array), array.size()};
+    }
+
+    static double logprob(double k, double theta, gamma_ss_suffstats ss) {
         return -ss.N * std::lgamma(k) - ss.N * k * log(theta) + (k - 1) * ss.sum_log -
                (1 / theta) * ss.sum;
     }
