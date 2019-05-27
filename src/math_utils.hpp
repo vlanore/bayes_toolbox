@@ -27,6 +27,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <vector>
+#include "tagged_tuple/src/tagged_tuple.hpp"
 
 auto sum(std::vector<double> v) {
     double result = 0;
@@ -42,8 +43,8 @@ auto sum(std::vector<int> v) {
 
 template <class Value>
 auto sum(std::vector<Value> v) {
-    typename Value::distrib::raw_type result = 0;
-    for (auto e : v) { result += e.value; }
+    typename get_property<Value, distrib>::raw_type result = 0;
+    for (auto e : v) { result += get<raw_value>(e); }
     return result;
 }
 

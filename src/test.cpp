@@ -37,6 +37,7 @@ license and that you accept its terms.*/
 #include "math_utils.hpp"
 #include "mcmc_utils.hpp"
 #include "poisson.hpp"
+#include "suffstat_utils.hpp"
 #include "view.hpp"
 using namespace std;
 
@@ -343,6 +344,23 @@ TEST_CASE("MCMC with views and backups") {
     double mean_trace = mean(trace);
     CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
     CHECK(mean_trace < 2);
+}
+
+TEST_CASE("Suffstats") {
+    auto array = make_node_array<poisson>(5, [](int) { return 1.0; });
+    clamp_array(array, 1, 2, 3, 4, 5);
+    auto array_sum = make_suffstat([](auto& a) { return sum(a); }, get<value>(array));
+    CHECK(!is_up_to_date(array_sum));
+
+    gather(array_sum);
+    CHECK(get<suff_stat>(array_sum) == 15);
+    CHECK(is_up_to_date(array_sum));
+
+    clamp_array(array, 1, 1, 1, 1, 1);
+    CHECK(!is_up_to_date(array_sum));
+    gather(array_sum);
+    CHECK(get<suff_stat>(array_sum) == 5);
+    CHECK(is_up_to_date(array_sum));
 }
 
 // TEST_CASE("Better manual MCMC with suffstats") {
