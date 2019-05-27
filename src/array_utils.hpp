@@ -29,7 +29,7 @@ license and that you accept its terms.*/
 #include <assert.h>
 #include "node.hpp"
 
-template <class ProbNode, class Distrib = get_distrib_t<ProbNode>, class... Rest>
+template <class ProbNode, class Distrib = node_distrib_t<ProbNode>, class... Rest>
 void clamp_array(ProbNode& node, typename Distrib::raw_type first, Rest... rest) {
     std::vector<typename Distrib::raw_type> values{first, rest...};
     assert(values.size() == get<value>(node).size());

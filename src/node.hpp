@@ -51,7 +51,10 @@ template <class T>
 using is_node = ttuple_has_tag<T, node_tag>;
 
 template <class Value>
-using get_distrib_t = get_property<Value, distrib>;
+using value_distrib_t = typename Value::distrib;
+
+template <class Node>
+using node_distrib_t = get_property<Node, distrib>;
 
 template <class Node>
 using node_value_t = std::remove_reference_t<decltype(get<value>(std::declval<Node>()))>;
@@ -62,22 +65,22 @@ using node_array_value_t =
 
 template <class Node>
 auto& get_raw_value(Node& node) {
-    return get<value, raw_value>(node);
+    return get<value>(node).value;
 }
 
 template <class Node>
 const auto& get_raw_value(const Node& node) {
-    return get<value, raw_value>(node);
+    return get<value>(node).value;
 }
 
 template <class Node>
 auto& get_array_raw_value(Node& node, size_t i) {
-    return get<raw_value>(get<value>(node)[i]);
+    return get<value>(node)[i].value;
 }
 
 template <class Node>
 const auto& get_array_raw_value(const Node& node, size_t i) {
-    return get<raw_value>(get<value>(node)[i]);
+    return get<value>(node)[i].value;
 }
 
 template <class Distrib, class... ParamArgs>

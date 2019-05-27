@@ -33,5 +33,7 @@ license and that you accept its terms.*/
 #include "tagged_tuple/src/tagged_tuple.hpp"
 
 template <class RawType, class Distrib>
-using distrib_value_type = tagged_tuple_t<minimpl::map<field<raw_value, RawType>>, minimpl::list<>,
-                                          minimpl::map<field<distrib, Distrib>>>;
+struct distrib_value_type {
+    RawType value;
+    using distrib = Distrib;
+};

@@ -80,20 +80,19 @@ TEST_CASE("Draw in various distribs") {
     SUBCASE("exponential distribution") {
         exponential::T alpha;
         auto alpha_param = make_params<exponential>(4);
-        check_mean(get<raw_value>(alpha), [&]() { draw<exponential>(alpha, alpha_param, gen); },
-                   0.25);
+        check_mean(alpha.value, [&]() { draw<exponential>(alpha, alpha_param, gen); }, 0.25);
     }
 
     SUBCASE("gamma distribution") {
         gamma_ss::T lambda;
         auto params = make_params<gamma_ss>(2, 3);
-        check_mean(get<raw_value>(lambda), [&]() { draw<gamma_ss>(lambda, params, gen); }, 6);
+        check_mean(lambda.value, [&]() { draw<gamma_ss>(lambda, params, gen); }, 6);
     }
 
     SUBCASE("poisson distribution") {
         poisson::T alpha;
         auto params = make_params<poisson>(4);
-        check_mean(get<raw_value>(alpha), [&]() { draw<poisson>(alpha, params, gen); }, 4);
+        check_mean(alpha.value, [&]() { draw<poisson>(alpha, params, gen); }, 4);
     }
 }
 
@@ -103,20 +102,17 @@ TEST_CASE("Lambda and rvalue constants as draw parameters") {
     exponential::T alpha;
     SUBCASE("lambda param") {
         auto alpha_param = make_params<exponential>([]() { return 2; });
-        check_mean(get<raw_value>(alpha), [&]() { draw<exponential>(alpha, alpha_param, gen); },
-                   0.5);
+        check_mean(alpha.value, [&]() { draw<exponential>(alpha, alpha_param, gen); }, 0.5);
     }
     SUBCASE("rvalue param") {
         auto alpha_param = make_params<exponential>(2);
-        check_mean(get<raw_value>(alpha), [&]() { draw<exponential>(alpha, alpha_param, gen); },
-                   0.5);
+        check_mean(alpha.value, [&]() { draw<exponential>(alpha, alpha_param, gen); }, 0.5);
     }
     SUBCASE("lvalue param") {
         double my_param = 17;
         auto alpha_param = make_params<exponential>(my_param);
         my_param = 2;
-        check_mean(get<raw_value>(alpha), [&]() { draw<exponential>(alpha, alpha_param, gen); },
-                   0.5);
+        check_mean(alpha.value, [&]() { draw<exponential>(alpha, alpha_param, gen); }, 0.5);
     }
 }
 
@@ -124,29 +120,29 @@ TEST_CASE("Node construction") {
     auto gen = make_generator();
     SUBCASE("exponential") {
         auto alpha = make_node<exponential>(4);
-        check_mean(get<value, raw_value>(alpha), [&]() { draw(alpha, gen); }, 0.25, 2.0);
+        check_mean(get<value>(alpha).value, [&]() { draw(alpha, gen); }, 0.25, 2.0);
     }
     SUBCASE("gamma") {
         auto alpha = make_node<gamma_ss>(2, 3);
-        check_mean(get<value, raw_value>(alpha), [&]() { draw(alpha, gen); }, 6.0, 2.0);
+        check_mean(get<value>(alpha).value, [&]() { draw(alpha, gen); }, 6.0, 2.0);
     }
     SUBCASE("poisson") {
         auto alpha = make_node<poisson>(3);
-        check_mean(get<value, raw_value>(alpha), [&]() { draw(alpha, gen); }, 3.0, 2.0);
+        check_mean(get<value>(alpha).value, [&]() { draw(alpha, gen); }, 3.0, 2.0);
     }
     SUBCASE("exponential with ref") {
         double my_param = 17;
         auto alpha = make_node<exponential>(my_param);
         my_param = 4;
-        check_mean(get<value, raw_value>(alpha), [&]() { draw(alpha, gen); }, 0.25, 2.0);
+        check_mean(get<value>(alpha).value, [&]() { draw(alpha, gen); }, 0.25, 2.0);
     }
 }
 
 TEST_CASE("auto detection of nodes in make_param") {
     auto k = make_node<exponential>(0.5);
-    get<value, raw_value>(k) = 17;
+    get<value>(k).value = 17;
     auto k2 = make_params<exponential>(k);
-    get<value, raw_value>(k) = 7;
+    get<value>(k).value = 7;
     CHECK(get<rate>(k2)() == 7);  // check it's by reference
 }
 
@@ -158,7 +154,7 @@ TEST_CASE("Poisson/gamma simple model: draw values") {
     auto lambda = make_node<gamma_ss>(k, theta);
     auto counts = make_node<poisson>(lambda);
 
-    check_mean(get<value, raw_value>(counts),
+    check_mean(get<value>(counts).value,
                [&]() {
                    draw(k, gen);
                    draw(theta, gen);
@@ -205,12 +201,12 @@ TEST_CASE("MCMC with nodes") {
         for (int rep = 0; rep < 10; rep++) {
             auto param_backup = make_value_backup(param);
             double logprob_before = logprob(param) + logprob(array);
-            double log_hastings = scale(get<value, raw_value>(param), gen);
+            double log_hastings = scale(get<value>(param).value, gen);
             double logprob_after = logprob(param) + logprob(array);
             bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
             if (!accept) { restore_from_backup(param, param_backup); }
         }
-        trace.push_back(get<value, raw_value>(param));
+        trace.push_back(get<value>(param).value);
     }
     double mean_trace = mean(trace);
     CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
@@ -243,7 +239,7 @@ TEST_CASE("Basic model test") {
     auto a = make_node<exponential>(1.0);
     auto m = my_model(a);
 
-    check_mean(get<n2, value, raw_value>(m),
+    check_mean(get<n2, value>(m).value,
                [&]() {
                    draw(a, gen);
                    draw(get<n1>(m), gen);
@@ -259,7 +255,7 @@ TEST_CASE("Basic view test") {
     auto v = make_view<n1, n2>(m);
     CHECK(is_view<decltype(v)>::value);
     CHECK(not is_view<decltype(m)>::value);
-    check_mean(get<n2, value, raw_value>(m),
+    check_mean(get<n2, value>(m).value,
                [&]() {
                    draw(a, gen);
                    draw(v, gen);
@@ -335,11 +331,11 @@ TEST_CASE("MCMC with views and backups") {
         for (int rep = 0; rep < 10; rep++) {
             backup(get<n1>(m));
             double logprob_before = logprob(v);
-            double log_hastings = scale(get<n1, value, raw_value>(m), gen);
+            double log_hastings = scale(get<n1, value>(m).value, gen);
             bool accept = decide(logprob(v) - logprob_before + log_hastings, gen);
             if (!accept) { restore(get<n1>(m)); }
         }
-        trace.push_back(get<n1, value, raw_value>(m));
+        trace.push_back(get<n1, value>(m).value);
     }
     double mean_trace = mean(trace);
     CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior

@@ -68,7 +68,7 @@ namespace helper {
 
     template <class Factory, class Value>
     auto param_builder(std::true_type /* is a node */, Value& v) {
-        return Factory::make(get<value, raw_value>(v));
+        return Factory::make(get<value>(v).value);
     }
 
     template <class Factory, class Value>
@@ -128,5 +128,5 @@ auto n_to_one(Node& node) {
 
 template <class Node>
 auto n_to_n(Node& node) {
-    return [&v = get<value>(node)](int i) { return get<raw_value>(v[i]); };
+    return [&v = get<value>(node)](int i) { return v[i].value; };
 }

@@ -43,8 +43,8 @@ auto sum(std::vector<int> v) {
 
 template <class Value>
 auto sum(std::vector<Value> v) {
-    typename get_property<Value, distrib>::raw_type result = 0;
-    for (auto e : v) { result += get<raw_value>(e); }
+    typename Value::distrib::raw_type result = 0;
+    for (auto e : v) { result += e.value; }
     return result;
 }
 

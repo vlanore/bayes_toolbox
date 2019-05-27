@@ -49,14 +49,14 @@ auto draw_helper(Param& param, Gen& gen, std::tuple<ParamKeys...>, Indexes... in
 template <class Distrib, class Param, class Gen>
 void draw(typename Distrib::T& value, const Param& param, Gen& gen) {
     using keys = typename minimpl::map_key_list_t<typename Distrib::param_decl>::tuple;
-    get<raw_value>(value) = draw_helper<Distrib>(param, gen, keys());
+    value.value = draw_helper<Distrib>(param, gen, keys());
 }
 
 template <class Distrib, class Param, class Gen>
 void draw(std::vector<typename Distrib::T>& array, const Param& param, Gen& gen) {
     using keys = typename minimpl::map_key_list_t<typename Distrib::param_decl>::tuple;
     for (size_t i = 0; i < array.size(); i++) {
-        get<raw_value>(array[i]) = draw_helper<Distrib>(param, gen, keys(), i);
+        array[i].value = draw_helper<Distrib>(param, gen, keys(), i);
     }
 }
 
@@ -65,7 +65,7 @@ void draw(std::vector<typename Distrib::T>& array, const Param& param, Gen& gen)
 ==================================================================================================*/
 template <class ProbNode, typename Gen, typename = std::enable_if_t<is_node<ProbNode>::value>>
 void draw(ProbNode& node, Gen& gen) {
-    using distrib = get_distrib_t<ProbNode>;
+    using distrib = node_distrib_t<ProbNode>;
     draw<distrib>(get<value>(node), get<params>(node), gen);
 }
 

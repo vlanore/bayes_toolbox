@@ -44,7 +44,7 @@ double logprob(const std::vector<T>& value, const Param& param) {
     using keys = typename minimpl::map_key_list_t<typename Distrib::param_decl>::tuple;
     double result = 0;
     for (size_t i = 0; i < value.size(); i++) {
-        result += logprob_helper<Distrib>(get<raw_value>(value[i]), param, keys(), i);
+        result += logprob_helper<Distrib>(value[i].value, param, keys(), i);
     }
     return result;
 }
@@ -52,7 +52,7 @@ double logprob(const std::vector<T>& value, const Param& param) {
 template <class Distrib, class T = typename Distrib::T, class Param>
 double logprob(const T& value, const Param& param) {
     using keys = typename minimpl::map_key_list_t<typename Distrib::param_decl>::tuple;
-    return logprob_helper<Distrib>(get<raw_value>(value), param, keys());
+    return logprob_helper<Distrib>(value.value, param, keys());
 }
 
 /*==================================================================================================
@@ -60,7 +60,7 @@ double logprob(const T& value, const Param& param) {
 ==================================================================================================*/
 template <class ProbNode, typename = std::enable_if_t<is_node<ProbNode>::value>>
 double logprob(ProbNode& node) {
-    using distrib = get_distrib_t<ProbNode>;
+    using distrib = node_distrib_t<ProbNode>;
     return logprob<distrib>(get<value>(node), get<params>(node));
 }
 
