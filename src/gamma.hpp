@@ -70,7 +70,7 @@ struct gamma_ss_suffstats {
         return {::sum(array), ::sum(array), array.size()};
     }
 
-    static double logprob(double k, double theta, gamma_ss_suffstats ss) {
+    static double logprob(gamma_ss_suffstats ss, double k, double theta) {
         return -ss.N * std::lgamma(k) - ss.N * k * log(theta) + (k - 1) * ss.sum_log -
                (1 / theta) * ss.sum;
     }

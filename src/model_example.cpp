@@ -46,9 +46,11 @@ auto poisson_gamma(size_t size) {
     auto alpha_ = make_backuped_node<exponential>(1.0);
     auto mu_ = make_backuped_node<exponential>(1.0);
     auto lambda_ = make_node_array<gamma_ss>(size, n_to_one(alpha_), n_to_one(mu_));
+    auto lambda_ss_ = make_suffstat<gamma_ss_suffstats>(lambda_);
     auto K_ = make_node_array<poisson>(size, n_to_n(lambda_));
 
-    return make_model(node<alpha>(alpha_), node<mu>(mu_), node<lambda>(lambda_), node<K>(K_));
+    return make_model(node<alpha>(alpha_), node<mu>(mu_), node<lambda>(lambda_), node<K>(K_),
+                      node<lambda_ss>(lambda_ss_));
 }
 
 template <class Node, class MB, class Gen>
@@ -58,6 +60,18 @@ void scaling_move(Node& node, MB blanket, Gen& gen) {
     double log_hastings = scale(get_raw_value(node), gen);
     bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
     if (!accept) { restore(node); }
+}
+
+template <class Array, class MB, class Gen>
+void scaling_move_array(Array& array, MB blanket, Gen& gen) {
+    for (size_t i = 0; i < get<value>(array).size(); i++) {
+        auto& raw_val = get_array_raw_value(array, i);
+        double backup = raw_val;
+        double logprob_before = logprob(blanket);
+        double log_hastings = scale(raw_val, gen);
+        bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
+        if (!accept) { raw_val = backup; }
+    }
 }
 
 int main() {
@@ -70,7 +84,11 @@ int main() {
     clamp_array(get<K>(m), 1, 2, 3, 1, 2, 1, 2, 1, 2, 1);
 
     for (int it = 0; it < 10000; it++) {
-        scaling_move(get<alpha>(m), make_view<alpha, lambda>(m), gen);
-        scaling_move(get<mu>(m), make_view<mu, lambda>(m), gen);
+        gather(get<lambda_ss>(m));
+        for (int rep = 0; rep < 10; rep++) {
+            scaling_move(get<alpha>(m), make_view<alpha, lambda_ss>(m), gen);
+            scaling_move(get<mu>(m), make_view<mu, lambda_ss>(m), gen);
+        }
+        scaling_move_array(get<lambda>(m), make_view<lambda, K>(m), gen);
     }
 }
