@@ -42,7 +42,7 @@ template <class Distrib, class... ParamArgs>
 auto make_node_array(size_t size, ParamArgs&&... args) {
     std::vector<typename Distrib::T> values(size);
     auto params = make_array_params<Distrib>(std::forward<ParamArgs>(args)...);
-    return make_tagged_tuple(value_field<struct value>(std::move(values)),
+    return make_tagged_tuple(unique_ptr_field<struct value>(std::move(values)),
                              value_field<struct params>(params), property<distrib, Distrib>(),
                              tag<node_tag>());
 }

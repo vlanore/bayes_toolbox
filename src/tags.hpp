@@ -35,8 +35,9 @@ struct distrib {};
 struct value {};
 struct params {};
 struct backup_value {};
-struct suff_stat {};
-struct gather {};
+struct suffstat {};
+struct suffstat_type {};
+struct target {};
 
 // tags for class typing
 struct prob_model_tag {};

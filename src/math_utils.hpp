@@ -49,6 +49,13 @@ auto sum(std::vector<Value> v) {
 }
 
 template <class Value>
+auto sum_log(std::vector<Value> v) {
+    typename Value::distrib::raw_type result = 0;
+    for (auto e : v) { result += log(e.value); }
+    return result;
+}
+
+template <class Value>
 auto mean(std::vector<Value> v) {
     return sum(v) / v.size();
 }

@@ -39,13 +39,15 @@ license and that you accept its terms.*/
 struct alpha {};
 struct mu {};
 struct lambda {};
+struct lambda_ss {};
 struct K {};
 
 auto poisson_gamma(size_t size) {
     auto alpha_ = make_backuped_node<exponential>(1.0);
     auto mu_ = make_backuped_node<exponential>(1.0);
-    auto lambda_ = make_backuped_node_array<gamma_ss>(size, n_to_one(alpha_), n_to_one(mu_));
+    auto lambda_ = make_node_array<gamma_ss>(size, n_to_one(alpha_), n_to_one(mu_));
     auto K_ = make_node_array<poisson>(size, n_to_n(lambda_));
+
     return make_model(node<alpha>(alpha_), node<mu>(mu_), node<lambda>(lambda_), node<K>(K_));
 }
 
@@ -67,7 +69,7 @@ int main() {
     draw(v, gen);
     clamp_array(get<K>(m), 1, 2, 3, 1, 2, 1, 2, 1, 2, 1);
 
-    for (int i = 0; i < 10000; i++) {
+    for (int it = 0; it < 10000; it++) {
         scaling_move(get<alpha>(m), make_view<alpha, lambda>(m), gen);
         scaling_move(get<mu>(m), make_view<mu, lambda>(m), gen);
     }

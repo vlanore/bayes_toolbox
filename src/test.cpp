@@ -358,18 +358,18 @@ TEST_CASE("MCMC with views and backups") {
 TEST_CASE("Suffstats") {
     auto array = make_node_array<poisson>(5, [](int) { return 1.0; });
     clamp_array(array, 1, 2, 3, 4, 5);
-    auto array_sum = make_suffstat(poisson::sum_suffstat::gather, get<value>(array));
+    auto array_sum = make_suffstat<poisson::sum_suffstat>(array);
     CHECK(!is_up_to_date(array_sum));
 
     gather(array_sum);
-    CHECK(get<suff_stat>(array_sum).sum == 15);
-    CHECK(get<suff_stat>(array_sum).N == 5);
+    CHECK(get<suffstat>(array_sum).sum == 15);
+    CHECK(get<suffstat>(array_sum).N == 5);
     CHECK(is_up_to_date(array_sum));
 
     clamp_array(array, 1, 1, 1, 1, 1);
     CHECK(!is_up_to_date(array_sum));
     gather(array_sum);
-    CHECK(get<suff_stat>(array_sum).sum == 5);
+    CHECK(get<suffstat>(array_sum).sum == 5);
     CHECK(is_up_to_date(array_sum));
 }
 
