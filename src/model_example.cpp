@@ -24,10 +24,14 @@ more generally, to use and operate it in the same conditions as regards security
 The fact that you are presently reading this means that you have had knowledge of the CeCILL-C
 license and that you accept its terms.*/
 
+#include "array_utils.hpp"
+#include "backup.hpp"
+#include "basic_moves.hpp"
 #include "draw.hpp"
 #include "exponential.hpp"
 #include "gamma.hpp"
 #include "logprob.hpp"
+#include "mcmc_utils.hpp"
 #include "poisson.hpp"
 #include "suffstat_utils.hpp"
 #include "view.hpp"
@@ -38,11 +42,20 @@ struct lambda {};
 struct K {};
 
 auto poisson_gamma(size_t size) {
-    auto alpha_ = make_node<exponential>(1.0);
-    auto mu_ = make_node<exponential>(1.0);
-    auto lambda_ = make_node_array<gamma_ss>(size, n_to_one(alpha_), n_to_one(mu_));
+    auto alpha_ = make_backuped_node<exponential>(1.0);
+    auto mu_ = make_backuped_node<exponential>(1.0);
+    auto lambda_ = make_backuped_node_array<gamma_ss>(size, n_to_one(alpha_), n_to_one(mu_));
     auto K_ = make_node_array<poisson>(size, n_to_n(lambda_));
     return make_model(node<alpha>(alpha_), node<mu>(mu_), node<lambda>(lambda_), node<K>(K_));
+}
+
+template <class Node, class MB, class Gen>
+void scaling_move(Node& node, MB blanket, Gen& gen) {
+    backup(node);
+    double logprob_before = logprob(blanket);
+    double log_hastings = scale(get_raw_value(node), gen);
+    bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
+    if (!accept) { restore(node); }
 }
 
 int main() {
@@ -50,5 +63,12 @@ int main() {
 
     auto m = poisson_gamma(10);
     auto v = make_view<alpha, mu, lambda>(m);
+
     draw(v, gen);
+    clamp_array(get<K>(m), 1, 2, 3, 1, 2, 1, 2, 1, 2, 1);
+
+    for (int i = 0; i < 10000; i++) {
+        scaling_move(get<alpha>(m), make_view<alpha, lambda>(m), gen);
+        scaling_move(get<mu>(m), make_view<mu, lambda>(m), gen);
+    }
 }
