@@ -248,6 +248,19 @@ TEST_CASE("Basic model test") {
                1, 2.0);
 }
 
+TEST_CASE("Forall on views") {
+    struct n1 {};
+    struct n2 {};
+    struct n3 {};
+    auto f = [](auto& x) { x += x; };
+    auto m = make_model(value_field<n1>(5), value_field<n2, std::string>("ab"));
+    auto v = make_view<n1, n2>(m);
+    forall_in_view(v, f);
+    forall_in_view(v, f);
+    CHECK(get<n1>(m) == 20);
+    CHECK(get<n2>(m) == "abababab");
+}
+
 TEST_CASE("Basic view test") {
     auto gen = make_generator();
     auto a = make_node<exponential>(1.0);

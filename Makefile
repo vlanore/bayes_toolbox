@@ -48,4 +48,5 @@ format:
 .PHONY: test
 test: all
 	@echo "" && _build/basic_test
+	@echo "" && _build/poisson_gamma
 
