@@ -53,15 +53,16 @@ struct poisson {
 
     static double partial_logprob_param1(int x, double lambda) { return x * log(lambda) - lambda; }
 
-    // struct sum_suffstat {
-    //     int sum;
-    //     size_t N;
+    struct sum_suffstat {
+        int sum;
+        size_t N;
 
-    //     static sum_suffstat gather(const std::vector<value_t>& v) { return {::sum(v), v.size()};
-    //     }
-    // };
+        static sum_suffstat gather(const std::vector<T>& v) { return {::sum(v), v.size()}; }
 
-    // static double partial_array_logprob_param1(sum_suffstat ss, double lambda) {
-    //     return ss.sum * log(lambda) - ss.N * lambda;
-    // }
+        bool operator==(const sum_suffstat& other) { return sum == other.sum and N == other.N; }
+    };
+
+    static double partial_array_logprob_param1(sum_suffstat ss, double lambda) {
+        return ss.sum * log(lambda) - ss.N * lambda;
+    }
 };
