@@ -371,6 +371,8 @@ TEST_CASE("Suffstats") {
     gather(array_sum);
     CHECK(get<suffstat>(array_sum).sum == 5);
     CHECK(is_up_to_date(array_sum));
+
+    CHECK(get<params, rate>(array_sum)(0) == 1.0);
 }
 
 // TEST_CASE("Better manual MCMC with suffstats") {

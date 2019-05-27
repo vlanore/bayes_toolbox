@@ -31,18 +31,18 @@ license and that you accept its terms.*/
 
 template <class SS, class Target>
 auto make_suffstat(Target& t) {
-    return make_tagged_tuple(value_field<suffstat>(SS()), ref_field<target>(t),
-                             property<suffstat_type, SS>());
+    return make_tagged_tuple(value_field<suffstat>(SS()), ref_field<target>(get<value>(t)),
+                             value_field<params>(get<params>(t)), property<suffstat_type, SS>());
 }
 
 template <class Node>
 void gather(Node& node) {
     using ss_t = get_property<Node, suffstat_type>;
-    get<suffstat>(node) = ss_t::gather(get<value>(get<target>(node)));
+    get<suffstat>(node) = ss_t::gather(get<target>(node));
 }
 
 template <class Node>
 bool is_up_to_date(Node& node) {
     using ss_t = get_property<Node, suffstat_type>;
-    return get<suffstat>(node) == ss_t::gather(get<value>(get<target>(node)));
+    return get<suffstat>(node) == ss_t::gather(get<target>(node));
 }
