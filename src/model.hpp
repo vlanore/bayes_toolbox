@@ -29,8 +29,7 @@ license and that you accept its terms.*/
 #include "node.hpp"
 
 #define TOKEN(name)                                                \
-    struct name {};                                                \
-    struct name##_declarator {                                     \
+    struct name {                                                  \
         template <class... Args>                                   \
         auto operator=(Args&&... args) const {                     \
             return node<struct name>(std::forward<Args>(args)...); \
@@ -40,7 +39,7 @@ license and that you accept its terms.*/
             return get<name>(m);                                   \
         }                                                          \
     };                                                             \
-    constexpr auto name##_ = name##_declarator();
+    constexpr auto name##_ = name();
 
 template <class... Args>
 auto make_model(Args&&... args) {
