@@ -28,6 +28,20 @@ license and that you accept its terms.*/
 
 #include "node.hpp"
 
+#define TOKEN(name)                                                \
+    struct name {};                                                \
+    struct name##_declarator {                                     \
+        template <class... Args>                                   \
+        auto operator=(Args&&... args) const {                     \
+            return node<struct name>(std::forward<Args>(args)...); \
+        }                                                          \
+        template <class Model>                                     \
+        auto& operator()(Model& m) const {                         \
+            return get<name>(m);                                   \
+        }                                                          \
+    };                                                             \
+    constexpr auto name##_ = name##_declarator();
+
 template <class... Args>
 auto make_model(Args&&... args) {
     // return add_tag<prob_model>(make_tagged_tuple(std::forward<Args>(args)...));

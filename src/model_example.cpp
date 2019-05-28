@@ -24,6 +24,7 @@ more generally, to use and operate it in the same conditions as regards security
 The fact that you are presently reading this means that you have had knowledge of the CeCILL-C
 license and that you accept its terms.*/
 
+#include <iostream>
 #include "array_utils.hpp"
 #include "backup.hpp"
 #include "basic_moves.hpp"
@@ -35,22 +36,22 @@ license and that you accept its terms.*/
 #include "poisson.hpp"
 #include "suffstat_utils.hpp"
 #include "view.hpp"
+using namespace std;
 
-struct alpha {};
-struct mu {};
-struct lambda {};
-struct lambda_ss {};
-struct K {};
+TOKEN(alpha);
+TOKEN(mu);
+TOKEN(lambda);
+TOKEN(lambda_ss);
+TOKEN(K);
 
 auto poisson_gamma(size_t size) {
-    auto alpha_ = make_backuped_node<exponential>(1.0);
-    auto mu_ = make_backuped_node<exponential>(1.0);
-    auto lambda_ = make_node_array<gamma_ss>(size, n_to_one(alpha_), n_to_one(mu_));
-    auto lambda_ss_ = make_suffstat<gamma_ss_suffstats>(lambda_);
-    auto K_ = make_node_array<poisson>(size, n_to_n(lambda_));
+    auto alpha = make_backuped_node<exponential>(1.0);
+    auto mu = make_backuped_node<exponential>(1.0);
+    auto lambda = make_node_array<gamma_ss>(size, n_to_one(alpha), n_to_one(mu));
+    auto lambda_ss = make_suffstat<gamma_ss_suffstats>(lambda);
+    auto K = make_node_array<poisson>(size, n_to_n(lambda));
 
-    return make_model(node<alpha>(alpha_), node<mu>(mu_), node<lambda>(lambda_), node<K>(K_),
-                      node<lambda_ss>(lambda_ss_));
+    return make_model(alpha_ = alpha, mu_ = mu, lambda_ = lambda, K_ = K, lambda_ss_ = lambda_ss);
 }
 
 template <class Node, class MB, class Gen>
@@ -81,14 +82,14 @@ int main() {
     auto v = make_view<alpha, mu, lambda>(m);
 
     draw(v, gen);
-    clamp_array(get<K>(m), 1, 2, 3, 1, 2, 1, 2, 1, 2, 1);
+    clamp_array(K_(m), 1, 2, 3, 1, 2, 1, 2, 1, 2, 1);
 
     for (int it = 0; it < 10000; it++) {
-        gather(get<lambda_ss>(m));
+        gather(lambda_ss_(m));
         for (int rep = 0; rep < 10; rep++) {
-            scaling_move(get<alpha>(m), make_view<alpha, lambda_ss>(m), gen);
-            scaling_move(get<mu>(m), make_view<mu, lambda_ss>(m), gen);
+            scaling_move(alpha_(m), make_view<alpha, lambda_ss>(m), gen);
+            scaling_move(mu_(m), make_view<mu, lambda_ss>(m), gen);
         }
-        scaling_move_array(get<lambda>(m), make_view<lambda, K>(m), gen);
+        scaling_move_array(lambda_(m), make_view<lambda, K>(m), gen);
     }
 }
