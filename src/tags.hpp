@@ -43,3 +43,5 @@ struct target {};
 struct prob_model_tag {};
 struct node_tag {};
 struct view_tag {};
+struct unknown_tag {};
+struct suffstat_tag {};

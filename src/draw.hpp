@@ -27,7 +27,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "distrib_utils.hpp"
-#include "view.hpp"
+#include "overloading.hpp"
 
 /*==================================================================================================
 ~~ Raw drawing functions ~~
@@ -48,13 +48,13 @@ auto draw_helper(Param& param, Gen& gen, std::tuple<ParamKeys...>, Indexes... in
 
 template <class Distrib, class Param, class Gen>
 void draw(typename Distrib::T& value, const Param& param, Gen& gen) {
-    using keys = typename minimpl::map_key_list_t<typename Distrib::param_decl>::tuple;
+    using keys = map_key_list_t<typename Distrib::param_decl>;
     value.value = draw_helper<Distrib>(param, gen, keys());
 }
 
 template <class Distrib, class Param, class Gen>
 void draw(std::vector<typename Distrib::T>& array, const Param& param, Gen& gen) {
-    using keys = typename minimpl::map_key_list_t<typename Distrib::param_decl>::tuple;
+    using keys = map_key_list_t<typename Distrib::param_decl>;
     for (size_t i = 0; i < array.size(); i++) {
         array[i].value = draw_helper<Distrib>(param, gen, keys(), i);
     }

@@ -29,32 +29,36 @@ license and that you accept its terms.*/
 #include <vector>
 #include "params.hpp"
 
+template <class Distrib>
+using node_metadata = metadata<type_list<node_tag>, type_map<property<distrib, Distrib>>>;
+
 template <class Distrib, class... ParamArgs>
 auto make_node(ParamArgs&&... args) {
     auto v = typename Distrib::T();
     auto params = make_params<Distrib>(std::forward<ParamArgs>(args)...);
-    return make_tagged_tuple(unique_ptr_field<struct value>(std::move(v)),
-                             value_field<struct params>(params), property<distrib, Distrib>(),
-                             tag<node_tag>());
+    return make_tagged_tuple<node_metadata<Distrib>>(unique_ptr_field<struct value>(std::move(v)),
+                                                     value_field<struct params>(params));
 }
 
 template <class Distrib, class... ParamArgs>
 auto make_node_array(size_t size, ParamArgs&&... args) {
     std::vector<typename Distrib::T> values(size);
     auto params = make_array_params<Distrib>(std::forward<ParamArgs>(args)...);
-    return make_tagged_tuple(unique_ptr_field<struct value>(std::move(values)),
-                             value_field<struct params>(params), property<distrib, Distrib>(),
-                             tag<node_tag>());
+    return make_tagged_tuple<node_metadata<Distrib>>(
+        unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
 }
 
 template <class T>
-using is_node = ttuple_has_tag<T, node_tag>;
+struct is_node : std::false_type {};
+
+template <class MD, class... Fields>
+struct is_node<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_tag, MD> {};
 
 template <class Value>
 using value_distrib_t = typename Value::distrib;
 
 template <class Node>
-using node_distrib_t = get_property<Node, distrib>;
+using node_distrib_t = metadata_get_property<struct distrib, metadata_t<Node>>;
 
 template <class Node>
 using node_value_t = std::remove_reference_t<decltype(get<value>(std::declval<Node>()))>;
@@ -86,12 +90,12 @@ const auto& get_array_raw_value(const Node& node, size_t i) {
 template <class Distrib, class... ParamArgs>
 auto make_backuped_node(ParamArgs&&... args) {
     auto node = make_node<Distrib>(std::forward<ParamArgs>(args)...);
-    return push_front<backup_value, typename Distrib::T>(node, {});
+    return push_front<backup_value, typename Distrib::T>({}, node);
 }
 
 template <class Distrib, class... ParamArgs>
 auto make_backuped_node_array(size_t size, ParamArgs&&... args) {
     auto node = make_node_array<Distrib>(size, std::forward<ParamArgs>(args)...);
     using vec_t = std::vector<typename Distrib::T>;
-    return push_front<backup_value, vec_t>(node, vec_t(size));
+    return push_front<backup_value, vec_t>(vec_t(size), node);
 }

@@ -29,24 +29,31 @@ license and that you accept its terms.*/
 #include "tagged_tuple/src/tagged_tuple.hpp"
 #include "tags.hpp"
 
+template <class SSType>
+using suffstat_metadata =
+    metadata<type_list<suffstat_tag>, type_map<property<suffstat_type, SSType>>>;
+
 template <class SS, class Target>
 auto make_suffstat(Target& t) {
-    return make_tagged_tuple(value_field<suffstat>(SS()), ref_field<target>(get<value>(t)),
-                             value_field<params>(get<params>(t)), property<suffstat_type, SS>(),
-                             tag<suffstat>());
+    return make_tagged_tuple<suffstat_metadata<SS>>(value_field<suffstat>(SS()),
+                                                    ref_field<target>(get<value>(t)),
+                                                    value_field<params>(get<params>(t)));
 }
 
 template <class T>
-using is_suffstat = ttuple_has_tag<T, suffstat>;
+struct is_suffstat : std::false_type {};
+
+template <class MD, class... Fields>
+struct is_suffstat<tagged_tuple<MD, Fields...>> : metadata_has_tag<suffstat_tag, MD> {};
 
 template <class Node>
 void gather(Node& node) {
-    using ss_t = get_property<Node, suffstat_type>;
+    using ss_t = metadata_get_property<suffstat_type, metadata_t<Node>>;
     get<suffstat>(node) = ss_t::gather(get<target>(node));
 }
 
 template <class Node>
 bool is_up_to_date(Node& node) {
-    using ss_t = get_property<Node, suffstat_type>;
+    using ss_t = metadata_get_property<suffstat_type, metadata_t<Node>>;
     return get<suffstat>(node) == ss_t::gather(get<target>(node));
 }

@@ -33,10 +33,10 @@ license and that you accept its terms.*/
 
 //==================================================================================================
 template <class... Pairs>
-using param_decl_t = minimpl::map<Pairs...>;
+using param_decl_t = type_map<Pairs...>;
 
 template <class ParamTag, class ParamRawValue>
-using param = minimpl::pair<ParamTag, ParamRawValue>;
+using param = type_pair<ParamTag, ParamRawValue>;
 
 //==================================================================================================
 template <class T>
@@ -64,8 +64,6 @@ struct ArrayParamFactory {
 
 //==================================================================================================
 namespace helper {
-    using namespace minimpl;
-
     template <class Factory, class Value>
     auto param_builder(std::true_type /* is a node */, Value& v) {
         return Factory::make(get<value>(v).value);
@@ -78,13 +76,13 @@ namespace helper {
 
     template <class, int, template <class> class>
     auto make_params_helper() {
-        return tagged_tuple<>();
+        return tagged_tuple<no_metadata>();
     }
 
     template <class ParamDecl, int index, template <class> class Factory, class First,
               class... Rest>
     auto make_params_helper(First&& first, Rest&&... rest) {
-        using field = list_element_t<ParamDecl, index>;
+        using field = list_element_t<index, ParamDecl>;
         using field_tag = first_t<field>;
         using field_type = second_t<field>;
         using specialized_factory = Factory<field_type>;
@@ -95,7 +93,7 @@ namespace helper {
         auto recursive_call =
             make_params_helper<ParamDecl, index + 1, Factory>(std::forward<Rest>(rest)...);
 
-        return push_front<field_tag>(recursive_call, std::move(param));
+        return push_front<field_tag>(std::move(param), recursive_call);
     }
 };  // namespace helper
 
@@ -103,7 +101,7 @@ namespace helper {
 template <class Distrib, class... ParamArgs>
 auto make_params(ParamArgs&&... args) {
     using param_decl = typename Distrib::param_decl;
-    static_assert(sizeof...(ParamArgs) == param_decl::size,
+    static_assert(sizeof...(ParamArgs) == list_size<param_decl>::value,
                   "Number of args does not match expected number");
     return helper::make_params_helper<param_decl, 0, ParamFactory>(
         std::forward<ParamArgs>(args)...);
@@ -112,7 +110,7 @@ auto make_params(ParamArgs&&... args) {
 template <class Distrib, class... ParamArgs>
 auto make_array_params(ParamArgs&&... args) {
     using param_decl = typename Distrib::param_decl;
-    static_assert(sizeof...(ParamArgs) == param_decl::size,
+    static_assert(sizeof...(ParamArgs) == list_size<param_decl>::value,
                   "Number of args does not match expected number");
     return helper::make_params_helper<param_decl, 0, ArrayParamFactory>(
         std::forward<ParamArgs>(args)...);

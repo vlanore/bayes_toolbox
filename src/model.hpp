@@ -41,10 +41,12 @@ license and that you accept its terms.*/
     };                                                             \
     constexpr auto name##_ = name();
 
+using model_metadata = metadata<type_list<prob_model_tag>, type_map<>>;
+
 template <class... Args>
 auto make_model(Args&&... args) {
     // return add_tag<prob_model>(make_tagged_tuple(std::forward<Args>(args)...));
-    return make_tagged_tuple(std::forward<Args>(args)..., tag<prob_model_tag>());
+    return make_tagged_tuple<model_metadata>(std::forward<Args>(args)...);
 }
 
 template <class Tag, class... Args>
@@ -53,10 +55,13 @@ auto node(Args&&... args) {
 }
 
 template <class T>
-using is_prob_model = ttuple_has_tag<T, prob_model_tag>;
+struct is_model : std::false_type {};
+
+template <class MD, class... Fields>
+struct is_model<tagged_tuple<MD, Fields...>> : metadata_has_tag<prob_model_tag, MD> {};
 
 template <class M>
-using model_nodes = minimpl::map_key_list_t<typename M::fields>;
+using model_nodes = map_key_list_t<field_map_t<M>>;
 
 template <class T>
 using is_view = std::is_base_of<view_tag, T>;

@@ -42,7 +42,7 @@ auto logprob_helper(const T& value, const Param& param, std::tuple<ParamKeys...>
 
 template <class Distrib, class T = typename Distrib::T, class Param>
 double logprob(const std::vector<T>& value, const Param& param) {
-    using keys = typename minimpl::map_key_list_t<typename Distrib::param_decl>::tuple;
+    using keys = map_key_list_t<typename Distrib::param_decl>;
     double result = 0;
     for (size_t i = 0; i < value.size(); i++) {
         result += logprob_helper<Distrib>(value[i].value, param, keys(), i);
@@ -52,14 +52,14 @@ double logprob(const std::vector<T>& value, const Param& param) {
 
 template <class Distrib, class Param>
 double logprob(const typename Distrib::T& value, const Param& param) {
-    using keys = typename minimpl::map_key_list_t<typename Distrib::param_decl>::tuple;
+    using keys = map_key_list_t<typename Distrib::param_decl>;
     return logprob_helper<Distrib>(value.value, param, keys());
 }
 
 template <class SS, class Param>
 double logprob(const SS& ss, const Param& param) {
     using distrib = typename SS::distrib;
-    using keys = typename minimpl::map_key_list_t<typename distrib::param_decl>::tuple;
+    using keys = map_key_list_t<typename distrib::param_decl>;
     // TODO check that params are identical?
     return logprob_helper<SS, SS>(ss, param, keys(), 0);
 }
@@ -69,7 +69,7 @@ double logprob(const SS& ss, const Param& param) {
 ==================================================================================================*/
 template <class SS>
 double logprob_node_selector(std::true_type /* is_ss */, SS& ss) {
-    using ss_t = get_property<SS, suffstat_type>;
+    using ss_t = metadata_get_property<suffstat_type, metadata_t<SS>>;
     return logprob<ss_t>(get<suffstat>(ss), get<params>(ss));
 }
 

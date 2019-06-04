@@ -28,9 +28,9 @@ license and that you accept its terms.*/
 
 #include "model.hpp"
 
-template <class Model, class L = minimpl::list<>>
+template <class Model, class L = type_list<>>
 struct view : view_tag {
-    static_assert(minimpl::is_list<L>::value, "L is not a list");
+    static_assert(is_list<L>::value, "L is not a list");
     using list = L;
     Model& model;
     view(Model& model) : model(model) {}
@@ -38,7 +38,7 @@ struct view : view_tag {
 
 template <class... Names, class Model>
 auto make_view(Model& model) {
-    return view<Model, minimpl::list<Names...>>{model};
+    return view<Model, type_list<Names...>>{model};
 }
 
 template <class Model>
@@ -53,7 +53,7 @@ void forall_in_view_impl(View& view, const F& f, std::tuple<Tags...>) {
 
 template <class View, class F>
 void forall_in_view(View& view, const F& f) {
-    forall_in_view_impl(view, f, typename View::list::tuple());
+    forall_in_view_impl(view, f, typename View::list());
 }
 
 template <class T>
