@@ -27,8 +27,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "distrib_utils.hpp"
-#include "suffstat_utils.hpp"
-#include "view.hpp"
+#include "overloading.hpp"
 
 /*==================================================================================================
 ~~ Overloads that unpack parameters ~~
@@ -68,25 +67,25 @@ double logprob(const SS& ss, const Param& param) {
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
 template <class SS>
-double logprob_node_selector(std::true_type /* is_ss */, SS& ss) {
+double logprob_selector(SS& ss, suffstat_tag) {
     using ss_t = metadata_get_property<suffstat_type, metadata_t<SS>>;
     return logprob<ss_t>(get<suffstat>(ss), get<params>(ss));
 }
 
-template <class ProbNode, typename = std::enable_if_t<is_node<ProbNode>::value>>
-double logprob_node_selector(std::false_type /* is_ss */, ProbNode& node) {
+template <class ProbNode>
+double logprob_selector(ProbNode& node, node_tag) {
     using distrib = node_distrib_t<ProbNode>;
     return logprob<distrib>(get<value>(node), get<params>(node));
 }
 
-template <class T>
-double logprob(T& something) {
-    return logprob_node_selector(std::integral_constant<bool, is_suffstat<T>::value>(), something);
-}
-
-template <class... ViewParams>
-double logprob(view<ViewParams...>& view) {
+template <class View>
+double logprob_selector(View& view, view_tag) {
     double result = 0;
     forall_in_view(view, [&result](auto& node) { result += logprob(node); });
     return result;
+}
+
+template <class Something>
+double logprob(Something& x) {
+    return logprob_selector(x, type_tag(x));
 }

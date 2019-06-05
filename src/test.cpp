@@ -381,6 +381,7 @@ TOKEN(tok1);
 
 TEST_CASE("type_tag") {
     auto a = make_node<exponential>(1);
+    auto ss = make_suffstat<gamma_ss_suffstats>(a);
     auto m = make_model(tok1_ = a);
     struct {
         int a;
@@ -392,10 +393,12 @@ TEST_CASE("type_tag") {
     auto t3 = type_tag(s);
     auto t4 = type_tag(v);
     auto t5 = type_tag(make_view<tok1>(m));
+    auto t6 = type_tag(ss);
 
     CHECK(std::is_same<decltype(t1), node_tag>::value);
     CHECK(std::is_same<decltype(t2), model_tag>::value);
     CHECK(std::is_same<decltype(t3), unknown_tag>::value);
     CHECK(std::is_same<decltype(t4), view_tag>::value);
     CHECK(std::is_same<decltype(t5), view_tag>::value);
+    CHECK(std::is_same<decltype(t6), suffstat_tag>::value);
 }

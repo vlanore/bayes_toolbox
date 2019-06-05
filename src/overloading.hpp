@@ -39,8 +39,10 @@ auto type_tag(const T&) {
 template <class MD, class... Fields>
 auto type_tag(const tagged_tuple<MD, Fields...>&) {
     using T = tagged_tuple<MD, Fields...>;
-    return std::conditional_t<is_node<T>::value, node_tag,
-                              std::conditional_t<is_model<T>::value, model_tag, unknown_tag>>();
+    return std::conditional_t<
+        is_node<T>::value, node_tag,
+        std::conditional_t<is_model<T>::value, model_tag,
+                           std::conditional_t<is_suffstat<T>::value, suffstat_tag, unknown_tag>>>();
 }
 
 template <class Model, class L>

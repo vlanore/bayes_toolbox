@@ -28,22 +28,32 @@ license and that you accept its terms.*/
 
 #include "view.hpp"
 
-template <class BN, typename = std::enable_if_t<is_node<BN>::value>>
-void backup(BN& node) {
+template <class BN>
+void backup_selector(BN& node, node_tag) {
     get<backup_value>(node) = get<value>(node);
 }
 
-template <class BN, typename = std::enable_if_t<is_node<BN>::value>>
-void restore(BN& node) {
+template <class BN>
+void restore_selector(BN& node, node_tag) {
     get<value>(node) = get<backup_value>(node);
 }
 
-template <class... ViewArgs>
-void backup(view<ViewArgs...> view) {
+template <class View>
+void backup_selector(View& view, view_tag) {
     forall_in_view(view, [](auto& node) { backup(node); });
 }
 
-template <class... ViewArgs>
-void restore(view<ViewArgs...> view) {
+template <class View>
+void restore_selector(View& view, view_tag) {
     forall_in_view(view, [](auto& node) { restore(node); });
+}
+
+template <class Something>
+void backup(Something& x) {
+    backup_selector(x, type_tag(x));
+}
+
+template <class Something>
+void restore(Something& x) {
+    restore_selector(x, type_tag(x));
 }

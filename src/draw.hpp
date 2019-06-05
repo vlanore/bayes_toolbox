@@ -63,13 +63,18 @@ void draw(std::vector<typename Distrib::T>& array, const Param& param, Gen& gen)
 /*==================================================================================================
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
-template <class ProbNode, typename Gen, typename = std::enable_if_t<is_node<ProbNode>::value>>
-void draw(ProbNode& node, Gen& gen) {
+template <class ProbNode, typename Gen>
+void draw_selector(ProbNode& node, Gen& gen, node_tag) {
     using distrib = node_distrib_t<ProbNode>;
     draw<distrib>(get<value>(node), get<params>(node), gen);
 }
 
-template <class... ViewParams, typename Gen>
-void draw(view<ViewParams...>& view, Gen& gen) {
+template <class View, typename Gen>
+void draw_selector(View& view, Gen& gen, view_tag) {
     forall_in_view(view, [&gen](auto& node) { draw(node, gen); });
+}
+
+template <class Something, class Gen>
+void draw(Something& x, Gen& gen) {
+    draw_selector(x, gen, type_tag(x));
 }
