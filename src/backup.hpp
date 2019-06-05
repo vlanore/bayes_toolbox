@@ -27,6 +27,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "view.hpp"
+#include "overloading.hpp"
 
 template <class BN>
 void backup_selector(BN& node, node_tag) {
