@@ -36,6 +36,7 @@ license and that you accept its terms.*/
 #include "logprob.hpp"
 #include "math_utils.hpp"
 #include "mcmc_utils.hpp"
+#include "overloading.hpp"
 #include "poisson.hpp"
 #include "suffstat_utils.hpp"
 #include "view.hpp"
@@ -376,32 +377,25 @@ TEST_CASE("Suffstats") {
     CHECK(logprob(ss) == logprob(array));
 }
 
-// TEST_CASE("Better manual MCMC with suffstats") {
-//     auto gen = make_generator();
+TOKEN(tok1);
 
-//     auto param = gamma::make_node(1, 1);
-//     draw(param, gen);
-//     auto array = make_probnode_array<poisson>(20, param.value.value);
-//     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
-//     auto array_ss = poisson::sum_suffstat::gather(array.values);
+TEST_CASE("type_tag") {
+    auto a = make_node<exponential>(1);
+    auto m = make_model(tok1_ = a);
+    struct {
+        int a;
+    } s;
+    auto v = make_view<tok1>(m);
 
-//     vector<double> trace;
-//     for (int i = 0; i < 10000; i++) {
-//         for (int rep = 0; rep < 10; rep++) {
-//             auto param_backup = make_value_backup(param);
-//             double logprob_before =
-//                 logprob(param) + poisson::partial_array_logprob_param1(array_ss,
-//                 param.value.value);
-//             double log_hastings = scale(param.value.value, gen);
-//             double logprob_after =
-//                 logprob(param) + poisson::partial_array_logprob_param1(array_ss,
-//                 param.value.value);
-//             bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
-//             if (!accept) { restore_from_backup(param, param_backup); }
-//         }
-//         trace.push_back(param.value.value);
-//     }
-//     double mean_trace = mean(trace);
-//     CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
-//     CHECK(mean_trace < 2);
-// }
+    auto t1 = type_tag(a);
+    auto t2 = type_tag(m);
+    auto t3 = type_tag(s);
+    auto t4 = type_tag(v);
+    auto t5 = type_tag(make_view<tok1>(m));
+
+    CHECK(std::is_same<decltype(t1), node_tag>::value);
+    CHECK(std::is_same<decltype(t2), model_tag>::value);
+    CHECK(std::is_same<decltype(t3), unknown_tag>::value);
+    CHECK(std::is_same<decltype(t4), view_tag>::value);
+    CHECK(std::is_same<decltype(t5), view_tag>::value);
+}

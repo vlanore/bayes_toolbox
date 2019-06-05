@@ -27,41 +27,23 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "node.hpp"
-
-#define TOKEN(name)                                                \
-    struct name {                                                  \
-        template <class... Args>                                   \
-        auto operator=(Args&&... args) const {                     \
-            return node<struct name>(std::forward<Args>(args)...); \
-        }                                                          \
-        template <class Model>                                     \
-        auto& operator()(Model& m) const {                         \
-            return get<name>(m);                                   \
-        }                                                          \
-    };                                                             \
-    constexpr auto name##_ = name();
-
-using model_metadata = metadata<type_list<model_tag>, type_map<>>;
-
-template <class... Args>
-auto make_model(Args&&... args) {
-    // return add_tag<model>(make_tagged_tuple(std::forward<Args>(args)...));
-    return make_tagged_tuple<model_metadata>(std::forward<Args>(args)...);
-}
-
-template <class Tag, class... Args>
-auto node(Args&&... args) {
-    return move_field<Tag>(std::forward<Args>(args)...);
-}
+#include "suffstat_utils.hpp"
+#include "tags.hpp"
+#include "view.hpp"
 
 template <class T>
-struct is_model : std::false_type {};
+auto type_tag(const T&) {
+    return unknown_tag();
+}
 
 template <class MD, class... Fields>
-struct is_model<tagged_tuple<MD, Fields...>> : metadata_has_tag<model_tag, MD> {};
+auto type_tag(const tagged_tuple<MD, Fields...>&) {
+    using T = tagged_tuple<MD, Fields...>;
+    return std::conditional_t<is_node<T>::value, node_tag,
+                              std::conditional_t<is_model<T>::value, model_tag, unknown_tag>>();
+}
 
-template <class M>
-using model_nodes = map_key_list_t<field_map_t<M>>;
-
-template <class T>
-using is_view = std::is_base_of<view_tag, T>;
+template <class Model, class L>
+auto type_tag(const view<Model, L>&) {
+    return view_tag();
+}

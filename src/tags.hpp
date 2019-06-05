@@ -40,7 +40,7 @@ struct suffstat_type {};
 struct target {};
 
 // tags for class typing
-struct prob_model_tag {};
+struct model_tag {};
 struct node_tag {};
 struct view_tag {};
 struct unknown_tag {};
