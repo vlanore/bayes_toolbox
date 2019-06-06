@@ -45,7 +45,7 @@ auto type_tag(const tagged_tuple<MD, Fields...>&) {
                            std::conditional_t<is_suffstat<T>::value, suffstat_tag, unknown_tag>>>();
 }
 
-template <class Model, class L>
-auto type_tag(const view<Model, L>&) {
+template <class... Refs>
+auto type_tag(const view<Refs...>&) {
     return view_tag();
 }

@@ -29,34 +29,27 @@ license and that you accept its terms.*/
 #include "model.hpp"
 #include "reference.hpp"
 
-template <class... SNRefs>
-class view;
-
-template <class... SNRefs>
-view<SNRefs...> make_view(SNRefs&&...);
-
-template <class... SNRefs>
-class view {
-    view(SNRefs&&... refs) : refs(std::forward<SNRefs>(refs)...) {}
+template <class... Refs>
+struct view {
+    view(tuple_construct, Refs&&... refs) : refs(std::forward<Refs>(refs)...) {}
+    // @todo: add specialization for bools (and possibly for and/or)
     static_assert(list_reduce_to_value<is_subnode_ref, std::logical_and<bool>, bool, true,
-                                       type_list<SNRefs...>>::value,
+                                       type_list<Refs...>>::value,
                   "view template params should only by subnode refs");
 
-  public:
-    std::tuple<SNRefs...> refs;
-    friend view<SNRefs...> make_view<SNRefs...>(SNRefs&&...);
-    static constexpr size_t size() { return sizeof...(SNRefs); }
+    std::tuple<Refs...> refs;
+    static constexpr size_t size() { return sizeof...(Refs); }
 };
 
-template <class... SNRefs>
-view<SNRefs...> make_view(SNRefs&&... refs) {
-    return view<SNRefs...>(std::forward<SNRefs>(refs)...);
+template <class... Refs>
+auto make_view(Refs&&... refs) {
+    return view<Refs...>(tuple_construct(), std::forward<Refs>(refs)...);
 }
 
-// template <class Model>
-// auto full_view(Model& model) {
-//     return view<Model, model_nodes<Model>>{model};
-// }
+template <class... Tags, class Model>
+auto make_view(Model& model) {  // @todo: maybe this version is not necessary (too specific)
+    return make_view(make_ref<Tags>(model)...);
+}
 
 template <class View, class F, size_t... Is>
 void forall_in_view_impl(View& view, const F& f, std::index_sequence<Is...>) {
@@ -68,5 +61,8 @@ void forall_in_view(View& view, const F& f) {
     forall_in_view_impl(view, f, std::make_index_sequence<View::size()>());
 }
 
-// template <class T>
-// using is_view = std::is_base_of<view_tag, T>;
+template <class T>
+struct is_view : std::false_type {};
+
+template <class... Refs>
+struct is_view<view<Refs...>> : std::true_type {};
