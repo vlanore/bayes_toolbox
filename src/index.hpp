@@ -26,35 +26,15 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "overloading.hpp"
-#include "view.hpp"
+#include <cstdlib>  // for size_t
 
-template <class BN>
-void backup_selector(BN& node, node_tag) {
-    get<backup_value>(node) = get<value>(node);
-}
+struct NoIndex {};
 
-template <class BN>
-void restore_selector(BN& node, node_tag) {
-    get<value>(node) = get<backup_value>(node);
-}
+struct ArrayIndex {
+    size_t i;
+};
 
-template <class View>
-void backup_selector(View& view, view_tag) {
-    forall_in_view(view, [](auto& node) { backup(node); });
-}
-
-template <class View>
-void restore_selector(View& view, view_tag) {
-    forall_in_view(view, [](auto& node) { restore(node); });
-}
-
-template <class Something>
-void backup(Something& x) {
-    backup_selector(x, type_tag(x));
-}
-
-template <class Something>
-void restore(Something& x) {
-    restore_selector(x, type_tag(x));
-}
+struct MatrixIndex {
+    size_t i;
+    size_t j;
+};

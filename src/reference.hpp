@@ -26,35 +26,41 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "overloading.hpp"
-#include "view.hpp"
+#include <type_traits>
+#include "index.hpp"
 
-template <class BN>
-void backup_selector(BN& node, node_tag) {
-    get<backup_value>(node) = get<value>(node);
+template <class Node, class Index>
+struct subnode_ref {
+    Node& node_ref;
+    Index index;
+    subnode_ref(Node& node_ref, Index index) : node_ref(node_ref), index(index) {}
+};
+
+template <class Node>
+struct subnode_ref<Node, NoIndex> {
+    Node& node_ref;
+    subnode_ref(Node& node_ref) : node_ref(node_ref) {}
+    subnode_ref(Node& node_ref, NoIndex) : node_ref(node_ref) {}
+};
+
+template <class Tag, class Model, class Index = NoIndex>
+auto make_ref(Model& m, Index index = Index{}) {
+    using NodeType = field_type<Tag, Model>;
+    return subnode_ref<NodeType, Index>(get<Tag>(m), index);
 }
 
-template <class BN>
-void restore_selector(BN& node, node_tag) {
-    get<value>(node) = get<backup_value>(node);
+template <class Node, class F>
+auto apply_to_ref(subnode_ref<Node, NoIndex>& ref, const F& f) {
+    f(ref.node_ref);
 }
 
-template <class View>
-void backup_selector(View& view, view_tag) {
-    forall_in_view(view, [](auto& node) { backup(node); });
+template <class Node, class Index, class F>
+auto apply_to_ref(subnode_ref<Node, Index>& ref, const F& f) {
+    f(ref.node_ref, ref.index);
 }
 
-template <class View>
-void restore_selector(View& view, view_tag) {
-    forall_in_view(view, [](auto& node) { restore(node); });
-}
+template <class T>
+struct is_subnode_ref : std::false_type {};
 
-template <class Something>
-void backup(Something& x) {
-    backup_selector(x, type_tag(x));
-}
-
-template <class Something>
-void restore(Something& x) {
-    restore_selector(x, type_tag(x));
-}
+template <class Node, class Index>
+struct is_subnode_ref<subnode_ref<Node, Index>> : std::true_type {};

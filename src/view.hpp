@@ -27,34 +27,46 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "model.hpp"
+#include "reference.hpp"
 
-template <class Model, class L = type_list<>>
-struct view : view_tag {
-    static_assert(is_list<L>::value, "L is not a list");
-    using list = L;
-    Model& model;
-    view(Model& model) : model(model) {}
+template <class... SNRefs>
+class view;
+
+template <class... SNRefs>
+view<SNRefs...> make_view(SNRefs&&...);
+
+template <class... SNRefs>
+class view {
+    view(SNRefs&&... refs) : refs(std::forward<SNRefs>(refs)...) {}
+    static_assert(list_reduce_to_value<is_subnode_ref, std::logical_and<bool>, bool, true,
+                                       type_list<SNRefs...>>::value,
+                  "view template params should only by subnode refs");
+
+  public:
+    std::tuple<SNRefs...> refs;
+    friend view<SNRefs...> make_view<SNRefs...>(SNRefs&&...);
+    static constexpr size_t size() { return sizeof...(SNRefs); }
 };
 
-template <class... Names, class Model>
-auto make_view(Model& model) {
-    return view<Model, type_list<Names...>>{model};
+template <class... SNRefs>
+view<SNRefs...> make_view(SNRefs&&... refs) {
+    return view<SNRefs...>(std::forward<SNRefs>(refs)...);
 }
 
-template <class Model>
-auto full_view(Model& model) {
-    return view<Model, model_nodes<Model>>{model};
-}
+// template <class Model>
+// auto full_view(Model& model) {
+//     return view<Model, model_nodes<Model>>{model};
+// }
 
-template <class View, class F, class... Tags>
-void forall_in_view_impl(View& view, const F& f, std::tuple<Tags...>) {
-    std::vector<int> ignore = {(f(get<Tags>(view.model)), 0)...};
+template <class View, class F, size_t... Is>
+void forall_in_view_impl(View& view, const F& f, std::index_sequence<Is...>) {
+    std::vector<int> ignore = {(apply_to_ref(get<Is>(view.refs), f), 0)...};
 }
 
 template <class View, class F>
 void forall_in_view(View& view, const F& f) {
-    forall_in_view_impl(view, f, typename View::list());
+    forall_in_view_impl(view, f, std::make_index_sequence<View::size()>());
 }
 
-template <class T>
-using is_view = std::is_base_of<view_tag, T>;
+// template <class T>
+// using is_view = std::is_base_of<view_tag, T>;
