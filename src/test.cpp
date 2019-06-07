@@ -39,6 +39,7 @@ license and that you accept its terms.*/
 #include "overloading.hpp"
 #include "poisson.hpp"
 #include "suffstat_utils.hpp"
+#include "tagged_tuple/src/fancy_syntax.hpp"
 #include "view.hpp"
 using namespace std;
 
@@ -283,11 +284,13 @@ TEST_CASE("Views with indices") {
     auto gen = make_generator();
     // @todo: add constant pre-declared lambda
     auto a = make_node_array<exponential>(5, [](int) { return 2.0; });
-    auto m = make_model(tok1_ = a);
+    auto m = make_model(tok1_ = move(a));
     // @fixme: does not work with just "0" (typing problem)
     clamp_array(get<tok1>(m), 0., 0., 0., 0., 0.);
     auto v = make_view(make_ref<tok1>(m, ArrayIndex{2}));
     // draw(v, gen);
+
+    // TODO !
 }
 
 TEST_CASE("node backups") {
@@ -393,7 +396,7 @@ TEST_CASE("Suffstats") {
 TEST_CASE("type_tag") {
     auto a = make_node<exponential>(1);
     auto ss = make_suffstat<gamma_ss_suffstats>(a);
-    auto m = make_model(tok1_ = a);
+    auto m = make_model(tok1_ = move(a));
     struct {
         int a;
     } s;

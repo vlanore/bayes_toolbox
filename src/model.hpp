@@ -28,20 +28,6 @@ license and that you accept its terms.*/
 
 #include "node.hpp"
 
-// @todo: move this to tagged_tuple + mention inspiration in readme
-#define TOKEN(name)                                                \
-    struct name {                                                  \
-        template <class... Args>                                   \
-        auto operator=(Args&&... args) const {                     \
-            return node<struct name>(std::forward<Args>(args)...); \
-        }                                                          \
-        template <class Model>                                     \
-        auto& operator()(Model& m) const {                         \
-            return get<name>(m);                                   \
-        }                                                          \
-    };                                                             \
-    constexpr auto name##_ = name();
-
 using model_metadata = metadata<type_list<model_tag>, type_map<>>;
 
 template <class... Args>

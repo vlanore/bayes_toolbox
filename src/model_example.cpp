@@ -35,6 +35,7 @@ license and that you accept its terms.*/
 #include "mcmc_utils.hpp"
 #include "poisson.hpp"
 #include "suffstat_utils.hpp"
+#include "tagged_tuple/src/fancy_syntax.hpp"
 #include "view.hpp"
 using namespace std;
 
@@ -51,7 +52,8 @@ auto poisson_gamma(size_t size) {
     auto lambda_ss = make_suffstat<gamma_ss_suffstats>(lambda);
     auto K = make_node_array<poisson>(size, n_to_n(lambda));
 
-    return make_model(alpha_ = alpha, mu_ = mu, lambda_ = lambda, K_ = K, lambda_ss_ = lambda_ss);
+    return make_model(alpha_ = move(alpha), mu_ = move(mu), lambda_ = move(lambda), K_ = move(K),
+                      lambda_ss_ = move(lambda_ss));
 }
 
 template <class Node, class MB, class Gen>
