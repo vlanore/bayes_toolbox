@@ -3,13 +3,13 @@ language: cpp
 matrix:
   include:
   # ~~ osx ~~ =================================================
-  - os: osx
-    compiler: clang
-    env:
-      - COMPILER=clang++
-      - EXTRA_CXX_FLAGS=-stdlib=libc++
-    script:
-      - make debug && make test
+  # - os: osx
+  #   compiler: clang
+  #   env:
+  #     - COMPILER=clang++
+  #     - EXTRA_CXX_FLAGS=-stdlib=libc++
+  #   script:
+  #     - make debug && make test
 
   # ~~ linux gcc ~~ ===========================================
   - os: linux
