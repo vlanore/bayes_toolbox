@@ -32,7 +32,6 @@ using model_metadata = metadata<type_list<model_tag>, type_map<>>;
 
 template <class... Args>
 auto make_model(Args&&... args) {
-    // return add_tag<model>(make_tagged_tuple(std::forward<Args>(args)...));
     return make_tagged_tuple<model_metadata>(std::forward<Args>(args)...);
 }
 

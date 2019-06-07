@@ -31,15 +31,19 @@ license and that you accept its terms.*/
 
 template <class... Refs>
 struct view {
-    view(tuple_construct, Refs&&... refs) : refs(std::forward<Refs>(refs)...) {}
-    // @todo: add specialization for bools (and possibly for and/or)
-    static_assert(
-        list_reduce_to_value<is_ref, std::logical_and<bool>, bool, true, type_list<Refs...>>::value,
-        "view template params should only be refs");
+    static_assert(list_and<is_ref, type_list<Refs...>>::value,
+                  "View template params should only be refs");
 
+    view(tuple_construct, Refs&&... refs) : refs(std::forward<Refs>(refs)...) {}
     std::tuple<Refs...> refs;
     static constexpr size_t size() { return sizeof...(Refs); }
 };
+
+template <class T>
+struct is_view : std::false_type {};
+
+template <class... Refs>
+struct is_view<view<Refs...>> : std::true_type {};
 
 template <class... Refs>
 auto make_view(Refs&&... refs) {
@@ -48,21 +52,18 @@ auto make_view(Refs&&... refs) {
 
 template <class... Tags, class Model>
 auto make_view(Model& model) {  // @todo: maybe this version is not necessary (too specific)
+    static_assert(is_model<Model>::value, "Expected a reference to a prob model");
     return make_view(make_ref<Tags>(model)...);
 }
 
 template <class View, class F, size_t... Is>
 void forall_in_view_impl(View& view, const F& f, std::index_sequence<Is...>) {
+    static_assert(is_view<View>::value, "Expected a reference to a view");
     std::vector<int> ignore = {(apply_to_ref(get<Is>(view.refs), f), 0)...};
 }
 
 template <class View, class F>
 void forall_in_view(View& view, const F& f) {
+    static_assert(is_view<View>::value, "Expected a reference to a view");
     forall_in_view_impl(view, f, std::make_index_sequence<View::size()>());
 }
-
-template <class T>
-struct is_view : std::false_type {};
-
-template <class... Refs>
-struct is_view<view<Refs...>> : std::true_type {};
