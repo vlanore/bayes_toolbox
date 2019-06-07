@@ -30,37 +30,37 @@ license and that you accept its terms.*/
 #include "index.hpp"
 
 template <class Node, class Index>
-struct subnode_ref {
+struct ref {
     Node& node_ref;
     Index index;
-    subnode_ref(Node& node_ref, Index index) : node_ref(node_ref), index(index) {}
+    ref(Node& node_ref, Index index) : node_ref(node_ref), index(index) {}
 };
 
 template <class Node>
-struct subnode_ref<Node, NoIndex> {
+struct ref<Node, NoIndex> {
     Node& node_ref;
-    subnode_ref(Node& node_ref) : node_ref(node_ref) {}
-    subnode_ref(Node& node_ref, NoIndex) : node_ref(node_ref) {}
+    ref(Node& node_ref) : node_ref(node_ref) {}
+    ref(Node& node_ref, NoIndex) : node_ref(node_ref) {}
 };
 
 template <class Tag, class Model, class Index = NoIndex>
 auto make_ref(Model& m, Index index = Index{}) {
     using NodeType = field_type<Tag, Model>;
-    return subnode_ref<NodeType, Index>(get<Tag>(m), index);
+    return ref<NodeType, Index>(get<Tag>(m), index);
 }
 
 template <class Node, class F>
-auto apply_to_ref(subnode_ref<Node, NoIndex>& ref, const F& f) {
+auto apply_to_ref(ref<Node, NoIndex>& ref, const F& f) {
     f(ref.node_ref);
 }
 
 template <class Node, class Index, class F>
-auto apply_to_ref(subnode_ref<Node, Index>& ref, const F& f) {
+auto apply_to_ref(ref<Node, Index>& ref, const F& f) {
     f(ref.node_ref, ref.index);
 }
 
 template <class T>
-struct is_subnode_ref : std::false_type {};
+struct is_ref : std::false_type {};
 
 template <class Node, class Index>
-struct is_subnode_ref<subnode_ref<Node, Index>> : std::true_type {};
+struct is_ref<ref<Node, Index>> : std::true_type {};

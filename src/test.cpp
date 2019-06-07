@@ -277,6 +277,19 @@ TEST_CASE("Basic view test") {
                1, 2.0);
 }
 
+TOKEN(tok1);
+
+TEST_CASE("Views with indices") {
+    auto gen = make_generator();
+    // @todo: add constant pre-declared lambda
+    auto a = make_node_array<exponential>(5, [](int) { return 2.0; });
+    auto m = make_model(tok1_ = a);
+    // @fixme: does not work with just "0" (typing problem)
+    clamp_array(get<tok1>(m), 0., 0., 0., 0., 0.);
+    auto v = make_view(make_ref<tok1>(m, ArrayIndex{2}));
+    // draw(v, gen);
+}
+
 TEST_CASE("node backups") {
     auto node = make_backuped_node<exponential>(1);
     auto array = make_backuped_node_array<poisson>(5, n_to_one(node));
@@ -376,8 +389,6 @@ TEST_CASE("Suffstats") {
     CHECK(get<params, rate>(ss)(0) == 1.0);
     CHECK(logprob(ss) == logprob(array));
 }
-
-TOKEN(tok1);
 
 TEST_CASE("type_tag") {
     auto a = make_node<exponential>(1);

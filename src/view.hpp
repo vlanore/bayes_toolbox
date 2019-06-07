@@ -33,9 +33,9 @@ template <class... Refs>
 struct view {
     view(tuple_construct, Refs&&... refs) : refs(std::forward<Refs>(refs)...) {}
     // @todo: add specialization for bools (and possibly for and/or)
-    static_assert(list_reduce_to_value<is_subnode_ref, std::logical_and<bool>, bool, true,
-                                       type_list<Refs...>>::value,
-                  "view template params should only by subnode refs");
+    static_assert(
+        list_reduce_to_value<is_ref, std::logical_and<bool>, bool, true, type_list<Refs...>>::value,
+        "view template params should only be refs");
 
     std::tuple<Refs...> refs;
     static constexpr size_t size() { return sizeof...(Refs); }

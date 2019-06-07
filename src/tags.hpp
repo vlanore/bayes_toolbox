@@ -45,3 +45,4 @@ struct node_tag {};
 struct view_tag {};
 struct unknown_tag {};
 struct suffstat_tag {};
+struct ref_tag {};

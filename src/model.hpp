@@ -28,6 +28,7 @@ license and that you accept its terms.*/
 
 #include "node.hpp"
 
+// @todo: move this to tagged_tuple + mention inspiration in readme
 #define TOKEN(name)                                                \
     struct name {                                                  \
         template <class... Args>                                   \

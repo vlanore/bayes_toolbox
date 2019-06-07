@@ -49,3 +49,8 @@ template <class... Refs>
 auto type_tag(const view<Refs...>&) {
     return view_tag();
 }
+
+template <class Node, class Index>
+auto type_tag(const ref<Node, Index>&) {
+    return ref_tag();
+}
