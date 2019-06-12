@@ -115,16 +115,3 @@ auto make_array_params(ParamArgs&&... args) {
     return helper::make_params_helper<param_decl, 0, ArrayParamFactory>(
         std::forward<ParamArgs>(args)...);
 }
-
-//==================================================================================================
-// array param helpers for common cases
-
-template <class Node>
-auto n_to_one(Node& node) {
-    return [&rv = get_raw_value(node)](int) { return rv; };
-}
-
-template <class Node>
-auto n_to_n(Node& node) {
-    return [&v = get<value>(node)](int i) { return v[i].value; };
-}

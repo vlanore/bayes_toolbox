@@ -27,11 +27,29 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <assert.h>
-#include "node.hpp"
+#include "raw_value.hpp"
 
 template <class ProbNode, class Distrib = node_distrib_t<ProbNode>, class... Rest>
 void clamp_array(ProbNode& node, typename Distrib::raw_type first, Rest... rest) {
     std::vector<typename Distrib::raw_type> values{first, rest...};
     assert(values.size() == get<value>(node).size());
-    for (size_t i = 0; i < values.size(); i++) { get_array_raw_value(node, i) = values.at(i); }
+    for (size_t i = 0; i < values.size(); i++) { raw_value(node, i) = values.at(i); }
+}
+
+//==================================================================================================
+// array param helpers for common cases
+
+template <class Node>
+auto n_to_one(Node& node) {
+    return [&rv = raw_value(node)](int) { return rv; };
+}
+
+template <class Node>
+auto n_to_n(Node& node) {
+    return [&v = get<value>(node)](int i) { return v[i].value; };
+}
+
+template <class T>
+auto n_to_constant(const T& value) {
+    return [value](int) { return value; };
 }

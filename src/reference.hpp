@@ -28,6 +28,7 @@ license and that you accept its terms.*/
 
 #include <type_traits>
 #include "index.hpp"
+#include "tagged_tuple/src/tagged_tuple.hpp"
 
 template <class Node, class Index>
 struct ref {

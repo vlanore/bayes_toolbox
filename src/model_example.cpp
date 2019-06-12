@@ -33,6 +33,7 @@ license and that you accept its terms.*/
 #include "logprob.hpp"
 #include "mcmc_utils.hpp"
 #include "poisson.hpp"
+#include "raw_value.hpp"
 #include "suffstat_utils.hpp"
 #include "tagged_tuple/src/fancy_syntax.hpp"
 #include "view.hpp"
@@ -45,8 +46,8 @@ TOKEN(lambda_ss);
 TOKEN(K);
 
 auto poisson_gamma(size_t size) {
-    auto alpha = make_backuped_node<exponential>(1.0);
-    auto mu = make_backuped_node<exponential>(1.0);
+    auto alpha = make_node<exponential>(1.0);
+    auto mu = make_node<exponential>(1.0);
     auto lambda = make_node_array<gamma_ss>(size, n_to_one(alpha), n_to_one(mu));
     auto lambda_ss = make_suffstat<gamma_ss_suffstats>(lambda);
     auto K = make_node_array<poisson>(size, n_to_n(lambda));
@@ -57,17 +58,17 @@ auto poisson_gamma(size_t size) {
 
 template <class Node, class MB, class Gen>
 void scaling_move(Node& node, MB blanket, Gen& gen) {
-    double backup = get_raw_value(node);
+    double backup = raw_value(node);
     double logprob_before = logprob(blanket);
-    double log_hastings = scale(get_raw_value(node), gen);
+    double log_hastings = scale(raw_value(node), gen);
     bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
-    if (!accept) { get_raw_value(node) = backup; }
+    if (!accept) { raw_value(node) = backup; }
 }
 
 template <class Array, class MB, class Gen>
 void scaling_move_array(Array& array, MB blanket, Gen& gen) {
     for (size_t i = 0; i < get<value>(array).size(); i++) {
-        auto& raw_val = get_array_raw_value(array, i);
+        auto& raw_val = raw_value(array, i);
         double backup = raw_val;
         double logprob_before = logprob(blanket);
         double log_hastings = scale(raw_val, gen);

@@ -66,36 +66,3 @@ using node_value_t = std::remove_reference_t<decltype(get<value>(std::declval<No
 template <class NodeArray>
 using node_array_value_t =
     typename std::remove_reference_t<decltype(get<value>(std::declval<NodeArray>()))>::T;
-
-template <class Node>
-auto& get_raw_value(Node& node) {
-    return get<value>(node).value;
-}
-
-template <class Node>
-const auto& get_raw_value(const Node& node) {
-    return get<value>(node).value;
-}
-
-template <class Node>
-auto& get_array_raw_value(Node& node, size_t i) {
-    return get<value>(node)[i].value;
-}
-
-template <class Node>
-const auto& get_array_raw_value(const Node& node, size_t i) {
-    return get<value>(node)[i].value;
-}
-
-template <class Distrib, class... ParamArgs>
-auto make_backuped_node(ParamArgs&&... args) {
-    auto node = make_node<Distrib>(std::forward<ParamArgs>(args)...);
-    return push_front<backup_value, typename Distrib::T>({}, node);
-}
-
-template <class Distrib, class... ParamArgs>
-auto make_backuped_node_array(size_t size, ParamArgs&&... args) {
-    auto node = make_node_array<Distrib>(size, std::forward<ParamArgs>(args)...);
-    using vec_t = std::vector<typename Distrib::T>;
-    return push_front<backup_value, vec_t>(vec_t(size), node);
-}

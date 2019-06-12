@@ -38,7 +38,7 @@ namespace impl {
     template <class Node>
     auto& raw_value(node_tag, Node& node, ArrayIndex index) {
         //@todo: check node is an array
-        assert(index.i > 0 and index.i < get<value>(node).size());
+        assert(index.i >= 0 and index.i < get<value>(node).size());
         return get<value>(node)[index.i].value;
     }
 

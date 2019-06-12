@@ -167,26 +167,26 @@ TEST_CASE("Poisson/gamma simple model: draw values") {
 }
 
 TEST_CASE("Make array params") {
-    auto p = make_array_params<gamma_ss>([](int) { return 1.0; }, [](int) { return 2.0; });
+    auto p = make_array_params<gamma_ss>(n_to_constant(1.0), n_to_constant(2.0));
     CHECK(get<shape>(p)(2) == 1.0);
     CHECK(get<struct scale>(p)(17) == 2.0);
 }
 
 TEST_CASE("make array") {
-    auto a = make_node_array<exponential>(12, [](int) { return 1.0; });
-    auto b = make_node_array<exponential>(12, [](int) { return 1.0; });
+    auto a = make_node_array<exponential>(12, n_to_constant(1.0));
+    auto b = make_node_array<exponential>(12, n_to_constant(1.0));
     auto c = make_node_array<gamma_ss>(12, n_to_n(a), n_to_n(b));
     CHECK(get<value>(a).size() == 12);
     CHECK(get<params, rate>(a)(10) == 1.0);
-    get_array_raw_value(a, 2) = 17.0;
-    get_array_raw_value(b, 2) = 19.0;
+    raw_value(a, 2) = 17.0;
+    raw_value(b, 2) = 19.0;
     CHECK(get<params, shape>(c)(2) == 17.0);
     CHECK(get<params, struct scale>(c)(2) == 19.0);
 }
 
 TEST_CASE("Draw in array") {
     auto gen = make_generator();
-    auto a = make_node_array<exponential>(12, [](int) { return 1.0; });
+    auto a = make_node_array<exponential>(12, n_to_constant(1.0));
     draw(a, gen);
 }
 
@@ -283,7 +283,7 @@ TOKEN(tok1);
 TEST_CASE("Views with indices") {
     // auto gen = make_generator();
     // @todo: add constant pre-declared lambda
-    auto a = make_node_array<exponential>(5, [](int) { return 2.0; });
+    auto a = make_node_array<exponential>(5, n_to_constant(2.0));
     auto m = make_model(tok1_ = move(a));
     // @fixme: does not work with just "0" (typing problem)
     clamp_array(get<tok1>(m), 0., 0., 0., 0., 0.);
@@ -296,7 +296,7 @@ TEST_CASE("Views with indices") {
 // TEST_CASE("node backups") {
 //     auto node = make_backuped_node<exponential>(1);
 //     auto array = make_backuped_node_array<poisson>(5, n_to_one(node));
-//     auto& a_3 = get_array_raw_value(array, 3);
+//     auto& a_3 = raw_value(array, 3);
 //     get_raw_value(node) = 1.3;
 //     clamp_array(array, 2, 4, 5, 8, 9);
 //     backup(node);
@@ -306,21 +306,21 @@ TEST_CASE("Views with indices") {
 //     get_raw_value(node) = 3.1;
 //     clamp_array(array, 8, 9, 0, 12, 3);
 //     CHECK(get_raw_value(node) == 3.1);
-//     CHECK(get_array_raw_value(array, 0) == 8);
-//     CHECK(get_array_raw_value(array, 1) == 9);
-//     CHECK(get_array_raw_value(array, 2) == 0);
-//     CHECK(get_array_raw_value(array, 3) == 12);
-//     CHECK(get_array_raw_value(array, 4) == 3);
+//     CHECK(raw_value(array, 0) == 8);
+//     CHECK(raw_value(array, 1) == 9);
+//     CHECK(raw_value(array, 2) == 0);
+//     CHECK(raw_value(array, 3) == 12);
+//     CHECK(raw_value(array, 4) == 3);
 //     CHECK(a_3 == 12);
 
 //     restore(node);
 //     restore(array);
 //     CHECK(get_raw_value(node) == 1.3);
-//     CHECK(get_array_raw_value(array, 0) == 2);
-//     CHECK(get_array_raw_value(array, 1) == 4);
-//     CHECK(get_array_raw_value(array, 2) == 5);
-//     CHECK(get_array_raw_value(array, 3) == 8);
-//     CHECK(get_array_raw_value(array, 4) == 9);
+//     CHECK(raw_value(array, 0) == 2);
+//     CHECK(raw_value(array, 1) == 4);
+//     CHECK(raw_value(array, 2) == 5);
+//     CHECK(raw_value(array, 3) == 8);
+//     CHECK(raw_value(array, 4) == 9);
 //     CHECK(a_3 == 8);
 // }
 
@@ -373,7 +373,7 @@ TEST_CASE("Views with indices") {
 // }
 
 TEST_CASE("Suffstats") {
-    auto array = make_node_array<poisson>(5, [](int) { return 1.0; });
+    auto array = make_node_array<poisson>(5, n_to_constant(1.0));
     clamp_array(array, 1, 2, 3, 4, 5);
     auto ss = make_suffstat<poisson_suffstat>(array);
     CHECK(!is_up_to_date(ss));
@@ -424,14 +424,14 @@ TEST_CASE("raw_value") {
     get<value>(n).value = 2;
     CHECK(raw_value(n) == 2);
 
-    auto a = make_node_array<poisson>(5, [](int) { return 2.0; });
+    auto a = make_node_array<poisson>(5, n_to_constant(2.0));
     clamp_array(a, 1, 2, 3, 4, 5);
     CHECK(raw_value(a, ArrayIndex{3}) == 4);
     CHECK(raw_value(a, 3) == 4);
 
     auto m = []() {
         auto n = make_node<poisson>(1);
-        auto a = make_node_array<poisson>(5, [](int) { return 2.0; });
+        auto a = make_node_array<poisson>(5, n_to_constant(2.0));
         raw_value(n) = 7;
         return make_model(tok1_ = move(n), tok2_ = move(a));
     }();
