@@ -83,6 +83,8 @@ namespace overloads {
         return result;
     }
 
+    // @todo: add 3 matrix overloads (with NoIndex, ArrayIndex and MatrixIndex)
+
     template <class View>
     double logprob(view_tag, View& view) {
         double result = 0;

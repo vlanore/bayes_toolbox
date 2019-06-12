@@ -29,11 +29,20 @@ license and that you accept its terms.*/
 #include <assert.h>
 #include "raw_value.hpp"
 
-template <class ProbNode, class Distrib = node_distrib_t<ProbNode>, class... Rest>
-void clamp_array(ProbNode& node, typename Distrib::raw_type first, Rest... rest) {
-    std::vector<typename Distrib::raw_type> values{first, rest...};
+template <class ProbNode, class Distrib = node_distrib_t<ProbNode>>
+void set_array(ProbNode& node, std::vector<typename Distrib::raw_type> values) {
     assert(values.size() == get<value>(node).size());
-    for (size_t i = 0; i < values.size(); i++) { raw_value(node, i) = values.at(i); }
+    for (size_t i = 0; i < values.size(); i++) { raw_value(node, i) = values[i]; }
+}
+
+template <class ProbNode, class Distrib = node_distrib_t<ProbNode>>
+void set_matrix(ProbNode& node, std::vector<std::vector<typename Distrib::raw_type>> values) {
+    assert(values.size() == get<value>(node).size());
+    assert(values.size() > 0);
+    assert(values.at(0).size() == get<value>(node).at(0).size());
+    for (size_t i = 0; i < values.size(); i++) {
+        for (size_t j = 0; j < values[0].size(); j++) { raw_value(node, i, j) = values[i][j]; }
+    }
 }
 
 //==================================================================================================

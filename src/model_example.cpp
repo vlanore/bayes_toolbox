@@ -84,7 +84,7 @@ int main() {
     auto v = make_view<alpha, mu, lambda>(m);
 
     draw(v, gen);
-    clamp_array(K_(m), 1, 2, 3, 1, 2, 1, 2, 1, 2, 1);
+    set_array(K_(m), 1, 2, 3, 1, 2, 1, 2, 1, 2, 1);
 
     for (int it = 0; it < 10000; it++) {
         gather(lambda_ss_(m));
