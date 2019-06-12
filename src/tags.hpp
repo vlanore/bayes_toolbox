@@ -43,6 +43,7 @@ struct model_tag {};
 struct node_tag {};
 struct lone_node_tag : node_tag {};
 struct node_array_tag : node_tag {};
+struct node_matrix_tag : node_tag {};
 struct view_tag {};
 struct unknown_tag {};
 struct suffstat_tag {};

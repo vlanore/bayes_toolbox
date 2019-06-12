@@ -92,6 +92,6 @@ namespace overloads {
 };  // namespace overloads
 
 template <class T, class... Rest>
-double logprob(T& x, Rest&&... rest) {
-    return overloads::logprob(type_tag(x), x, std::forward<Rest>(rest)...);
+double logprob(T& x, Rest... rest) {
+    return overloads::logprob(type_tag(x), x, make_index(rest...));
 }

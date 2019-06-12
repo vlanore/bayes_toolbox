@@ -56,10 +56,16 @@ struct ParamFactory {
     static auto make(std::function<T()> f) { return f; }
 };
 
-// reference types
 template <class T>
 struct ArrayParamFactory {
+    // @todo: change int to size_t ?
     static auto make(std::function<T(int)> f) { return f; }
+};
+
+template <class T>
+struct MatrixParamFactory {
+    // @todo: change int to size_t ?
+    static auto make(std::function<T(int, int)> f) { return f; }
 };
 
 //==================================================================================================
@@ -113,5 +119,14 @@ auto make_array_params(ParamArgs&&... args) {
     static_assert(sizeof...(ParamArgs) == list_size<param_decl>::value,
                   "Number of args does not match expected number");
     return helper::make_params_helper<param_decl, 0, ArrayParamFactory>(
+        std::forward<ParamArgs>(args)...);
+}
+
+template <class Distrib, class... ParamArgs>
+auto make_matrix_params(ParamArgs&&... args) {
+    using param_decl = typename Distrib::param_decl;
+    static_assert(sizeof...(ParamArgs) == list_size<param_decl>::value,
+                  "Number of args does not match expected number");
+    return helper::make_params_helper<param_decl, 0, MatrixParamFactory>(
         std::forward<ParamArgs>(args)...);
 }

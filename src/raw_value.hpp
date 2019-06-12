@@ -42,11 +42,20 @@ namespace overloads {
         assert(index.i >= 0 and index.i < get<value>(node).size());
         return get<value>(node)[index.i].value;
     }
+
+    template <class Node>
+    auto& raw_value(node_matrix_tag, Node& node, MatrixIndex index) {
+        auto& v = get<value>(node);
+        assert(index.i >= 0 and index.i < v.size());
+        assert(v.size() > 0);
+        assert(index.j >= 0 and index.j < v.at(0).size());
+        return v[index.i][index.j].value;
+    }
 };  // namespace overloads
 
 template <class T, class... Rest>
-auto& raw_value(T& t, Rest&&... rest) {
-    return overloads::raw_value(type_tag(t), t, std::forward<Rest>(rest)...);
+auto& raw_value(T& t, Rest... rest) {
+    return overloads::raw_value(type_tag(t), t, make_index(rest...));
 }
 
 //==================================================================================================
@@ -66,6 +75,6 @@ namespace overloads {
 };  // namespace overloads
 
 template <class T, class... Rest>
-const auto& raw_value(const T& t, Rest&&... rest) {
-    return overloads::raw_value(type_tag(t), t, std::forward<Rest>(rest)...);
+const auto& raw_value(const T& t, Rest... rest) {
+    return overloads::raw_value(type_tag(t), t, make_index(rest...));
 }

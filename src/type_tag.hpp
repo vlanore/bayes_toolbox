@@ -47,7 +47,10 @@ auto type_tag(const tagged_tuple<MD, Fields...>&) {
     return conditional_t<is_node<T>::value,
         conditional_t<is_node_array<T>::value,
             node_array_tag,
-            lone_node_tag
+            conditional_t<is_node_matrix<T>::value,
+                node_matrix_tag,
+                lone_node_tag
+            >
         >,
         conditional_t<is_model<T>::value,
             model_tag,

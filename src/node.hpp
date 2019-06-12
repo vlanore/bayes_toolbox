@@ -48,6 +48,16 @@ auto make_node_array(size_t size, ParamArgs&&... args) {
         unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
 }
 
+template <class Distrib, class... ParamArgs>
+auto make_node_matrix(size_t size_x, size_t size_y, ParamArgs&&... args) {
+    // @todo: change to better data structure (instead of vector of vectors)
+    std::vector<std::vector<typename Distrib::T>> values(size_x,
+                                                         std::vector<typename Distrib::T>(size_y));
+    auto params = make_matrix_params<Distrib>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple<node_metadata<node_matrix_tag, Distrib>>(
+        unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
+}
+
 template <class T>
 struct is_node : std::false_type {};
 
@@ -65,6 +75,12 @@ struct is_node_array : std::false_type {};
 
 template <class MD, class... Fields>
 struct is_node_array<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_array_tag, MD> {};
+
+template <class T, class = void>
+struct is_node_matrix : std::false_type {};
+
+template <class MD, class... Fields>
+struct is_node_matrix<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_matrix_tag, MD> {};
 
 template <class Value>
 using value_distrib_t = typename Value::distrib;

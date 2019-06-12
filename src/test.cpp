@@ -438,13 +438,18 @@ TEST_CASE("raw_value") {
 
     auto a = make_node_array<poisson>(5, n_to_constant(2.0));
     clamp_array(a, 1, 2, 3, 4, 5);
-    CHECK(raw_value(a, ArrayIndex{3}) == 4);
     CHECK(raw_value(a, 3) == 4);
     raw_value(a, 3) = 5;
     CHECK(raw_value(a, 3) == 5);
 
     const auto& cn = n;
     const auto& ca = a;
-    CHECK(raw_value(ca, ArrayIndex{3}) == 5);
+    CHECK(raw_value(ca, 3) == 5);
     CHECK(raw_value(cn) == 2);
+}
+
+TEST_CASE("Matrix basic tests") {
+    auto m = make_node_matrix<poisson>(2, 2, [](int, int) { return 1.0; });
+    raw_value(m, 0, 1) = 2;
+    CHECK(raw_value(m, 0, 1) == get<value>(m).at(0).at(1).value);
 }

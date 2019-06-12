@@ -31,7 +31,6 @@ license and that you accept its terms.*/
 struct NoIndex {};
 
 struct ArrayIndex {
-    ArrayIndex(size_t i) : i(i) {}  // not explicit on purpose
     size_t i;
 };
 
@@ -39,3 +38,10 @@ struct MatrixIndex {
     size_t i;
     size_t j;
 };
+
+auto make_index() { return NoIndex(); }
+auto make_index(size_t i) { return ArrayIndex{i}; }
+auto make_index(size_t i, size_t j) { return MatrixIndex{i, j}; }
+auto make_index(NoIndex index) { return index; }
+auto make_index(ArrayIndex index) { return index; }
+auto make_index(MatrixIndex index) { return index; }
