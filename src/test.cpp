@@ -190,6 +190,14 @@ TEST_CASE("Draw in array") {
     draw(a, gen);
 }
 
+TEST_CASE("Logprobs") {
+    auto n = make_node<poisson>(2.0);
+    raw_value(n) = 2;
+    auto a = make_node_array<poisson>(3, n_to_constant(2.0));
+    clamp_array(a, 1, 2, 3);
+    CHECK(logprob(n) == logprob(a, 1));
+}
+
 // TEST_CASE("MCMC with nodes") {
 //     auto gen = make_generator();
 

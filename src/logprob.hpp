@@ -75,6 +75,14 @@ namespace overloads {
         return logprob_helper<distrib>(raw_value(node), get<params>(node), keys());
     }
 
+    template <class Node>
+    double logprob(node_array_tag, Node& node, ArrayIndex index) {
+        // @todo: check node is not an array
+        using distrib = node_distrib_t<Node>;
+        using keys = map_key_list_t<typename distrib::param_decl>;
+        return logprob_helper<distrib>(raw_value(node, index), get<params>(node), keys(), index.i);
+    }
+
     template <class View>
     double logprob(view_tag, View& view) {
         double result = 0;
@@ -83,7 +91,7 @@ namespace overloads {
     }
 };  // namespace overloads
 
-template <class Something>
-double logprob(Something& x) {
-    return overloads::logprob(type_tag(x), x);
+template <class T, class... Rest>
+double logprob(T& x, Rest&&... rest) {
+    return overloads::logprob(type_tag(x), x, std::forward<Rest>(rest)...);
 }
