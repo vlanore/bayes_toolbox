@@ -81,7 +81,7 @@ double logprob_selector(ProbNode& node, node_tag) {
 template <class View>
 double logprob_selector(View& view, view_tag) {
     double result = 0;
-    forall_in_view(view, [&result](auto& node) { result += logprob(node); });
+    forall_in_view(view, [&result](auto& node, NoIndex) { result += logprob(node); });
     return result;
 }
 

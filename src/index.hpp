@@ -31,6 +31,7 @@ license and that you accept its terms.*/
 struct NoIndex {};
 
 struct ArrayIndex {
+    ArrayIndex(size_t i) : i(i) {}  // not explicit on purpose
     size_t i;
 };
 

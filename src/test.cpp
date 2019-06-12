@@ -29,7 +29,6 @@ license and that you accept its terms.*/
 #include "doctest.h"
 
 #include "array_utils.hpp"
-#include "backup.hpp"
 #include "basic_moves.hpp"
 #include "exponential.hpp"
 #include "gamma.hpp"
@@ -38,6 +37,7 @@ license and that you accept its terms.*/
 #include "mcmc_utils.hpp"
 #include "overloading.hpp"
 #include "poisson.hpp"
+#include "raw_value.hpp"
 #include "suffstat_utils.hpp"
 #include "tagged_tuple/src/fancy_syntax.hpp"
 #include "view.hpp"
@@ -254,7 +254,7 @@ TEST_CASE("Forall on views") {
     struct n1 {};
     struct n2 {};
     struct n3 {};
-    auto f = [](auto& x) { x += x; };
+    auto f = [](auto& x, NoIndex) { x += x; };
     auto m = make_model(value_field<n1>(5), value_field<n2, std::string>("ab"));
     auto v = make_view<n1, n2>(m);
     forall_in_view(v, f);
@@ -281,96 +281,96 @@ TEST_CASE("Basic view test") {
 TOKEN(tok1);
 
 TEST_CASE("Views with indices") {
-    auto gen = make_generator();
+    // auto gen = make_generator();
     // @todo: add constant pre-declared lambda
     auto a = make_node_array<exponential>(5, [](int) { return 2.0; });
     auto m = make_model(tok1_ = move(a));
     // @fixme: does not work with just "0" (typing problem)
     clamp_array(get<tok1>(m), 0., 0., 0., 0., 0.);
-    auto v = make_view(make_ref<tok1>(m, ArrayIndex{2}));
+    // auto v = make_view(make_ref<tok1>(m, ArrayIndex{2}));
     // draw(v, gen);
 
     // TODO !
 }
 
-TEST_CASE("node backups") {
-    auto node = make_backuped_node<exponential>(1);
-    auto array = make_backuped_node_array<poisson>(5, n_to_one(node));
-    auto& a_3 = get_array_raw_value(array, 3);
-    get_raw_value(node) = 1.3;
-    clamp_array(array, 2, 4, 5, 8, 9);
-    backup(node);
-    backup(array);
-    CHECK(a_3 == 8);
+// TEST_CASE("node backups") {
+//     auto node = make_backuped_node<exponential>(1);
+//     auto array = make_backuped_node_array<poisson>(5, n_to_one(node));
+//     auto& a_3 = get_array_raw_value(array, 3);
+//     get_raw_value(node) = 1.3;
+//     clamp_array(array, 2, 4, 5, 8, 9);
+//     backup(node);
+//     backup(array);
+//     CHECK(a_3 == 8);
 
-    get_raw_value(node) = 3.1;
-    clamp_array(array, 8, 9, 0, 12, 3);
-    CHECK(get_raw_value(node) == 3.1);
-    CHECK(get_array_raw_value(array, 0) == 8);
-    CHECK(get_array_raw_value(array, 1) == 9);
-    CHECK(get_array_raw_value(array, 2) == 0);
-    CHECK(get_array_raw_value(array, 3) == 12);
-    CHECK(get_array_raw_value(array, 4) == 3);
-    CHECK(a_3 == 12);
+//     get_raw_value(node) = 3.1;
+//     clamp_array(array, 8, 9, 0, 12, 3);
+//     CHECK(get_raw_value(node) == 3.1);
+//     CHECK(get_array_raw_value(array, 0) == 8);
+//     CHECK(get_array_raw_value(array, 1) == 9);
+//     CHECK(get_array_raw_value(array, 2) == 0);
+//     CHECK(get_array_raw_value(array, 3) == 12);
+//     CHECK(get_array_raw_value(array, 4) == 3);
+//     CHECK(a_3 == 12);
 
-    restore(node);
-    restore(array);
-    CHECK(get_raw_value(node) == 1.3);
-    CHECK(get_array_raw_value(array, 0) == 2);
-    CHECK(get_array_raw_value(array, 1) == 4);
-    CHECK(get_array_raw_value(array, 2) == 5);
-    CHECK(get_array_raw_value(array, 3) == 8);
-    CHECK(get_array_raw_value(array, 4) == 9);
-    CHECK(a_3 == 8);
-}
+//     restore(node);
+//     restore(array);
+//     CHECK(get_raw_value(node) == 1.3);
+//     CHECK(get_array_raw_value(array, 0) == 2);
+//     CHECK(get_array_raw_value(array, 1) == 4);
+//     CHECK(get_array_raw_value(array, 2) == 5);
+//     CHECK(get_array_raw_value(array, 3) == 8);
+//     CHECK(get_array_raw_value(array, 4) == 9);
+//     CHECK(a_3 == 8);
+// }
 
-TEST_CASE("view backups") {
-    auto m = []() {
-        auto a = make_backuped_node<exponential>(1);
-        auto b = make_backuped_node<exponential>(1);
-        auto c = make_backuped_node<exponential>(1);
-        return make_model(node<n1>(a), node<n2>(b), node<n3>(c));
-    }();
-    get_raw_value(get<n1>(m)) = 1.;
-    get_raw_value(get<n2>(m)) = 2.;
-    get_raw_value(get<n3>(m)) = 3.;
-    auto v = make_view<n1, n3>(m);
-    backup(v);
-    get_raw_value(get<n1>(m)) = 4;
-    get_raw_value(get<n2>(m)) = 5;
-    get_raw_value(get<n3>(m)) = 6;
-    restore(v);
-    CHECK(get_raw_value(get<n1>(m)) == 1);
-    CHECK(get_raw_value(get<n2>(m)) == 5);
-    CHECK(get_raw_value(get<n3>(m)) == 3);
-}
+// TEST_CASE("view backups") {
+//     auto m = []() {
+//         auto a = make_backuped_node<exponential>(1);
+//         auto b = make_backuped_node<exponential>(1);
+//         auto c = make_backuped_node<exponential>(1);
+//         return make_model(node<n1>(a), node<n2>(b), node<n3>(c));
+//     }();
+//     get_raw_value(get<n1>(m)) = 1.;
+//     get_raw_value(get<n2>(m)) = 2.;
+//     get_raw_value(get<n3>(m)) = 3.;
+//     auto v = make_view<n1, n3>(m);
+//     backup(v);
+//     get_raw_value(get<n1>(m)) = 4;
+//     get_raw_value(get<n2>(m)) = 5;
+//     get_raw_value(get<n3>(m)) = 6;
+//     restore(v);
+//     CHECK(get_raw_value(get<n1>(m)) == 1);
+//     CHECK(get_raw_value(get<n2>(m)) == 5);
+//     CHECK(get_raw_value(get<n3>(m)) == 3);
+// }
 
-TEST_CASE("MCMC with views and backups") {
-    auto gen = make_generator();
+// TEST_CASE("MCMC with views and backups") {
+//     auto gen = make_generator();
 
-    auto param = make_backuped_node<exponential>(1);
-    draw(param, gen);
-    auto array = make_node_array<poisson>(20, n_to_one(param));
-    clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
+//     auto param = make_backuped_node<exponential>(1);
+//     draw(param, gen);
+//     auto array = make_node_array<poisson>(20, n_to_one(param));
+//     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
-    auto m = make_model(node<n1>(param), node<n2>(array));
-    auto v = make_view<n1, n2>(m);
+//     auto m = make_model(node<n1>(param), node<n2>(array));
+//     auto v = make_view<n1, n2>(m);
 
-    vector<double> trace;
-    for (int i = 0; i < 10000; i++) {
-        for (int rep = 0; rep < 10; rep++) {
-            backup(get<n1>(m));
-            double logprob_before = logprob(v);
-            double log_hastings = scale(get<n1, value>(m).value, gen);
-            bool accept = decide(logprob(v) - logprob_before + log_hastings, gen);
-            if (!accept) { restore(get<n1>(m)); }
-        }
-        trace.push_back(get<n1, value>(m).value);
-    }
-    double mean_trace = mean(trace);
-    CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
-    CHECK(mean_trace < 2);
-}
+//     vector<double> trace;
+//     for (int i = 0; i < 10000; i++) {
+//         for (int rep = 0; rep < 10; rep++) {
+//             backup(get<n1>(m));
+//             double logprob_before = logprob(v);
+//             double log_hastings = scale(get<n1, value>(m).value, gen);
+//             bool accept = decide(logprob(v) - logprob_before + log_hastings, gen);
+//             if (!accept) { restore(get<n1>(m)); }
+//         }
+//         trace.push_back(get<n1, value>(m).value);
+//     }
+//     double mean_trace = mean(trace);
+//     CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
+//     CHECK(mean_trace < 2);
+// }
 
 TEST_CASE("Suffstats") {
     auto array = make_node_array<poisson>(5, [](int) { return 1.0; });
@@ -415,4 +415,27 @@ TEST_CASE("type_tag") {
     CHECK(std::is_same<decltype(t4), view_tag>::value);
     CHECK(std::is_same<decltype(t5), view_tag>::value);
     CHECK(std::is_same<decltype(t6), suffstat_tag>::value);
+}
+
+TOKEN(tok2);
+
+TEST_CASE("raw_value") {
+    auto n = make_node<poisson>(1);
+    get<value>(n).value = 2;
+    CHECK(raw_value(n) == 2);
+
+    auto a = make_node_array<poisson>(5, [](int) { return 2.0; });
+    clamp_array(a, 1, 2, 3, 4, 5);
+    CHECK(raw_value(a, ArrayIndex{3}) == 4);
+    CHECK(raw_value(a, 3) == 4);
+
+    auto m = []() {
+        auto n = make_node<poisson>(1);
+        auto a = make_node_array<poisson>(5, [](int) { return 2.0; });
+        raw_value(n) = 7;
+        return make_model(tok1_ = move(n), tok2_ = move(a));
+    }();
+    // raw_value(m);  // fails at compile-time, as expected
+    auto r = make_ref<tok1>(m);
+    CHECK(raw_value(r) == 7);
 }

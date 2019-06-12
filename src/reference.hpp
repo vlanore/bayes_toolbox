@@ -36,27 +36,10 @@ struct ref {
     ref(Node& node_ref, Index index) : node_ref(node_ref), index(index) {}
 };
 
-template <class Node>
-struct ref<Node, NoIndex> {
-    Node& node_ref;
-    ref(Node& node_ref) : node_ref(node_ref) {}
-    ref(Node& node_ref, NoIndex) : node_ref(node_ref) {}
-};
-
 template <class Tag, class Model, class Index = NoIndex>
 auto make_ref(Model& m, Index index = Index{}) {
     using NodeType = field_type<Tag, Model>;
     return ref<NodeType, Index>(get<Tag>(m), index);
-}
-
-template <class Node, class F>
-auto apply_to_ref(ref<Node, NoIndex>& ref, const F& f) {
-    f(ref.node_ref);
-}
-
-template <class Node, class Index, class F>
-auto apply_to_ref(ref<Node, Index>& ref, const F& f) {
-    f(ref.node_ref, ref.index);
 }
 
 template <class T>

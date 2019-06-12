@@ -26,7 +26,6 @@ license and that you accept its terms.*/
 
 #include <iostream>
 #include "array_utils.hpp"
-#include "backup.hpp"
 #include "basic_moves.hpp"
 #include "draw.hpp"
 #include "exponential.hpp"
@@ -58,11 +57,11 @@ auto poisson_gamma(size_t size) {
 
 template <class Node, class MB, class Gen>
 void scaling_move(Node& node, MB blanket, Gen& gen) {
-    backup(node);
+    double backup = get_raw_value(node);
     double logprob_before = logprob(blanket);
     double log_hastings = scale(get_raw_value(node), gen);
     bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
-    if (!accept) { restore(node); }
+    if (!accept) { get_raw_value(node) = backup; }
 }
 
 template <class Array, class MB, class Gen>

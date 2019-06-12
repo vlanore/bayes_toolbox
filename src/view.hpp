@@ -59,7 +59,7 @@ auto make_view(Model& model) {  // @todo: maybe this version is not necessary (t
 template <class View, class F, size_t... Is>
 void forall_in_view_impl(View& view, const F& f, std::index_sequence<Is...>) {
     static_assert(is_view<View>::value, "Expected a reference to a view");
-    std::vector<int> ignore = {(apply_to_ref(get<Is>(view.refs), f), 0)...};
+    std::vector<int> ignore = {(f(get<Is>(view.refs).node_ref, get<Is>(view.refs).index), 0)...};
 }
 
 template <class View, class F>

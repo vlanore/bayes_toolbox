@@ -31,6 +31,9 @@ license and that you accept its terms.*/
 #include "tags.hpp"
 #include "view.hpp"
 
+// @todo: rename file to type_tag
+// @todo: have subfolders in repo
+
 template <class T>
 auto type_tag(const T&) {
     return unknown_tag();

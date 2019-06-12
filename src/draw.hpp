@@ -71,7 +71,7 @@ void draw_selector(ProbNode& node, Gen& gen, node_tag) {
 
 template <class View, typename Gen>
 void draw_selector(View& view, Gen& gen, view_tag) {
-    forall_in_view(view, [&gen](auto& node) { draw(node, gen); });
+    forall_in_view(view, [&gen](auto& node, NoIndex) { draw(node, gen); });
 }
 
 template <class Something, class Gen>

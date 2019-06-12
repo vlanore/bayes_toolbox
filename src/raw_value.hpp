@@ -27,34 +27,28 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "overloading.hpp"
-#include "view.hpp"
 
-template <class BN>
-void backup_selector(BN& node, node_tag) {
-    get<backup_value>(node) = get<value>(node);
-}
+namespace impl {
+    template <class Node>
+    auto& raw_value(node_tag, Node& node, NoIndex = NoIndex()) {
+        // @todo: check node is not an array
+        return get<value>(node).value;
+    }
 
-template <class BN>
-void restore_selector(BN& node, node_tag) {
-    get<value>(node) = get<backup_value>(node);
-}
+    template <class Node>
+    auto& raw_value(node_tag, Node& node, ArrayIndex index) {
+        //@todo: check node is an array
+        assert(index.i > 0 and index.i < get<value>(node).size());
+        return get<value>(node)[index.i].value;
+    }
 
-template <class View>
-void backup_selector(View& view, view_tag) {
-    forall_in_view(view, [](auto& node) { backup(node); });
-}
+    template <class Ref>
+    auto& raw_value(ref_tag, Ref& ref) {
+        return raw_value(node_tag(), ref.node_ref, ref.index);
+    }
+};  // namespace impl
 
-template <class View>
-void restore_selector(View& view, view_tag) {
-    forall_in_view(view, [](auto& node) { restore(node); });
-}
-
-template <class Something>
-void backup(Something& x) {
-    backup_selector(x, type_tag(x));
-}
-
-template <class Something>
-void restore(Something& x) {
-    restore_selector(x, type_tag(x));
+template <class T, class... Rest>
+auto& raw_value(T& t, Rest&&... rest) {
+    return impl::raw_value(type_tag(t), t, std::forward<Rest>(rest)...);
 }
