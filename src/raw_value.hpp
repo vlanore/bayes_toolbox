@@ -26,7 +26,7 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "overloading.hpp"
+#include "type_tag.hpp"
 
 //==================================================================================================
 // raw_value: get reference to raw value of a node (e.g. get a double& to node value)

@@ -35,11 +35,11 @@ license and that you accept its terms.*/
 #include "logprob.hpp"
 #include "math_utils.hpp"
 #include "mcmc_utils.hpp"
-#include "overloading.hpp"
 #include "poisson.hpp"
 #include "raw_value.hpp"
 #include "suffstat_utils.hpp"
 #include "tagged_tuple/src/fancy_syntax.hpp"
+#include "type_tag.hpp"
 #include "view.hpp"
 using namespace std;
 
