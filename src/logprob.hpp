@@ -39,53 +39,51 @@ auto logprob_helper(const T& value, const Param& param, std::tuple<ParamKeys...>
     return Distrib::logprob(value, get<ParamKeys>(param)(indexes...)...);
 }
 
-template <class Distrib, class T = typename Distrib::T, class Param>
-double logprob(const std::vector<T>& value, const Param& param) {
-    using keys = map_key_list_t<typename Distrib::param_decl>;
-    double result = 0;
-    for (size_t i = 0; i < value.size(); i++) {
-        result += logprob_helper<Distrib>(value[i].value, param, keys(), i);
-    }
-    return result;
-}
+// template <class Distrib, class T = typename Distrib::T, class Param>
+// double logprob(const std::vector<T>& value, const Param& param) {
+//     using keys = map_key_list_t<typename Distrib::param_decl>;
+//     double result = 0;
+//     for (size_t i = 0; i < value.size(); i++) {
+//         result += logprob_helper<Distrib>(value[i].value, param, keys(), i);
+//     }
+//     return result;
+// }
 
-template <class Distrib, class Param>
-double logprob(const typename Distrib::T& value, const Param& param) {
-    using keys = map_key_list_t<typename Distrib::param_decl>;
-    return logprob_helper<Distrib>(value.value, param, keys());
-}
-
-template <class SS, class Param>
-double logprob(const SS& ss, const Param& param) {
-    using distrib = typename SS::distrib;
-    using keys = map_key_list_t<typename distrib::param_decl>;
-    // TODO check that params are identical?
-    return logprob_helper<SS, SS>(ss, param, keys(), 0);
-}
+// template <class SS, class Param>
+// double logprob(const SS& ss, const Param& param) {
+//     using distrib = typename SS::distrib;
+//     using keys = map_key_list_t<typename distrib::param_decl>;
+//     // TODO check that params are identical?
+//     return logprob_helper<SS, SS>(ss, param, keys(), 0);
+// }
 
 /*==================================================================================================
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
-template <class SS>
-double logprob_selector(SS& ss, suffstat_tag) {
-    using ss_t = metadata_get_property<suffstat_type, metadata_t<SS>>;
-    return logprob<ss_t>(get<suffstat>(ss), get<params>(ss));
-}
+namespace overloads {
+    template <class SS>
+    double logprob(suffstat_tag, SS& ss) {
+        using ss_t = metadata_get_property<suffstat_type, metadata_t<SS>>;
+        return logprob<ss_t>(get<suffstat>(ss), get<params>(ss));
+    }
 
-template <class ProbNode>
-double logprob_selector(ProbNode& node, node_tag) {
-    using distrib = node_distrib_t<ProbNode>;
-    return logprob<distrib>(get<value>(node), get<params>(node));
-}
+    template <class Node>
+    double logprob(lone_node_tag, Node& node, NoIndex = NoIndex{}) {
+        // @todo: check node is not an array
+        using distrib = node_distrib_t<Node>;
+        using keys = map_key_list_t<typename distrib::param_decl>;
+        return logprob_helper<distrib>(raw_value(node), get<params>(node), keys());
+    }
 
-template <class View>
-double logprob_selector(View& view, view_tag) {
-    double result = 0;
-    forall_in_view(view, [&result](auto& node, NoIndex) { result += logprob(node); });
-    return result;
-}
+    template <class View>
+    double logprob(view_tag, View& view) {
+        double result = 0;
+        forall_in_view(view, [&result](auto& node, auto index) { result += logprob(node, index); });
+        return result;
+    }
+};  // namespace overloads
 
 template <class Something>
 double logprob(Something& x) {
-    return logprob_selector(x, type_tag(x));
+    return overloads::logprob(type_tag(x), x);
 }

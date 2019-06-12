@@ -29,22 +29,22 @@ license and that you accept its terms.*/
 #include <vector>
 #include "params.hpp"
 
-template <class Distrib>
-using node_metadata = metadata<type_list<node_tag>, type_map<property<distrib, Distrib>>>;
+template <class Tag, class Distrib>
+using node_metadata = metadata<type_list<node_tag, Tag>, type_map<property<distrib, Distrib>>>;
 
 template <class Distrib, class... ParamArgs>
 auto make_node(ParamArgs&&... args) {
     auto v = typename Distrib::T();
     auto params = make_params<Distrib>(std::forward<ParamArgs>(args)...);
-    return make_tagged_tuple<node_metadata<Distrib>>(unique_ptr_field<struct value>(std::move(v)),
-                                                     value_field<struct params>(params));
+    return make_tagged_tuple<node_metadata<lone_node_tag, Distrib>>(
+        unique_ptr_field<struct value>(std::move(v)), value_field<struct params>(params));
 }
 
 template <class Distrib, class... ParamArgs>
 auto make_node_array(size_t size, ParamArgs&&... args) {
     std::vector<typename Distrib::T> values(size);
     auto params = make_array_params<Distrib>(std::forward<ParamArgs>(args)...);
-    return make_tagged_tuple<node_metadata<Distrib>>(
+    return make_tagged_tuple<node_metadata<node_array_tag, Distrib>>(
         unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
 }
 
@@ -53,6 +53,21 @@ struct is_node : std::false_type {};
 
 template <class MD, class... Fields>
 struct is_node<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_tag, MD> {};
+
+template <class T>
+struct is_vector : std::false_type {};
+
+template <class T>
+struct is_vector<std::vector<T>> : std::true_type {};
+
+template <class...>  // @todo: remove or move elsewhere
+using void_type = void;
+
+template <class T, class = void>
+struct is_array : std::false_type {};
+
+template <class MD, class... Fields>
+struct is_array<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_array_tag, MD> {};
 
 template <class Value>
 using value_distrib_t = typename Value::distrib;

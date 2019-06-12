@@ -46,7 +46,10 @@ auto type_tag(const tagged_tuple<MD, Fields...>&) {
     using T = tagged_tuple<MD, Fields...>;
     // clang-format off
     return conditional_t<is_node<T>::value,
-        node_tag,
+        conditional_t<is_array<T>::value,
+            node_array_tag,
+            lone_node_tag
+        >,
         conditional_t<is_model<T>::value,
             model_tag,
             conditional_t<is_suffstat<T>::value,

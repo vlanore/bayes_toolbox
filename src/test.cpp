@@ -190,30 +190,30 @@ TEST_CASE("Draw in array") {
     draw(a, gen);
 }
 
-TEST_CASE("MCMC with nodes") {
-    auto gen = make_generator();
+// TEST_CASE("MCMC with nodes") {
+//     auto gen = make_generator();
 
-    auto param = make_node<exponential>(1);
-    draw(param, gen);
-    auto array = make_node_array<poisson>(20, n_to_one(param));
-    clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
+//     auto param = make_node<exponential>(1);
+//     draw(param, gen);
+//     auto array = make_node_array<poisson>(20, n_to_one(param));
+//     clamp_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
-    vector<double> trace;
-    for (int i = 0; i < 10000; i++) {
-        for (int rep = 0; rep < 10; rep++) {
-            auto param_backup = make_value_backup(param);
-            double logprob_before = logprob(param) + logprob(array);
-            double log_hastings = scale(get<value>(param).value, gen);
-            double logprob_after = logprob(param) + logprob(array);
-            bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
-            if (!accept) { restore_from_backup(param, param_backup); }
-        }
-        trace.push_back(get<value>(param).value);
-    }
-    double mean_trace = mean(trace);
-    CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
-    CHECK(mean_trace < 2);
-}
+//     vector<double> trace;
+//     for (int i = 0; i < 10000; i++) {
+//         for (int rep = 0; rep < 10; rep++) {
+//             auto param_backup = make_value_backup(param);
+//             double logprob_before = logprob(param) + logprob(array);
+//             double log_hastings = scale(get<value>(param).value, gen);
+//             double logprob_after = logprob(param) + logprob(array);
+//             bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
+//             if (!accept) { restore_from_backup(param, param_backup); }
+//         }
+//         trace.push_back(get<value>(param).value);
+//     }
+//     double mean_trace = mean(trace);
+//     CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
+//     CHECK(mean_trace < 2);
+// }
 
 TEST_CASE("Sum and mean functions") {
     vector<double> vd = {1, 2, 3, 4.2, 5.1, 6};
@@ -372,26 +372,26 @@ TEST_CASE("Views with indices") {
 //     CHECK(mean_trace < 2);
 // }
 
-TEST_CASE("Suffstats") {
-    auto array = make_node_array<poisson>(5, n_to_constant(1.0));
-    clamp_array(array, 1, 2, 3, 4, 5);
-    auto ss = make_suffstat<poisson_suffstat>(array);
-    CHECK(!is_up_to_date(ss));
+// TEST_CASE("Suffstats") {
+//     auto array = make_node_array<poisson>(5, n_to_constant(1.0));
+//     clamp_array(array, 1, 2, 3, 4, 5);
+//     auto ss = make_suffstat<poisson_suffstat>(array);
+//     CHECK(!is_up_to_date(ss));
 
-    gather(ss);
-    CHECK(get<suffstat>(ss).sum == 15);
-    CHECK(get<suffstat>(ss).N == 5);
-    CHECK(is_up_to_date(ss));
+//     gather(ss);
+//     CHECK(get<suffstat>(ss).sum == 15);
+//     CHECK(get<suffstat>(ss).N == 5);
+//     CHECK(is_up_to_date(ss));
 
-    clamp_array(array, 1, 1, 1, 1, 1);
-    CHECK(!is_up_to_date(ss));
-    gather(ss);
-    CHECK(get<suffstat>(ss).sum == 5);
-    CHECK(is_up_to_date(ss));
+//     clamp_array(array, 1, 1, 1, 1, 1);
+//     CHECK(!is_up_to_date(ss));
+//     gather(ss);
+//     CHECK(get<suffstat>(ss).sum == 5);
+//     CHECK(is_up_to_date(ss));
 
-    CHECK(get<params, rate>(ss)(0) == 1.0);
-    CHECK(logprob(ss) == logprob(array));
-}
+//     CHECK(get<params, rate>(ss)(0) == 1.0);
+//     CHECK(logprob(ss) == logprob(array));
+// }
 
 TEST_CASE("type_tag") {
     auto a = make_node<exponential>(1);
@@ -409,7 +409,7 @@ TEST_CASE("type_tag") {
     auto t5 = type_tag(make_view<tok1>(m));
     auto t6 = type_tag(ss);
 
-    CHECK(std::is_same<decltype(t1), node_tag>::value);
+    CHECK(std::is_same<decltype(t1), lone_node_tag>::value);
     CHECK(std::is_same<decltype(t2), model_tag>::value);
     CHECK(std::is_same<decltype(t3), unknown_tag>::value);
     CHECK(std::is_same<decltype(t4), view_tag>::value);

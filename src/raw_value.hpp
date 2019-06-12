@@ -28,7 +28,7 @@ license and that you accept its terms.*/
 
 #include "overloading.hpp"
 
-namespace impl {
+namespace overloads {
     template <class Node>
     auto& raw_value(node_tag, Node& node, NoIndex = NoIndex()) {
         // @todo: check node is not an array
@@ -46,9 +46,9 @@ namespace impl {
     auto& raw_value(ref_tag, Ref& ref) {
         return raw_value(node_tag(), ref.node_ref, ref.index);
     }
-};  // namespace impl
+};  // namespace overloads
 
 template <class T, class... Rest>
 auto& raw_value(T& t, Rest&&... rest) {
-    return impl::raw_value(type_tag(t), t, std::forward<Rest>(rest)...);
+    return overloads::raw_value(type_tag(t), t, std::forward<Rest>(rest)...);
 }
