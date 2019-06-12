@@ -191,11 +191,18 @@ TEST_CASE("Draw in array") {
 }
 
 TEST_CASE("Logprobs") {
-    auto n = make_node<poisson>(2.0);
-    raw_value(n) = 2;
+    auto n1 = make_node<poisson>(2.0);
+    auto n2 = make_node<poisson>(2.0);
+    auto n3 = make_node<poisson>(2.0);
+    raw_value(n1) = 1;
+    raw_value(n2) = 2;
+    raw_value(n3) = 3;
     auto a = make_node_array<poisson>(3, n_to_constant(2.0));
     clamp_array(a, 1, 2, 3);
-    CHECK(logprob(n) == logprob(a, 1));
+    CHECK(logprob(n1) == logprob(a, 0));
+    CHECK(logprob(n2) == logprob(a, 1));
+    CHECK(logprob(n3) == logprob(a, 2));
+    CHECK(logprob(a) == logprob(n1) + logprob(n2) + logprob(n3));
 }
 
 // TEST_CASE("MCMC with nodes") {

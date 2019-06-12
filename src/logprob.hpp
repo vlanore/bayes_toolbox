@@ -83,6 +83,19 @@ namespace overloads {
         return logprob_helper<distrib>(raw_value(node, index), get<params>(node), keys(), index.i);
     }
 
+    template <class Node>
+    double logprob(node_array_tag, Node& node, NoIndex = NoIndex{}) {
+        // @todo: check node is not an array
+        using distrib = node_distrib_t<Node>;
+        using keys = map_key_list_t<typename distrib::param_decl>;
+        double result = 0;
+        auto& v = get<value>(node);
+        for (size_t i = 0; i < v.size(); i++) {
+            result += logprob_helper<distrib>(raw_value(node, i), get<params>(node), keys(), i);
+        }
+        return result;
+    }
+
     template <class View>
     double logprob(view_tag, View& view) {
         double result = 0;
