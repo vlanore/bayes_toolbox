@@ -432,8 +432,6 @@ TEST_CASE("type_tag") {
     CHECK(std::is_same<decltype(t6), suffstat_tag>::value);
 }
 
-TOKEN(tok2);
-
 TEST_CASE("raw_value") {
     auto n = make_node<poisson>(1);
     get<value>(n).value = 2;
@@ -443,14 +441,11 @@ TEST_CASE("raw_value") {
     clamp_array(a, 1, 2, 3, 4, 5);
     CHECK(raw_value(a, ArrayIndex{3}) == 4);
     CHECK(raw_value(a, 3) == 4);
+    raw_value(a, 3) = 5;
+    CHECK(raw_value(a, 3) == 5);
 
-    auto m = []() {
-        auto n = make_node<poisson>(1);
-        auto a = make_node_array<poisson>(5, n_to_constant(2.0));
-        raw_value(n) = 7;
-        return make_model(tok1_ = move(n), tok2_ = move(a));
-    }();
-    // raw_value(m);  // fails at compile-time, as expected
-    auto r = make_ref<tok1>(m);
-    CHECK(raw_value(r) == 7);
+    const auto& cn = n;
+    const auto& ca = a;
+    CHECK(raw_value(ca, ArrayIndex{3}) == 5);
+    CHECK(raw_value(cn) == 2);
 }

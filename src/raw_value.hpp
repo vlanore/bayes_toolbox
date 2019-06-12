@@ -28,27 +28,44 @@ license and that you accept its terms.*/
 
 #include "overloading.hpp"
 
+//==================================================================================================
+// raw_value: get reference to raw value of a node (e.g. get a double& to node value)
+
 namespace overloads {
     template <class Node>
-    auto& raw_value(node_tag, Node& node, NoIndex = NoIndex()) {
-        // @todo: check node is not an array
+    auto& raw_value(lone_node_tag, Node& node, NoIndex = NoIndex()) {
         return get<value>(node).value;
     }
 
     template <class Node>
-    auto& raw_value(node_tag, Node& node, ArrayIndex index) {
-        //@todo: check node is an array
+    auto& raw_value(node_array_tag, Node& node, ArrayIndex index) {
         assert(index.i >= 0 and index.i < get<value>(node).size());
         return get<value>(node)[index.i].value;
-    }
-
-    template <class Ref>
-    auto& raw_value(ref_tag, Ref& ref) {
-        return raw_value(node_tag(), ref.node_ref, ref.index);
     }
 };  // namespace overloads
 
 template <class T, class... Rest>
 auto& raw_value(T& t, Rest&&... rest) {
+    return overloads::raw_value(type_tag(t), t, std::forward<Rest>(rest)...);
+}
+
+//==================================================================================================
+// raw_value const variants
+
+namespace overloads {
+    template <class Node>
+    const auto& raw_value(lone_node_tag, const Node& node, NoIndex = NoIndex()) {
+        return get<value>(node).value;
+    }
+
+    template <class Node>
+    const auto& raw_value(node_array_tag, const Node& node, ArrayIndex index) {
+        assert(index.i >= 0 and index.i < get<value>(node).size());
+        return get<value>(node)[index.i].value;
+    }
+};  // namespace overloads
+
+template <class T, class... Rest>
+const auto& raw_value(const T& t, Rest&&... rest) {
     return overloads::raw_value(type_tag(t), t, std::forward<Rest>(rest)...);
 }

@@ -39,16 +39,6 @@ auto logprob_helper(const T& value, const Param& param, std::tuple<ParamKeys...>
     return Distrib::logprob(value, get<ParamKeys>(param)(indexes...)...);
 }
 
-// template <class Distrib, class T = typename Distrib::T, class Param>
-// double logprob(const std::vector<T>& value, const Param& param) {
-//     using keys = map_key_list_t<typename Distrib::param_decl>;
-//     double result = 0;
-//     for (size_t i = 0; i < value.size(); i++) {
-//         result += logprob_helper<Distrib>(value[i].value, param, keys(), i);
-//     }
-//     return result;
-// }
-
 // template <class SS, class Param>
 // double logprob(const SS& ss, const Param& param) {
 //     using distrib = typename SS::distrib;
