@@ -60,14 +60,11 @@ struct is_vector : std::false_type {};
 template <class T>
 struct is_vector<std::vector<T>> : std::true_type {};
 
-template <class...>  // @todo: remove or move elsewhere
-using void_type = void;
-
 template <class T, class = void>
-struct is_array : std::false_type {};
+struct is_node_array : std::false_type {};
 
 template <class MD, class... Fields>
-struct is_array<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_array_tag, MD> {};
+struct is_node_array<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_array_tag, MD> {};
 
 template <class Value>
 using value_distrib_t = typename Value::distrib;

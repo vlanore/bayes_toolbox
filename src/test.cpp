@@ -297,7 +297,6 @@ TOKEN(tok1);
 
 TEST_CASE("Views with indices") {
     // auto gen = make_generator();
-    // @todo: add constant pre-declared lambda
     auto a = make_node_array<exponential>(5, n_to_constant(2.0));
     auto m = make_model(tok1_ = move(a));
     // @fixme: does not work with just "0" (typing problem)

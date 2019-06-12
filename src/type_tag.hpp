@@ -32,7 +32,6 @@ license and that you accept its terms.*/
 #include "tags.hpp"
 #include "view.hpp"
 
-// @todo: rename file to type_tag
 // @todo: have subfolders in repo
 
 template <class T>
@@ -46,7 +45,7 @@ auto type_tag(const tagged_tuple<MD, Fields...>&) {
     using T = tagged_tuple<MD, Fields...>;
     // clang-format off
     return conditional_t<is_node<T>::value,
-        conditional_t<is_array<T>::value,
+        conditional_t<is_node_array<T>::value,
             node_array_tag,
             lone_node_tag
         >,

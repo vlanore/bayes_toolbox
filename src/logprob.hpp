@@ -29,9 +29,9 @@ license and that you accept its terms.*/
 #include "distrib_utils.hpp"
 #include "overloading.hpp"
 
-/*==================================================================================================
-~~ Overloads that unpack parameters ~~
-==================================================================================================*/
+//==================================================================================================
+// Parameter unpacking
+
 template <typename Distrib, class T = typename Distrib::raw_value, typename Param,
           class... ParamKeys, class... Indexes>
 auto logprob_helper(const T& value, const Param& param, std::tuple<ParamKeys...>,
@@ -47,9 +47,9 @@ auto logprob_helper(const T& value, const Param& param, std::tuple<ParamKeys...>
 //     return logprob_helper<SS, SS>(ss, param, keys(), 0);
 // }
 
-/*==================================================================================================
-~~ Generic version that unpacks probnode objects ~~
-==================================================================================================*/
+//==================================================================================================
+// Overloads
+
 namespace overloads {
     template <class SS>
     double logprob(suffstat_tag, SS& ss) {
@@ -59,7 +59,6 @@ namespace overloads {
 
     template <class Node>
     double logprob(lone_node_tag, Node& node, NoIndex = NoIndex{}) {
-        // @todo: check node is not an array
         using distrib = node_distrib_t<Node>;
         using keys = map_key_list_t<typename distrib::param_decl>;
         return logprob_helper<distrib>(raw_value(node), get<params>(node), keys());
@@ -67,7 +66,6 @@ namespace overloads {
 
     template <class Node>
     double logprob(node_array_tag, Node& node, ArrayIndex index) {
-        // @todo: check node is not an array
         using distrib = node_distrib_t<Node>;
         using keys = map_key_list_t<typename distrib::param_decl>;
         return logprob_helper<distrib>(raw_value(node, index), get<params>(node), keys(), index.i);
@@ -75,7 +73,6 @@ namespace overloads {
 
     template <class Node>
     double logprob(node_array_tag, Node& node, NoIndex = NoIndex{}) {
-        // @todo: check node is not an array
         using distrib = node_distrib_t<Node>;
         using keys = map_key_list_t<typename distrib::param_decl>;
         double result = 0;
