@@ -37,12 +37,7 @@ namespace overloads {
     template <class T>
     auto backup(node_matrix_tag, T& node, ArrayIndex index) {
         assert(index.i >= 0 && index.i < get<value>(node).size());
-        return get<value>(node)[i];
-    }
-
-    template <class T>
-    auto backup(node_matrix_tag, T& node, MatrixIndex index) {
-        return raw_value(node, index);
+        return get<value>(node)[index.i];
     }
 
     template <class T>
@@ -50,14 +45,9 @@ namespace overloads {
         return get<value>(node);
     }
 
-    template <class T>
-    auto backup(node_array_tag, T& node, ArrayIndex index) {
-        return raw_value(node, index);
-    }
-
     template <class T, class Index>
-    auto backup(lone_node_tag, T& node, NoIndex = NoIndex()) {
-        return raw_value(node);
+    auto backup(node_tag, T& node, Index index) {
+        return raw_value(node, index);
     }
 
 };  // namespace overloads
@@ -65,4 +55,42 @@ namespace overloads {
 template <class T, class... IndexArgs>
 auto backup(T& x, IndexArgs... args) {
     return overloads::backup(type_tag(x), x, make_index(args...));
+}
+
+namespace overloads {
+    template <class T, class V>
+    auto restore(node_matrix_tag, T& node, std::vector<std::vector<V>>& backup,
+                 NoIndex = NoIndex()) {
+        assert(backup.size() == get<value>(node).size());
+        assert(backup.size() > 0);
+        assert(backup.at(0).size() == get<value>(node).at(0).size());
+        for (size_t i = 0; i < backup.size(); i++) {
+            for (size_t j = 0; j < backup.size(); j++) {
+                raw_value(node, i, j) = backup[i][j].value;
+            }
+        }
+    }
+
+    template <class T, class V>
+    auto restore(node_matrix_tag, T& node, std::vector<V>& backup, ArrayIndex index) {
+        assert(index.i >= 0 && index.i < get<value>(backup).size());
+        assert(backup.size() == get<value>(node).at(index.i).size());
+        for (size_t j = 0; j < backup.size(); j++) { raw_value(node, index, j) = backup[j].value; }
+    }
+
+    template <class T, class V>
+    auto restore(node_array_tag, T& node, std::vector<V>& backup, NoIndex = NoIndex()) {
+        assert(backup.size() == get<value>(node).size());
+        for (size_t i = 0; i < backup.size(); i++) { raw_value(node, i) = backup[i].value; }
+    }
+
+    template <class T, class V, class Index>
+    auto restore(node_tag, T& node, V& backup, Index index) {
+        raw_value(node, index) = backup;
+    }
+};  // namespace overloads
+
+template <class T, class Backup, class... IndexArgs>
+void restore(T& x, Backup& b, IndexArgs... args) {
+    overloads::restore(type_tag(x), x, b, make_index(args...));
 }

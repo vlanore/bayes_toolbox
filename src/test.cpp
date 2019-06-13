@@ -32,6 +32,7 @@ license and that you accept its terms.*/
 #include "distributions/exponential.hpp"
 #include "distributions/gamma.hpp"
 #include "distributions/poisson.hpp"
+#include "operations/backup.hpp"
 #include "operations/logprob.hpp"
 #include "operations/raw_value.hpp"
 #include "structure/array_utils.hpp"
@@ -40,8 +41,6 @@ license and that you accept its terms.*/
 #include "suffstat_utils.hpp"
 #include "tagged_tuple/src/fancy_syntax.hpp"
 using namespace std;
-// #include "math_utils.hpp"
-// #include "mcmc_utils.hpp"
 
 #define NB_POINTS 10000
 #define PRECISION 0.025
@@ -421,4 +420,33 @@ TEST_CASE("Matrix basic tests") {
     CHECK(y == 8);
     CHECK(raw_value(m, 1, 0) == 7);
     CHECK(raw_value(m, 1, 1) == 8);
+}
+
+TEST_CASE("Backup/restore") {
+    auto n = make_node<poisson>(1.0);
+    raw_value(n) = 17;
+    auto bn = backup(n);
+    raw_value(n) = 11;
+    CHECK(raw_value(n) == 11);
+    restore(n, bn);
+    CHECK(raw_value(n) == 17);
+
+    auto a = make_node_array<poisson>(3, n_to_constant(1.0));
+    set_value(a, {11, 12, 13});
+    auto ba = backup(a);
+    auto ba1 = backup(a, 1);
+    set_value(a, {1, 2, 3});
+    CHECK(raw_value(a, 0) == 1);
+    CHECK(raw_value(a, 1) == 2);
+    CHECK(raw_value(a, 2) == 3);
+    restore(a, ba1, 1);
+    CHECK(raw_value(a, 0) == 1);
+    CHECK(raw_value(a, 1) == 12);
+    CHECK(raw_value(a, 2) == 3);
+    restore(a, ba);
+    CHECK(raw_value(a, 0) == 11);
+    CHECK(raw_value(a, 1) == 12);
+    CHECK(raw_value(a, 2) == 13);
+
+    // @todo: write tests for matrix cases
 }
