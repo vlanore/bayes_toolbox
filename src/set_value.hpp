@@ -31,18 +31,26 @@ license and that you accept its terms.*/
 
 template <class ProbNode, class Distrib = node_distrib_t<ProbNode>>
 void set_value(ProbNode& node, std::vector<typename Distrib::raw_type> values) {
-    static_assert(is_node_array<ProbNode>::value, "this set_value overload expected an array!");
+    static_assert(is_node_array<ProbNode>::value, "this set_value overload expects an array!");
     assert(values.size() == get<value>(node).size());
     for (size_t i = 0; i < values.size(); i++) { raw_value(node, i) = values[i]; }
 }
 
 template <class ProbNode, class Distrib = node_distrib_t<ProbNode>>
 void set_value(ProbNode& node, std::vector<std::vector<typename Distrib::raw_type>> values) {
-    static_assert(is_node_matrix<ProbNode>::value, "this set_value overload expected a matrix!");
+    static_assert(is_node_matrix<ProbNode>::value, "this set_value overload expects a matrix!");
     assert(values.size() == get<value>(node).size());
     assert(values.size() > 0);
     assert(values.at(0).size() == get<value>(node).at(0).size());
     for (size_t i = 0; i < values.size(); i++) {
         for (size_t j = 0; j < values[0].size(); j++) { raw_value(node, i, j) = values[i][j]; }
     }
+}
+
+template <class ProbNode, class Distrib = node_distrib_t<ProbNode>>
+void set_value(ProbNode& node, size_t index, std::vector<typename Distrib::raw_type> values) {
+    static_assert(is_node_matrix<ProbNode>::value, "this set_value overload expects a matrix!");
+    assert(0 <= index && index < get<value>(node).size());
+    assert(values.size() == get<value>(node).at(index).size());
+    for (size_t j = 0; j < values.size(); j++) { raw_value(node, index, j) = values[j]; }
 }

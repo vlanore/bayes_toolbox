@@ -455,4 +455,12 @@ TEST_CASE("Matrix basic tests") {
     CHECK(raw_value(m, 0, 1) == 1);
     CHECK(raw_value(m, 1, 0) == 2);
     CHECK(raw_value(m, 1, 1) == 3);
+
+    auto& x = raw_value(m, 0, 0);
+    auto& y = raw_value(m, 1, 1);
+    set_value(m, 1, {7, 8});
+    CHECK(x == 0);
+    CHECK(y == 8);
+    CHECK(raw_value(m, 1, 0) == 7);
+    CHECK(raw_value(m, 1, 1) == 8);
 }
