@@ -77,7 +77,7 @@ int main() {
     draw(to_draw, gen);
     set_value(K_(m), {{1, 2, 1}, {1, 2, 2}, {1, 2, 1}, {2, 1, 2}, {2, 1, 3}});
 
-    double alpha_sum = 0;
+    double alpha_sum{0}, mu_sum{0}, lambda_sum{0};
 
     for (int it = 0; it < 100000; it++) {
         scaling_move(alpha_(m), alpha_mb, gen);
@@ -85,9 +85,12 @@ int main() {
         for (size_t i = 0; i < 5; i++) {
             auto lambda_mb = make_view(make_ref<K>(m, i), make_ref<lambda>(m, i));
             scaling_move(lambda_(m), lambda_mb, gen, i);
+            lambda_sum += raw_value(lambda_(m), i);
         }
         alpha_sum += raw_value(alpha_(m));
+        mu_sum += raw_value(mu_(m));
     }
 
-    std::cout << alpha_sum / 100000. << std::endl;
+    std::cout << "alpha = " << alpha_sum / 100000. << ", mu = " << mu_sum / 100000. << std::endl;
+    std::cout << "lambda = " << lambda_sum / (100000. * 5) << std::endl;
 }
