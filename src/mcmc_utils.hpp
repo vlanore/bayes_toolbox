@@ -26,7 +26,7 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "draw.hpp"
+#include "operations/draw.hpp"
 
 template <class ProbNode>
 auto make_value_backup(ProbNode& node) {

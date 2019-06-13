@@ -21,4 +21,4 @@ include_directories("utils")
 include_directories("utils/tagged_tuple/utils")
 
 add_executable(basic_test "src/test.cpp")
-# add_executable(poisson_gamma "src/model_example.cpp")
+add_executable(poisson_gamma "src/model_example.cpp")

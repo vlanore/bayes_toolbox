@@ -47,13 +47,13 @@ auto draw_helper(Param& param, Gen& gen, std::tuple<ParamKeys...>, Indexes... in
 }
 
 template <class Distrib, class Param, class Gen>
-void draw(typename Distrib::T& value, const Param& param, Gen& gen) {
+void draw_node(typename Distrib::T& value, const Param& param, Gen& gen) {
     using keys = map_key_list_t<typename Distrib::param_decl>;
     value.value = draw_helper<Distrib>(param, gen, keys());
 }
 
 template <class Distrib, class Param, class Gen>
-void draw(std::vector<typename Distrib::T>& array, const Param& param, Gen& gen) {
+void draw_vector(std::vector<typename Distrib::T>& array, const Param& param, Gen& gen) {
     using keys = map_key_list_t<typename Distrib::param_decl>;
     for (size_t i = 0; i < array.size(); i++) {
         array[i].value = draw_helper<Distrib>(param, gen, keys(), i);
@@ -63,18 +63,29 @@ void draw(std::vector<typename Distrib::T>& array, const Param& param, Gen& gen)
 /*==================================================================================================
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
-template <class ProbNode, typename Gen>
-void draw_selector(ProbNode& node, Gen& gen, node_tag) {
-    using distrib = node_distrib_t<ProbNode>;
-    draw<distrib>(get<value>(node), get<params>(node), gen);
-}
+namespace overloads {
+    template <class ProbNode, typename Gen>
+    void draw(lone_node_tag, ProbNode& node, NoIndex, Gen& gen) {
+        using distrib = node_distrib_t<ProbNode>;
+        draw_node<distrib>(get<value>(node), get<params>(node), gen);
+    }
 
-template <class View, typename Gen>
-void draw_selector(View& view, Gen& gen, view_tag) {
-    forall_in_view(view, [&gen](auto& node, NoIndex) { draw(node, gen); });
-}
+    template <class ProbNode, typename Gen>
+    void draw(node_array_tag, ProbNode& node, NoIndex, Gen& gen) {
+        using distrib = node_distrib_t<ProbNode>;
+        draw_vector<distrib>(get<value>(node), get<params>(node), gen);
+    }
 
-template <class Something, class Gen>
-void draw(Something& x, Gen& gen) {
-    draw_selector(x, gen, type_tag(x));
+    // @todo: add 4 missing overloads (matrix + index variants)
+
+    template <class View, typename Gen>
+    void draw(view_tag, View& view, NoIndex, Gen& gen) {
+        // @todo: transmit index
+        forall_in_view(view, [&gen](auto& node, NoIndex) { draw(node, gen); });
+    }
+};  // namespace overloads
+
+template <class T, class... IndexArgs, class Gen>
+void draw(T& x, IndexArgs... args, Gen& gen) {
+    overloads::draw(type_tag(x), x, make_index(args...), gen);
 }
