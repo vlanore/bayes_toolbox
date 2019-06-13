@@ -28,22 +28,21 @@ license and that you accept its terms.*/
 
 #include <assert.h>
 #include "raw_value.hpp"
-#include "set_value.hpp"
 
-//==================================================================================================
-// array param helpers for common cases
-
-template <class Node>
-auto n_to_one(Node& node) {
-    return [&rv = raw_value(node)](int) { return rv; };
+template <class ProbNode, class Distrib = node_distrib_t<ProbNode>>
+void set_value(ProbNode& node, std::vector<typename Distrib::raw_type> values) {
+    static_assert(is_node_array<ProbNode>::value, "this set_value overload expected an array!");
+    assert(values.size() == get<value>(node).size());
+    for (size_t i = 0; i < values.size(); i++) { raw_value(node, i) = values[i]; }
 }
 
-template <class Node>
-auto n_to_n(Node& node) {
-    return [&v = get<value>(node)](int i) { return v[i].value; };
-}
-
-template <class T>
-auto n_to_constant(const T& value) {
-    return [value](int) { return value; };
+template <class ProbNode, class Distrib = node_distrib_t<ProbNode>>
+void set_value(ProbNode& node, std::vector<std::vector<typename Distrib::raw_type>> values) {
+    static_assert(is_node_matrix<ProbNode>::value, "this set_value overload expected a matrix!");
+    assert(values.size() == get<value>(node).size());
+    assert(values.size() > 0);
+    assert(values.at(0).size() == get<value>(node).at(0).size());
+    for (size_t i = 0; i < values.size(); i++) {
+        for (size_t j = 0; j < values[0].size(); j++) { raw_value(node, i, j) = values[i][j]; }
+    }
 }

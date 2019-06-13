@@ -198,7 +198,7 @@ TEST_CASE("Logprobs") {
     raw_value(n2) = 2;
     raw_value(n3) = 3;
     auto a = make_node_array<poisson>(3, n_to_constant(2.0));
-    set_array(a, {1, 2, 3});
+    set_value(a, {1, 2, 3});
     CHECK(logprob(n1) == logprob(a, 0));
     CHECK(logprob(n2) == logprob(a, 1));
     CHECK(logprob(n3) == logprob(a, 2));
@@ -211,7 +211,7 @@ TEST_CASE("Logprobs") {
 //     auto param = make_node<exponential>(1);
 //     draw(param, gen);
 //     auto array = make_node_array<poisson>(20, n_to_one(param));
-//     set_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
+//     set_value(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
 //     vector<double> trace;
 //     for (int i = 0; i < 10000; i++) {
@@ -299,7 +299,7 @@ TEST_CASE("Views with indices") {
     // auto gen = make_generator();
     auto a = make_node_array<exponential>(5, n_to_constant(2.0));
     auto m = make_model(tok1_ = move(a));
-    set_array(get<tok1>(m), {0, 0, 0, 0, 0});
+    set_value(get<tok1>(m), {0, 0, 0, 0, 0});
     // auto v = make_view(make_ref<tok1>(m, ArrayIndex{2}));
     // draw(v, gen);
 
@@ -311,13 +311,13 @@ TEST_CASE("Views with indices") {
 //     auto array = make_backuped_node_array<poisson>(5, n_to_one(node));
 //     auto& a_3 = raw_value(array, 3);
 //     get_raw_value(node) = 1.3;
-//     set_array(array, 2, 4, 5, 8, 9);
+//     set_value(array, 2, 4, 5, 8, 9);
 //     backup(node);
 //     backup(array);
 //     CHECK(a_3 == 8);
 
 //     get_raw_value(node) = 3.1;
-//     set_array(array, 8, 9, 0, 12, 3);
+//     set_value(array, 8, 9, 0, 12, 3);
 //     CHECK(get_raw_value(node) == 3.1);
 //     CHECK(raw_value(array, 0) == 8);
 //     CHECK(raw_value(array, 1) == 9);
@@ -364,7 +364,7 @@ TEST_CASE("Views with indices") {
 //     auto param = make_backuped_node<exponential>(1);
 //     draw(param, gen);
 //     auto array = make_node_array<poisson>(20, n_to_one(param));
-//     set_array(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
+//     set_value(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
 
 //     auto m = make_model(node<n1>(param), node<n2>(array));
 //     auto v = make_view<n1, n2>(m);
@@ -387,7 +387,7 @@ TEST_CASE("Views with indices") {
 
 // TEST_CASE("Suffstats") {
 //     auto array = make_node_array<poisson>(5, n_to_constant(1.0));
-//     set_array(array, 1, 2, 3, 4, 5);
+//     set_value(array, 1, 2, 3, 4, 5);
 //     auto ss = make_suffstat<poisson_suffstat>(array);
 //     CHECK(!is_up_to_date(ss));
 
@@ -396,7 +396,7 @@ TEST_CASE("Views with indices") {
 //     CHECK(get<suffstat>(ss).N == 5);
 //     CHECK(is_up_to_date(ss));
 
-//     set_array(array, 1, 1, 1, 1, 1);
+//     set_value(array, 1, 1, 1, 1, 1);
 //     CHECK(!is_up_to_date(ss));
 //     gather(ss);
 //     CHECK(get<suffstat>(ss).sum == 5);
@@ -436,7 +436,7 @@ TEST_CASE("raw_value") {
     CHECK(raw_value(n) == 2);
 
     auto a = make_node_array<poisson>(5, n_to_constant(2.0));
-    set_array(a, {1, 2, 3, 4, 5});
+    set_value(a, {1, 2, 3, 4, 5});
     CHECK(raw_value(a, 3) == 4);
     raw_value(a, 3) = 5;
     CHECK(raw_value(a, 3) == 5);
@@ -449,7 +449,8 @@ TEST_CASE("raw_value") {
 
 TEST_CASE("Matrix basic tests") {
     auto m = make_node_matrix<poisson>(2, 2, [](int, int) { return 1.0; });
-    set_matrix(m, {{0, 1}, {2, 3}});
+    // @todo: make set_value/array a polymorphic set_value function
+    set_value(m, {{0, 1}, {2, 3}});
     CHECK(raw_value(m, 0, 0) == 0);
     CHECK(raw_value(m, 0, 1) == 1);
     CHECK(raw_value(m, 1, 0) == 2);
