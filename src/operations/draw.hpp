@@ -86,6 +86,6 @@ namespace overloads {
 };  // namespace overloads
 
 template <class T, class... IndexArgs, class Gen>
-void draw(T& x, IndexArgs... args, Gen& gen) {
+void draw(T& x, Gen& gen, IndexArgs... args) {
     overloads::draw(type_tag(x), x, make_index(args...), gen);
 }
