@@ -83,10 +83,25 @@ namespace overloads {
         return result;
     }
 
+    template <class Node>
+    double logprob(node_matrix_tag, Node& node, NoIndex = NoIndex{}) {
+        using distrib = node_distrib_t<Node>;
+        using keys = map_key_list_t<typename distrib::param_decl>;
+        double result = 0;
+        auto& v = get<value>(node);
+        for (size_t i = 0; i < v.size(); i++) {
+            for (size_t j = 0; j < v[i].size(); j++) {
+                result +=
+                    logprob_helper<distrib>(raw_value(node, i, j), get<params>(node), keys(), i, j);
+            }
+        }
+        return result;
+    }
+
     // @todo: add 3 matrix overloads (with NoIndex, ArrayIndex and MatrixIndex)
 
     template <class View>
-    double logprob(view_tag, View& view) {
+    double logprob(view_tag, View& view, NoIndex = NoIndex()) {
         double result = 0;
         forall_in_view(view, [&result](auto& node, auto index) { result += logprob(node, index); });
         return result;

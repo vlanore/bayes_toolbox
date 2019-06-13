@@ -30,6 +30,7 @@ license and that you accept its terms.*/
 #include "distributions/gamma.hpp"
 #include "distributions/poisson.hpp"
 #include "mcmc_utils.hpp"
+#include "operations/backup.hpp"
 #include "operations/logprob.hpp"
 #include "operations/raw_value.hpp"
 #include "operations/set_value.hpp"
@@ -42,57 +43,46 @@ using namespace std;
 TOKEN(alpha);
 TOKEN(mu);
 TOKEN(lambda);
-TOKEN(lambda_ss);
 TOKEN(K);
 
 auto poisson_gamma(size_t size, size_t size2) {
     auto alpha = make_node<exponential>(1.0);
     auto mu = make_node<exponential>(1.0);
     auto lambda = make_node_array<gamma_ss>(size, n_to_one(alpha), n_to_one(mu));
-    auto lambda_ss = make_suffstat<gamma_ss_suffstats>(lambda);
-    auto K = make_node_matrix<poisson>(size, size2,
-                                       [&lambda](int i, int) { return raw_value(lambda, i); });
+    auto K = make_node_matrix<poisson>(
+        size, size2, [& v = get<value>(lambda)](int i, int) { return v[i].value; });
 
-    return make_model(alpha_ = move(alpha), mu_ = move(mu), lambda_ = move(lambda), K_ = move(K),
-                      lambda_ss_ = move(lambda_ss));
+    return make_model(alpha_ = move(alpha), mu_ = move(mu), lambda_ = move(lambda), K_ = move(K));
 }
 
-// template <class Node, class MB, class Gen>
-// void scaling_move(Node& node, MB blanket, Gen& gen) {
-//     double backup = raw_value(node);
-//     double logprob_before = logprob(blanket);
-//     double log_hastings = scale(raw_value(node), gen);
-//     bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
-//     if (!accept) { raw_value(node) = backup; }
-// }
-
-// template <class Array, class MB, class Gen>
-// void scaling_move_array(Array& array, MB blanket, Gen& gen) {
-//     for (size_t i = 0; i < get<value>(array).size(); i++) {
-//         auto& raw_val = raw_value(array, i);
-//         double backup = raw_val;
-//         double logprob_before = logprob(blanket);
-//         double log_hastings = scale(raw_val, gen);
-//         bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
-//         if (!accept) { raw_val = backup; }
-//     }
-// }
+template <class Node, class MB, class Gen, class... IndexArgs>
+void scaling_move(Node& node, MB blanket, Gen& gen, IndexArgs... args) {
+    auto index = make_index(args...);
+    auto bkp = backup(node, index);
+    double logprob_before = logprob(blanket);
+    double log_hastings = scale(raw_value(node, index), gen);
+    bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
+    if (!accept) { restore(node, bkp, index); }
+}
 
 int main() {
     auto gen = make_generator();
 
     auto m = poisson_gamma(5, 3);
-    auto v = make_view(make_ref<alpha>(m), make_ref<mu>(m), make_ref<lambda>(m));
 
-    draw(v, gen);
+    auto to_draw = make_view(make_ref<alpha>(m), make_ref<mu>(m), make_ref<lambda>(m));
+    auto alpha_mb = make_view(make_ref<alpha>(m), make_ref<lambda>(m));
+    auto mu_mb = make_view(make_ref<mu>(m), make_ref<lambda>(m));
+
+    draw(to_draw, gen);
     set_value(K_(m), {{1, 2, 1}, {1, 2, 2}, {1, 2, 1}, {2, 1, 2}, {2, 1, 3}});
 
-    // for (int it = 0; it < 10000; it++) {
-    //     gather(lambda_ss_(m));
-    //     for (int rep = 0; rep < 10; rep++) {
-    //         scaling_move(alpha_(m), make_view<alpha, lambda_ss>(m), gen);
-    //         scaling_move(mu_(m), make_view<mu, lambda_ss>(m), gen);
-    //     }
-    //     scaling_move_array(lambda_(m), make_view<lambda, K>(m), gen);
-    // }
+    for (int it = 0; it < 10000; it++) {
+        scaling_move(alpha_(m), alpha_mb, gen);
+        scaling_move(mu_(m), mu_mb, gen);
+        for (size_t i = 0; i < 5; i++) {
+            auto lambda_mb = make_view(make_ref<K>(m), make_ref<lambda>(m, i));
+            scaling_move(lambda_(m), lambda_mb, gen, i);
+        }
+    }
 }

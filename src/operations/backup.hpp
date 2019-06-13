@@ -65,7 +65,7 @@ namespace overloads {
         assert(backup.size() > 0);
         assert(backup.at(0).size() == get<value>(node).at(0).size());
         for (size_t i = 0; i < backup.size(); i++) {
-            for (size_t j = 0; j < backup.size(); j++) {
+            for (size_t j = 0; j < backup[i].size(); j++) {
                 raw_value(node, i, j) = backup[i][j].value;
             }
         }
