@@ -98,7 +98,20 @@ namespace overloads {
         return result;
     }
 
-    // @todo: add 3 matrix overloads (with NoIndex, ArrayIndex and MatrixIndex)
+    template <class Node>
+    double logprob(node_matrix_tag, Node& node, ArrayIndex index) {
+        using distrib = node_distrib_t<Node>;
+        using keys = map_key_list_t<typename distrib::param_decl>;
+        double result = 0;
+        auto& v = get<value>(node);
+        for (size_t j = 0; j < v[index.i].size(); j++) {
+            result += logprob_helper<distrib>(raw_value(node, index.i, j), get<params>(node),
+                                              keys(), index.i, j);
+        }
+        return result;
+    }
+
+    // @todo: add matrix overload with MatrixIndex
 
     template <class View>
     double logprob(view_tag, View& view, NoIndex = NoIndex()) {
