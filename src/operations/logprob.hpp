@@ -26,8 +26,8 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "distrib_utils.hpp"
-#include "type_tag.hpp"
+#include "structure/distrib_utils.hpp"
+#include "structure/type_tag.hpp"
 
 //==================================================================================================
 // Parameter unpacking

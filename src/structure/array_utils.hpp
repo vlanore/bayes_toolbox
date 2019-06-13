@@ -26,27 +26,24 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "distrib_utils.hpp"
+#include <assert.h>
+#include "operations/raw_value.hpp"
+#include "operations/set_value.hpp"
 
-struct exponential {
-    using raw_type = double;
+//==================================================================================================
+// array param helpers for common cases
 
-    using T = distrib_value_type<raw_type, exponential>;
+template <class Node>
+auto n_to_one(Node& node) {
+    return [&rv = raw_value(node)](int) { return rv; };
+}
 
-    using param_decl = param_decl_t<param<rate, double>>;
+template <class Node>
+auto n_to_n(Node& node) {
+    return [&v = get<value>(node)](int i) { return v[i].value; };
+}
 
-    template <typename Gen>
-    static double draw(double rate, Gen& gen) {
-        std::exponential_distribution<double> distrib(positive_real(rate));
-        return distrib(gen);
-        // printf("drawn %f from param %f\n", node, rate);
-    }
-
-    static double logprob(double x, double lambda) { return log(lambda) - lambda * x; }
-
-    static double partial_logprob_value(double x, double lambda) { return -lambda * x; }
-
-    static double partial_logprob_param1(double x, double lambda) {
-        return log(lambda) - lambda * x;
-    }
-};
+template <class T>
+auto n_to_constant(const T& value) {
+    return [value](int) { return value; };
+}

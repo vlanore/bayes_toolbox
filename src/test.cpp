@@ -28,20 +28,20 @@ license and that you accept its terms.*/
 
 #include "doctest.h"
 
-#include "array_utils.hpp"
 #include "basic_moves.hpp"
-#include "exponential.hpp"
-#include "gamma.hpp"
-#include "logprob.hpp"
-#include "math_utils.hpp"
-#include "mcmc_utils.hpp"
-#include "poisson.hpp"
-#include "raw_value.hpp"
+#include "distributions/exponential.hpp"
+#include "distributions/gamma.hpp"
+#include "distributions/poisson.hpp"
+#include "operations/logprob.hpp"
+#include "operations/raw_value.hpp"
+#include "structure/array_utils.hpp"
+#include "structure/type_tag.hpp"
+#include "structure/view.hpp"
 #include "suffstat_utils.hpp"
 #include "tagged_tuple/src/fancy_syntax.hpp"
-#include "type_tag.hpp"
-#include "view.hpp"
 using namespace std;
+// #include "math_utils.hpp"
+// #include "mcmc_utils.hpp"
 
 #define NB_POINTS 10000
 #define PRECISION 0.025

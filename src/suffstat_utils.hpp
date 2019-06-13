@@ -26,8 +26,8 @@ license and that you accept its terms.*/
 
 #pragma once
 
+#include "structure/tags.hpp"
 #include "tagged_tuple/src/tagged_tuple.hpp"
-#include "tags.hpp"
 
 template <class SSType>
 using suffstat_metadata =

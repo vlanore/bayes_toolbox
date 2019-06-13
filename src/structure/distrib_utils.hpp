@@ -29,8 +29,8 @@ license and that you accept its terms.*/
 #include <cmath>
 #include <random>
 #include "params.hpp"
-#include "random.hpp"
 #include "tagged_tuple/src/tagged_tuple.hpp"
+#include "utils/random.hpp"
 
 template <class RawType, class Distrib>
 struct distrib_value_type {

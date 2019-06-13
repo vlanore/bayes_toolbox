@@ -26,7 +26,7 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "draw.hpp"
+#include "operations/draw.hpp"
 
 template <typename Gen>
 double scale(double& value, Gen& gen, double tuning = 1.0) {
