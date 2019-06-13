@@ -70,25 +70,23 @@ int main() {
 
     auto m = poisson_gamma(5, 3);
 
-    auto to_draw = make_view(make_ref<alpha>(m), make_ref<mu>(m), make_ref<lambda>(m));
-    auto alpha_mb = make_view(make_ref<alpha>(m), make_ref<lambda>(m));
-    auto mu_mb = make_view(make_ref<mu>(m), make_ref<lambda>(m));
-
-    draw(to_draw, gen);
+    auto v = make_view<alpha, mu, lambda>(m);
+    draw(v, gen);
     set_value(K_(m), {{1, 2, 1}, {1, 2, 2}, {1, 2, 1}, {2, 1, 2}, {2, 1, 3}});
 
     double alpha_sum{0}, mu_sum{0}, lambda_sum{0};
 
     for (int it = 0; it < 100000; it++) {
-        scaling_move(alpha_(m), alpha_mb, gen);
-        scaling_move(mu_(m), mu_mb, gen);
+        scaling_move(alpha_(m), make_view<alpha, lambda>(m), gen);
+        scaling_move(mu_(m), make_view<mu, lambda>(m), gen);
+        alpha_sum += raw_value(alpha_(m));
+        mu_sum += raw_value(mu_(m));
+
         for (size_t i = 0; i < 5; i++) {
             auto lambda_mb = make_view(make_ref<K>(m, i), make_ref<lambda>(m, i));
             scaling_move(lambda_(m), lambda_mb, gen, i);
             lambda_sum += raw_value(lambda_(m), i);
         }
-        alpha_sum += raw_value(alpha_(m));
-        mu_sum += raw_value(mu_(m));
     }
 
     std::cout << "alpha = " << alpha_sum / 100000. << ", mu = " << mu_sum / 100000. << std::endl;
