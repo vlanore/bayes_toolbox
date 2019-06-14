@@ -26,23 +26,44 @@ license and that you accept its terms.*/
 
 #pragma once
 
+#include <assert.h>
 #include <cstdlib>
 
 struct real {
     double value;
+    real(double value = 0.) : value(value) {}
+    operator double() const { return value; }
 };
 
-struct pos_real : real {};
+struct pos_real {
+    double value;
+    pos_real(double value = 0.) : value(value) { assert(value >= 0); }
+    operator double() const { return value; }
+    operator real() const { return {value}; }
+};
 
-struct spos_real : pos_real {};
+// @todo: remove all {} in distribution returns
+struct spos_real {
+    double value;
+    spos_real(double value) : value(value) { assert(value > 0); }
+    operator double() const { return value; }
+    operator real() const { return {value}; }
+    operator pos_real() const { return {value}; }
+};
+
+// @todo: make positive_real function a method of this
 
 struct integer {
     int value;
 };
 
-struct pos_integer : integer {};
+struct pos_integer {
+    size_t value;
+};
 
-struct spos_integer : pos_integer {};
+struct spos_integer {
+    size_t value;
+};
 
 struct indicator {
     char value;

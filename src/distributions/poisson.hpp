@@ -38,7 +38,7 @@ struct poisson {
 
     template <typename Gen>
     static T draw(spos_real rate, Gen& gen) {
-        std::poisson_distribution<int> distrib(positive_real(rate));
+        std::poisson_distribution<int> distrib(positive_real(rate.value));
         return distrib(gen);
     }
 

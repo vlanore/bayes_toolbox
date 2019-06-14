@@ -35,7 +35,7 @@ struct exponential {
 
     template <typename Gen>
     static T draw(spos_real rate, Gen& gen) {
-        std::exponential_distribution<double> distrib(positive_real(rate));
+        std::exponential_distribution<double> distrib(positive_real(rate.value));
         return distrib(gen);
     }
 

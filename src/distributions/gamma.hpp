@@ -36,7 +36,8 @@ struct gamma_ss {
 
     template <typename Gen>
     static T draw(spos_real shape, spos_real scale, Gen& gen) {
-        std::gamma_distribution<double> distrib(positive_real(shape), positive_real(scale));
+        std::gamma_distribution<double> distrib(positive_real(shape.value),
+                                                positive_real(scale.value));
         return {distrib(gen)};
     }
 
