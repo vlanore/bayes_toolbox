@@ -32,37 +32,46 @@ license and that you accept its terms.*/
 struct real {
     double value;
     real(double value = 0.) : value(value) {}
-    operator double() const { return value; }
 };
+
+bool operator==(const real& x, const double& y) { return x.value == y; }
 
 struct pos_real {
     double value;
     pos_real(double value = 0.) : value(value) { assert(value >= 0); }
-    operator double() const { return value; }
     operator real() const { return {value}; }
 };
+
+bool operator==(const pos_real& x, const double& y) { return x.value == y; }
 
 // @todo: remove all {} in distribution returns
 struct spos_real {
     double value;
     spos_real(double value) : value(value) { assert(value > 0); }
-    operator double() const { return value; }
     operator real() const { return {value}; }
     operator pos_real() const { return {value}; }
 };
+
+bool operator==(const spos_real& x, const double& y) { return x.value == y; }
 
 // @todo: make positive_real function a method of this
 
 struct integer {
     int value;
+    integer(int value = 0) : value(value) {}
+    operator int() const { return value; }
 };
 
 struct pos_integer {
     size_t value;
+    pos_integer(size_t value = 0) : value(value) { assert(value >= 0); }
+    operator size_t() const { return value; }
 };
 
 struct spos_integer {
     size_t value;
+    spos_integer(size_t value) : value(value) { assert(value > 0); }
+    operator size_t() const { return value; }
 };
 
 struct indicator {
