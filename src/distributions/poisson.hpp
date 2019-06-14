@@ -32,42 +32,43 @@ license and that you accept its terms.*/
 double log_factorial(int n) { return std::lgamma(n + 1); }
 
 struct poisson {
-    using raw_type = int;
+    using T = pos_integer;
 
-    using T = distrib_value_type<raw_type, poisson>;
-
-    using param_decl = param_decl_t<param<rate, double>>;
+    using param_decl = param_decl_t<param<rate, spos_real>>;
 
     template <typename Gen>
-    static int draw(double rate, Gen& gen) {
+    static T draw(spos_real rate, Gen& gen) {
         std::poisson_distribution<int> distrib(positive_real(rate));
         return distrib(gen);
     }
 
-    static double logprob(int x, double lambda) {
-        return x * log(lambda) - lambda - log_factorial(x);
+    static real logprob(T x, spos_real lambda) {
+        return {x.value * log(lambda.value) - lambda.value - log_factorial(x.value)};
     }
 
-    static double partial_logprob_value(int x, double lambda) {
-        return x * log(lambda) - log_factorial(x);
+    static real partial_logprob_value(T x, spos_real lambda) {
+        return {x.value * log(lambda.value) - log_factorial(x.value)};
     }
 
-    static double partial_logprob_param1(int x, double lambda) { return x * log(lambda) - lambda; }
-};
-
-struct poisson_suffstat {
-    int sum;
-    size_t N;
-
-    using distrib = poisson;
-
-    static poisson_suffstat gather(const std::vector<typename poisson::T>& v) {
-        return {::sum(v), v.size()};
-    }
-
-    bool operator==(const poisson_suffstat& other) { return sum == other.sum and N == other.N; }
-
-    static double logprob(poisson_suffstat ss, double lambda) {  // FIXME: i think logprob isnt full
-        return ss.sum * log(lambda) - ss.N * lambda;
+    static real partial_logprob_param1(T x, spos_real lambda) {
+        return {x.value * log(lambda.value) - lambda.value};
     }
 };
+
+// struct poisson_suffstat {
+//     int sum;
+//     size_t N;
+
+//     using distrib = poisson;
+
+//     static poisson_suffstat gather(const std::vector<typename poisson::T>& v) {
+//         return {::sum(v), v.size()};
+//     }
+
+//     bool operator==(const poisson_suffstat& other) { return sum == other.sum and N == other.N; }
+
+//     static double logprob(poisson_suffstat ss, double lambda) {  // FIXME: i think logprob isnt
+//     full
+//         return ss.sum * log(lambda) - ss.N * lambda;
+//     }
+// };

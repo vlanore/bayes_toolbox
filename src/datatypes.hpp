@@ -26,51 +26,24 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "structure/distrib_utils.hpp"
-#include "utils/math_utils.hpp"
+#include <cstdlib>
 
-struct gamma_ss {
-    using T = pos_real;
-
-    using param_decl = param_decl_t<param<shape, spos_real>, param<struct scale, spos_real>>;
-
-    template <typename Gen>
-    static T draw(spos_real shape, spos_real scale, Gen& gen) {
-        std::gamma_distribution<double> distrib(positive_real(shape), positive_real(scale));
-        return {distrib(gen)};
-    }
-
-    static real logprob(T x, spos_real k, spos_real theta) {
-        return {-std::lgamma(k.value) - k.value * log(theta.value) + (k.value - 1) * log(x.value) -
-                x.value / theta.value};
-    }
-
-    static real partial_logprob_value(T x, spos_real k, spos_real theta) {
-        return {(k.value - 1) * log(x.value) - x.value / theta.value};
-    }
-
-    static real partial_logprob_param1(T, spos_real k, spos_real theta) {
-        return {-std::lgamma(k.value) - k.value * log(theta.value) + (k.value - 1)};
-    }
-
-    static real partial_logprob_param2(T x, spos_real k, spos_real theta) {
-        return {-k.value * log(theta.value) - x.value / theta.value};
-    }
+struct real {
+    double value;
 };
 
-// struct gamma_ss_suffstats {
-//     double sum;
-//     double sum_log;
-//     size N;
+struct pos_real : real {};
 
-//     using distrib = gamma_ss;
+struct spos_real : pos_real {};
 
-//     static gamma_ss_suffstats gather(const std::vector<typename gamma_ss::T>& array) {
-//         return {::sum(array), ::sum(array), array.size()};
-//     }
+struct integer {
+    int value;
+};
 
-//     static double logprob(gamma_ss_suffstats ss, spos_real k, spos_real theta) {
-//         return -ss.N * std::lgamma(k) - ss.N * k * log(theta) + (k - 1) * ss.sum_log -
-//                (1 / theta) * ss.sum;
-//     }
-// };
+struct pos_integer : integer {};
+
+struct spos_integer : pos_integer {};
+
+struct indicator {
+    char value;
+};

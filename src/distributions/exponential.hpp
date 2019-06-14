@@ -29,24 +29,23 @@ license and that you accept its terms.*/
 #include "structure/distrib_utils.hpp"
 
 struct exponential {
-    using raw_type = double;
+    using T = pos_real;
 
-    using T = distrib_value_type<raw_type, exponential>;
-
-    using param_decl = param_decl_t<param<rate, double>>;
+    using param_decl = param_decl_t<param<rate, spos_real>>;
 
     template <typename Gen>
-    static double draw(double rate, Gen& gen) {
+    static T draw(spos_real rate, Gen& gen) {
         std::exponential_distribution<double> distrib(positive_real(rate));
         return distrib(gen);
-        // printf("drawn %f from param %f\n", node, rate);
     }
 
-    static double logprob(double x, double lambda) { return log(lambda) - lambda * x; }
+    static real logprob(T x, spos_real lambda) {
+        return {log(lambda.value) - lambda.value * x.value};
+    }
 
-    static double partial_logprob_value(double x, double lambda) { return -lambda * x; }
+    static real partial_logprob_value(T x, spos_real lambda) { return {-lambda.value * x.value}; }
 
-    static double partial_logprob_param1(double x, double lambda) {
-        return log(lambda) - lambda * x;
+    static real partial_logprob_param1(T x, spos_real lambda) {
+        return {log(lambda.value) - lambda.value * x.value};
     }
 };

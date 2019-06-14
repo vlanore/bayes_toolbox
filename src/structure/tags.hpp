@@ -30,6 +30,7 @@ license and that you accept its terms.*/
 struct rate {};
 struct shape {};
 struct scale {};
+struct concentration {};
 struct distrib {};
 struct value {};
 struct params {};
