@@ -32,27 +32,45 @@ license and that you accept its terms.*/
 struct real {
     double value;
     real(double value = 0.) : value(value) {}
+    real& operator=(const double& x) { return (value = x), *this; }
 };
 
 bool operator==(const real& x, const double& y) { return x.value == y; }
+bool operator!=(const real& x, const double& y) { return x.value == y; }
+bool operator>(const real& x, const double& y) { return x.value == y; }
+bool operator<(const real& x, const double& y) { return x.value == y; }
+bool operator>=(const real& x, const double& y) { return x.value == y; }
+bool operator<=(const real& x, const double& y) { return x.value == y; }
 
 struct pos_real {
     double value;
     pos_real(double value = 0.) : value(value) { assert(value >= 0); }
+    pos_real& operator=(const double& x) { return (value = x), *this; }
     operator real() const { return {value}; }
 };
 
 bool operator==(const pos_real& x, const double& y) { return x.value == y; }
+bool operator!=(const pos_real& x, const double& y) { return x.value == y; }
+bool operator>(const pos_real& x, const double& y) { return x.value == y; }
+bool operator<(const pos_real& x, const double& y) { return x.value == y; }
+bool operator>=(const pos_real& x, const double& y) { return x.value == y; }
+bool operator<=(const pos_real& x, const double& y) { return x.value == y; }
 
 // @todo: remove all {} in distribution returns
 struct spos_real {
     double value;
     spos_real(double value) : value(value) { assert(value > 0); }
+    spos_real& operator=(const double& x) { return (value = x), *this; }
     operator real() const { return {value}; }
     operator pos_real() const { return {value}; }
 };
 
 bool operator==(const spos_real& x, const double& y) { return x.value == y; }
+bool operator!=(const spos_real& x, const double& y) { return x.value != y; }
+bool operator>(const spos_real& x, const double& y) { return x.value > y; }
+bool operator<(const spos_real& x, const double& y) { return x.value < y; }
+bool operator>=(const spos_real& x, const double& y) { return x.value >= y; }
+bool operator<=(const spos_real& x, const double& y) { return x.value <= y; }
 
 // @todo: make positive_real function a method of this
 
