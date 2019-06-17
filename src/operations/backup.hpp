@@ -65,9 +65,7 @@ namespace overloads {
         assert(backup.size() > 0);
         assert(backup.at(0).size() == get<value>(node).at(0).size());
         for (size_t i = 0; i < backup.size(); i++) {
-            for (size_t j = 0; j < backup[i].size(); j++) {
-                raw_value(node, i, j) = backup[i][j].value;
-            }
+            for (size_t j = 0; j < backup[i].size(); j++) { raw_value(node, i, j) = backup[i][j]; }
         }
     }
 
@@ -75,13 +73,13 @@ namespace overloads {
     auto restore(node_matrix_tag, T& node, std::vector<V>& backup, ArrayIndex index) {
         assert(index.i >= 0 && index.i < get<value>(backup).size());
         assert(backup.size() == get<value>(node).at(index.i).size());
-        for (size_t j = 0; j < backup.size(); j++) { raw_value(node, index, j) = backup[j].value; }
+        for (size_t j = 0; j < backup.size(); j++) { raw_value(node, index, j) = backup[j]; }
     }
 
     template <class T, class V>
     auto restore(node_array_tag, T& node, std::vector<V>& backup, NoIndex = NoIndex()) {
         assert(backup.size() == get<value>(node).size());
-        for (size_t i = 0; i < backup.size(); i++) { raw_value(node, i) = backup[i].value; }
+        for (size_t i = 0; i < backup.size(); i++) { raw_value(node, i) = backup[i]; }
     }
 
     template <class T, class V, class Index>

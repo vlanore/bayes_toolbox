@@ -57,19 +57,19 @@ struct gamma_ss {
     }
 };
 
-// struct gamma_ss_suffstats {
-//     double sum;
-//     double sum_log;
-//     size N;
+struct gamma_ss_suffstats {
+    double sum;
+    double sum_log;
+    size_t N;
 
-//     using distrib = gamma_ss;
+    using distrib = gamma_ss;
 
-//     static gamma_ss_suffstats gather(const std::vector<typename gamma_ss::T>& array) {
-//         return {::sum(array), ::sum(array), array.size()};
-//     }
+    static gamma_ss_suffstats gather(const std::vector<typename gamma_ss::T>& array) {
+        return {::sum(array), ::sum(array), array.size()};
+    }
 
-//     static double logprob(gamma_ss_suffstats ss, spos_real k, spos_real theta) {
-//         return -ss.N * std::lgamma(k) - ss.N * k * log(theta) + (k - 1) * ss.sum_log -
-//                (1 / theta) * ss.sum;
-//     }
-// };
+    static double logprob(gamma_ss_suffstats ss, spos_real k, spos_real theta) {
+        return -ss.N * std::lgamma(k) - ss.N * k * log(theta) + (k - 1) * ss.sum_log -
+               (1 / theta) * ss.sum;
+    }
+};

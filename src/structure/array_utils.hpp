@@ -40,7 +40,7 @@ auto n_to_one(Node& node) {
 
 template <class Node>
 auto n_to_n(Node& node) {
-    return [&v = get<value>(node)](int i) { return v[i].value; };
+    return [&v = get<value>(node)](int i) { return v[i]; };
 }
 
 template <class T>

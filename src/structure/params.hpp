@@ -72,7 +72,7 @@ struct MatrixParamFactory {
 namespace helper {
     template <class Factory, class Value>
     auto param_builder(std::true_type /* is a node */, Value& v) {
-        return Factory::make(get<value>(v).value);
+        return Factory::make(get<value>(v));
     }
 
     template <class Factory, class Value>

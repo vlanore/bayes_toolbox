@@ -34,13 +34,13 @@ license and that you accept its terms.*/
 namespace overloads {
     template <class Node>
     auto& raw_value(lone_node_tag, Node& node, NoIndex = NoIndex()) {
-        return get<value>(node).value;
+        return get<value>(node);
     }
 
     template <class Node>
     auto& raw_value(node_array_tag, Node& node, ArrayIndex index) {
         assert(index.i >= 0 and index.i < get<value>(node).size());
-        return get<value>(node)[index.i].value;
+        return get<value>(node)[index.i];
     }
 
     template <class Node>
@@ -49,7 +49,7 @@ namespace overloads {
         assert(index.i >= 0 and index.i < v.size());
         assert(v.size() > 0);
         assert(index.j >= 0 and index.j < v.at(0).size());
-        return v[index.i][index.j].value;
+        return v[index.i][index.j];
     }
 };  // namespace overloads
 
@@ -64,13 +64,13 @@ auto& raw_value(T& t, Rest... rest) {
 namespace overloads {
     template <class Node>
     const auto& raw_value(lone_node_tag, const Node& node, NoIndex = NoIndex()) {
-        return get<value>(node).value;
+        return get<value>(node);
     }
 
     template <class Node>
     const auto& raw_value(node_array_tag, const Node& node, ArrayIndex index) {
         assert(index.i >= 0 and index.i < get<value>(node).size());
-        return get<value>(node)[index.i].value;
+        return get<value>(node)[index.i];
     }
 };  // namespace overloads
 

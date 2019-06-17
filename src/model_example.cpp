@@ -49,8 +49,8 @@ auto poisson_gamma(size_t size, size_t size2) {
     auto alpha = make_node<exponential>(1.0);
     auto mu = make_node<exponential>(1.0);
     auto lambda = make_node_array<gamma_ss>(size, n_to_one(alpha), n_to_one(mu));
-    auto K = make_node_matrix<poisson>(
-        size, size2, [& v = get<value>(lambda)](int i, int) { return v[i].value; });
+    auto K = make_node_matrix<poisson>(size, size2,
+                                       [& v = get<value>(lambda)](int i, int) { return v[i]; });
 
     return make_model(alpha_ = move(alpha), mu_ = move(mu), lambda_ = move(lambda), K_ = move(K));
 }

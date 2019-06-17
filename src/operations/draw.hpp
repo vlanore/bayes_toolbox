@@ -49,14 +49,14 @@ auto draw_helper(Param& param, Gen& gen, std::tuple<ParamKeys...>, Indexes... in
 template <class Distrib, class Param, class Gen>
 void draw_node(typename Distrib::T& value, const Param& param, Gen& gen) {
     using keys = map_key_list_t<typename Distrib::param_decl>;
-    value.value = draw_helper<Distrib>(param, gen, keys());
+    value = draw_helper<Distrib>(param, gen, keys());
 }
 
 template <class Distrib, class Param, class Gen>
 void draw_vector(std::vector<typename Distrib::T>& array, const Param& param, Gen& gen) {
     using keys = map_key_list_t<typename Distrib::param_decl>;
     for (size_t i = 0; i < array.size(); i++) {
-        array[i].value = draw_helper<Distrib>(param, gen, keys(), i);
+        array[i] = draw_helper<Distrib>(param, gen, keys(), i);
     }
 }
 
