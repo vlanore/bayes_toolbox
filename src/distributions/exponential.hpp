@@ -35,17 +35,13 @@ struct exponential {
 
     template <typename Gen>
     static T draw(spos_real rate, Gen& gen) {
-        std::exponential_distribution<double> distrib(positive_real(rate.value));
+        std::exponential_distribution<double> distrib(positive_real(rate));
         return distrib(gen);
     }
 
-    static real logprob(T x, spos_real lambda) {
-        return {log(lambda.value) - lambda.value * x.value};
-    }
+    static real logprob(T x, spos_real lambda) { return log(lambda) - lambda * x; }
 
-    static real partial_logprob_value(T x, spos_real lambda) { return {-lambda.value * x.value}; }
+    static real partial_logprob_value(T x, spos_real lambda) { return -lambda * x; }
 
-    static real partial_logprob_param1(T x, spos_real lambda) {
-        return {log(lambda.value) - lambda.value * x.value};
-    }
+    static real partial_logprob_param1(T x, spos_real lambda) { return log(lambda) - lambda * x; }
 };

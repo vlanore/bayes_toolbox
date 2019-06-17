@@ -36,26 +36,24 @@ struct gamma_ss {
 
     template <typename Gen>
     static T draw(spos_real shape, spos_real scale, Gen& gen) {
-        std::gamma_distribution<double> distrib(positive_real(shape.value),
-                                                positive_real(scale.value));
+        std::gamma_distribution<double> distrib(positive_real(shape), positive_real(scale));
         return {distrib(gen)};
     }
 
     static real logprob(T x, spos_real k, spos_real theta) {
-        return {-std::lgamma(k.value) - k.value * log(theta.value) + (k.value - 1) * log(x.value) -
-                x.value / theta.value};
+        return -std::lgamma(k) - k * log(theta) + (k - 1) * log(x) - x / theta;
     }
 
     static real partial_logprob_value(T x, spos_real k, spos_real theta) {
-        return {(k.value - 1) * log(x.value) - x.value / theta.value};
+        return (k - 1) * log(x) - x / theta;
     }
 
     static real partial_logprob_param1(T, spos_real k, spos_real theta) {
-        return {-std::lgamma(k.value) - k.value * log(theta.value) + (k.value - 1)};
+        return -std::lgamma(k) - k * log(theta) + (k - 1);
     }
 
     static real partial_logprob_param2(T x, spos_real k, spos_real theta) {
-        return {-k.value * log(theta.value) - x.value / theta.value};
+        return -k * log(theta) - x / theta;
     }
 };
 

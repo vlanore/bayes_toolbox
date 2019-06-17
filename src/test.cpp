@@ -66,7 +66,7 @@ TEST_CASE("Check that dist types have correct size") {
 TEST_CASE("Param making") {
     spos_real x = {1.};
     auto params = make_params<gamma_ss>(2, x);
-    x.value = 3;
+    x = 3;
 
     // order in tuple is important for unpacking in calls
     CHECK(std::get<0>(params.data)() == 2);
