@@ -51,8 +51,7 @@ auto make_node_array(size_t size, ParamArgs&&... args) {
 template <class Distrib, class... ParamArgs>
 auto make_node_matrix(size_t size_x, size_t size_y, ParamArgs&&... args) {
     // @todo: change to better data structure (instead of vector of vectors)
-    std::vector<std::vector<typename Distrib::T>> values(size_x,
-                                                         std::vector<typename Distrib::T>(size_y));
+    matrix<typename Distrib::T> values(size_x, std::vector<typename Distrib::T>(size_y));
     auto params = make_matrix_params<Distrib>(std::forward<ParamArgs>(args)...);
     return make_tagged_tuple<node_metadata<node_matrix_tag, Distrib>>(
         unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
@@ -82,15 +81,15 @@ struct is_node_matrix : std::false_type {};
 template <class MD, class... Fields>
 struct is_node_matrix<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_matrix_tag, MD> {};
 
-template <class Value>
-using value_distrib_t = typename Value::distrib;
-
 template <class Node>
 using node_distrib_t = metadata_get_property<struct distrib, metadata_t<Node>>;
+
+template <class Distrib>
+using param_keys_t = map_key_list_t<typename Distrib::param_decl>;
 
 template <class Node>
 using node_value_t = std::remove_reference_t<decltype(get<value>(std::declval<Node>()))>;
 
-template <class NodeArray>
+template <class NodeArray>  // @todo: remove?
 using node_array_value_t =
     typename std::remove_reference_t<decltype(get<value>(std::declval<NodeArray>()))>::T;

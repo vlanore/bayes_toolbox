@@ -59,8 +59,7 @@ auto backup(T& x, IndexArgs... args) {
 
 namespace overloads {
     template <class T, class V>
-    auto restore(node_matrix_tag, T& node, std::vector<std::vector<V>>& backup,
-                 NoIndex = NoIndex()) {
+    auto restore(node_matrix_tag, T& node, matrix<V>& backup, NoIndex = NoIndex()) {
         assert(backup.size() == get<value>(node).size());
         assert(backup.size() > 0);
         assert(backup.at(0).size() == get<value>(node).at(0).size());

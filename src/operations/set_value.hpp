@@ -37,7 +37,7 @@ void set_value(ProbNode& node, std::vector<typename Distrib::T> values) {
 }
 
 template <class ProbNode, class Distrib = node_distrib_t<ProbNode>>
-void set_value(ProbNode& node, std::vector<std::vector<typename Distrib::T>> values) {
+void set_value(ProbNode& node, matrix<typename Distrib::T> values) {
     static_assert(is_node_matrix<ProbNode>::value, "this set_value overload expects a matrix!");
     assert(values.size() == get<value>(node).size());
     assert(values.size() > 0);

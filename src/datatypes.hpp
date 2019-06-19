@@ -27,6 +27,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <cstdlib>
+#include <vector>
 
 using real = double;
 using pos_real = double;
@@ -35,3 +36,6 @@ using spos_real = double;
 using integer = int;
 using pos_integer = size_t;
 using spos_integer = size_t;
+
+template <class T>
+using matrix = std::vector<std::vector<T>>;
