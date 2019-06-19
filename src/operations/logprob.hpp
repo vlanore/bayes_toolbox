@@ -34,9 +34,8 @@ namespace overloads {
     template <class Node, class Index>
     double logprob(node_tag, Node& node, Index index) {
         double result = 0;
-        using distrib = node_distrib_t<Node>;
         auto f = [&result](const auto& x, const auto&... params) {
-            result += distrib::logprob(x, params...);
+            result += node_distrib_t<Node>::logprob(x, params...);
         };
         across_values_params(node, f, index);
         return result;

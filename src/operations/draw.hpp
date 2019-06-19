@@ -33,50 +33,22 @@ license and that you accept its terms.*/
 ~~ Raw drawing functions ~~
 ==================================================================================================*/
 template <typename Gen>
-double draw_uniform(Gen& gen) {
+double draw_uniform(Gen& gen) {  // @todo: move elsewhere
     std::uniform_real_distribution<double> distrib(0, 1);
     return distrib(gen);
-}
-
-/*==================================================================================================
-~~ Overloads that unpack parameters ~~
-==================================================================================================*/
-template <typename Distrib, typename Param, typename Gen, class... ParamKeys, class... Indexes>
-auto draw_helper(Param& param, Gen& gen, std::tuple<ParamKeys...>, Indexes... indexes) {
-    return Distrib::draw(get<ParamKeys>(param)(indexes...)..., gen);
-}
-
-template <class Distrib, class Param, class Gen>
-void draw_node(typename Distrib::T& value, const Param& param, Gen& gen) {
-    using keys = map_key_list_t<typename Distrib::param_decl>;
-    value = draw_helper<Distrib>(param, gen, keys());
-}
-
-template <class Distrib, class Param, class Gen>
-void draw_vector(std::vector<typename Distrib::T>& array, const Param& param, Gen& gen) {
-    using keys = map_key_list_t<typename Distrib::param_decl>;
-    for (size_t i = 0; i < array.size(); i++) {
-        array[i] = draw_helper<Distrib>(param, gen, keys(), i);
-    }
 }
 
 /*==================================================================================================
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
 namespace overloads {
-    template <class ProbNode, typename Gen>
-    void draw(lone_node_tag, ProbNode& node, NoIndex, Gen& gen) {
-        using distrib = node_distrib_t<ProbNode>;
-        draw_node<distrib>(get<value>(node), get<params>(node), gen);
+    template <class Node, typename Gen>
+    void draw(node_tag, Node& node, NoIndex, Gen& gen) {
+        auto f = [&gen](auto& x, const auto&... params) {
+            x = node_distrib_t<Node>::draw(params..., gen);
+        };
+        across_values_params(node, f);
     }
-
-    template <class ProbNode, typename Gen>
-    void draw(node_array_tag, ProbNode& node, NoIndex, Gen& gen) {
-        using distrib = node_distrib_t<ProbNode>;
-        draw_vector<distrib>(get<value>(node), get<params>(node), gen);
-    }
-
-    // @todo: add 4 missing overloads (matrix + index variants)
 
     template <class View, typename Gen>
     void draw(view_tag, View& view, NoIndex, Gen& gen) {
