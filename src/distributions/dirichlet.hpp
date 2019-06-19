@@ -34,7 +34,7 @@ struct dirichlet {
     using param_decl = param_decl_t<param<concentration, std::vector<double>>>;
 
     template <typename Gen>
-    void array_draw(std::vector<T>& x, const std::vector<double>& alpha, Gen& gen) {
+    static void array_draw(std::vector<T>& x, const std::vector<double>& alpha, Gen& gen) {
         size_t k = x.size();
         assert(k = alpha.size());
         double sum_y{0};

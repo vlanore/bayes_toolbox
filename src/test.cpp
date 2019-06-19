@@ -523,7 +523,9 @@ TEST_CASE("across_values_params") {
     CHECK(ss.str() == "2(3);");
 }
 
-TEST_CASE("has_array_logprob") {
+TEST_CASE("has_array_logprob/draw") {
     CHECK(!has_array_logprob<poisson>::value);
     CHECK(has_array_logprob<dirichlet>::value);
+    CHECK(!has_array_draw<poisson>::value);
+    CHECK(has_array_draw<dirichlet>::value);
 }

@@ -29,9 +29,10 @@ license and that you accept its terms.*/
 #include <vector>
 #include "tagged_tuple/src/tagged_tuple.hpp"
 #include "tags.hpp"
+#include "utils/random.hpp"
 
 //==================================================================================================
-// type traits
+// node traits
 
 template <class T>
 struct is_node : std::false_type {};
@@ -57,6 +58,9 @@ struct is_node_matrix : std::false_type {};
 template <class MD, class... Fields>
 struct is_node_matrix<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_matrix_tag, MD> {};
 
+//==================================================================================================
+// distrib traits (***)
+
 template <class... Ts>
 using to_void = void;
 
@@ -65,6 +69,13 @@ struct has_array_logprob : std::false_type {};
 
 template <class T>
 struct has_array_logprob<T, to_void<decltype(T::array_logprob)>> : std::true_type {};
+
+template <class T, class = void>
+struct has_array_draw : std::false_type {};
+
+template <class T>
+struct has_array_draw<T, to_void<decltype(T::template array_draw<decltype(make_generator())>)>>
+    : std::true_type {};
 
 //==================================================================================================
 // node introspection
