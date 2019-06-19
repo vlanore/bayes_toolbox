@@ -33,6 +33,7 @@ license and that you accept its terms.*/
 #include "distributions/gamma.hpp"
 #include "distributions/poisson.hpp"
 #include "operations/across_values.hpp"
+#include "operations/across_values_params.hpp"
 #include "operations/backup.hpp"
 #include "operations/get_value.hpp"
 #include "operations/logprob.hpp"
@@ -485,4 +486,24 @@ TEST_CASE("Across values") {
     CHECK(ss.str() == "3;1;2;3;2;0;1;2;3;2;3;");
     across_values(m, f, 1, 0);
     CHECK(ss.str() == "3;1;2;3;2;0;1;2;3;2;3;2;");
+}
+
+std::string g() { return "()"; }
+std::string g(double x) { return "(" + std::to_string(x) + ")"; }
+std::string g(double x, double y) {
+    return "(" + std::to_string(x) + ", " + std::to_string(y) + ")";
+}
+
+TEST_CASE("across_values_params") {
+    auto n = make_node<poisson>(1.0);
+    get_value(n) = 3;
+    auto a = make_node_array<poisson>(3, n_to_constant(1.0));
+    set_value(a, {1, 2, 3});
+    auto m = make_node_matrix<poisson>(2, 2, [](int, int) { return 1.0; });
+    set_value(m, {{0, 1}, {2, 3}});
+
+    std::stringstream ss{""};
+    auto f = [&ss](auto& x, auto... params) { ss << x << g(params...) << ";"; };
+    across_values_params(n, f);
+    CHECK(ss.str() == "3(1.000000);");
 }
