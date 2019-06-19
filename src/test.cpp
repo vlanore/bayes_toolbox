@@ -32,6 +32,7 @@ license and that you accept its terms.*/
 #include "distributions/exponential.hpp"
 #include "distributions/gamma.hpp"
 #include "distributions/poisson.hpp"
+#include "operations/across_values.hpp"
 #include "operations/backup.hpp"
 #include "operations/get_value.hpp"
 #include "operations/logprob.hpp"
@@ -460,4 +461,28 @@ TEST_CASE("Backup/restore") {
     CHECK(get_value(a, 2) == 13);
 
     // @todo: write tests for matrix cases
+}
+
+TEST_CASE("Across values") {
+    auto n = make_node<poisson>(1.0);
+    get_value(n) = 3;
+    auto a = make_node_array<poisson>(3, n_to_constant(1.0));
+    set_value(a, {1, 2, 3});
+    auto m = make_node_matrix<poisson>(2, 2, [](int, int) { return 1.0; });
+    set_value(m, {{0, 1}, {2, 3}});
+
+    std::stringstream ss{""};
+    auto f = [&ss](auto& x) { ss << x << ";"; };
+    across_values(n, f);
+    CHECK(ss.str() == "3;");
+    across_values(a, f);
+    CHECK(ss.str() == "3;1;2;3;");
+    across_values(a, f, 1);
+    CHECK(ss.str() == "3;1;2;3;2;");
+    across_values(m, f);
+    CHECK(ss.str() == "3;1;2;3;2;0;1;2;3;");
+    across_values(m, f, 1);
+    CHECK(ss.str() == "3;1;2;3;2;0;1;2;3;2;3;");
+    across_values(m, f, 1, 0);
+    CHECK(ss.str() == "3;1;2;3;2;0;1;2;3;2;3;2;");
 }
