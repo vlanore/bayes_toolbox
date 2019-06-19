@@ -26,47 +26,49 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "introspection.hpp"
-#include "reference.hpp"
-#include "suffstat_utils.hpp"
-#include "view.hpp"
+#include <vector>
+#include "tagged_tuple/src/tagged_tuple.hpp"
+#include "tags.hpp"
 
-// @todo: have subfolders in repo
+//==================================================================================================
+// type traits
 
 template <class T>
-auto type_tag(const T&) {
-    return unknown_tag();
-}
+struct is_node : std::false_type {};
 
 template <class MD, class... Fields>
-auto type_tag(const tagged_tuple<MD, Fields...>&) {
-    using std::conditional_t;
-    using T = tagged_tuple<MD, Fields...>;
-    // clang-format off
-    return conditional_t<is_node<T>::value,
-        conditional_t<is_node_array<T>::value,
-            node_array_tag,
-            conditional_t<is_node_matrix<T>::value,
-                node_matrix_tag,
-                lone_node_tag
-            >
-        >,
-        conditional_t<is_model<T>::value,
-            model_tag,
-            conditional_t<is_suffstat<T>::value,
-                suffstat_tag,
-                unknown_tag>
-            >
-        >();
-    // clang-format off
-}
+struct is_node<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_tag, MD> {};
 
-template <class... Refs>
-auto type_tag(const view<Refs...>&) {
-    return view_tag();
-}
+template <class T>
+struct is_vector : std::false_type {};
 
-template <class Node, class Index>
-auto type_tag(const ref<Node, Index>&) {
-    return ref_tag();
-}
+template <class T>
+struct is_vector<std::vector<T>> : std::true_type {};
+
+template <class T, class = void>
+struct is_node_array : std::false_type {};
+
+template <class MD, class... Fields>
+struct is_node_array<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_array_tag, MD> {};
+
+template <class T, class = void>
+struct is_node_matrix : std::false_type {};
+
+template <class MD, class... Fields>
+struct is_node_matrix<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_matrix_tag, MD> {};
+
+//==================================================================================================
+// node introspection
+
+template <class Node>
+using node_distrib_t = metadata_get_property<struct distrib, metadata_t<Node>>;
+
+template <class Distrib>
+using param_keys_t = map_key_list_t<typename Distrib::param_decl>;
+
+template <class Node>
+using node_value_t = std::remove_reference_t<decltype(get<value>(std::declval<Node>()))>;
+
+template <class NodeArray>  // @todo: remove?
+using node_array_value_t =
+    typename std::remove_reference_t<decltype(get<value>(std::declval<NodeArray>()))>::T;
