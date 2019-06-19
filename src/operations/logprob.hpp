@@ -26,92 +26,21 @@ license and that you accept its terms.*/
 
 #pragma once
 
+#include "operations/across_values_params.hpp"
 #include "structure/distrib_utils.hpp"
 #include "structure/type_tag.hpp"
 
-//==================================================================================================
-// Parameter unpacking
-
-template <typename Distrib, class T = typename Distrib::get_value, typename Param,
-          class... ParamKeys, class... Indexes>
-auto logprob_helper(const T& value, const Param& param, std::tuple<ParamKeys...>,
-                    Indexes... indexes) {
-    return Distrib::logprob(value, get<ParamKeys>(param)(indexes...)...);
-}
-
-// template <class SS, class Param>
-// double logprob(const SS& ss, const Param& param) {
-//     using distrib = typename SS::distrib;
-//     using keys = map_key_list_t<typename distrib::param_decl>;
-//     // TODO check that params are identical?
-//     return logprob_helper<SS, SS>(ss, param, keys(), 0);
-// }
-
-//==================================================================================================
-// Overloads
-
 namespace overloads {
-    template <class SS>
-    double logprob(suffstat_tag, SS& ss) {
-        using ss_t = metadata_get_property<suffstat_type, metadata_t<SS>>;
-        return logprob<ss_t>(get<suffstat>(ss), get<params>(ss));
-    }
-
-    template <class Node>
-    double logprob(lone_node_tag, Node& node, NoIndex = NoIndex{}) {
-        using distrib = node_distrib_t<Node>;
-        using keys = map_key_list_t<typename distrib::param_decl>;
-        return logprob_helper<distrib>(get_value(node), get<params>(node), keys());
-    }
-
-    template <class Node>
-    double logprob(node_array_tag, Node& node, ArrayIndex index) {
-        using distrib = node_distrib_t<Node>;
-        using keys = map_key_list_t<typename distrib::param_decl>;
-        return logprob_helper<distrib>(get_value(node, index), get<params>(node), keys(), index.i);
-    }
-
-    template <class Node>
-    double logprob(node_array_tag, Node& node, NoIndex = NoIndex{}) {
-        using distrib = node_distrib_t<Node>;
-        using keys = map_key_list_t<typename distrib::param_decl>;
+    template <class Node, class Index>
+    double logprob(node_tag, Node& node, Index index) {
         double result = 0;
-        auto& v = get<value>(node);
-        for (size_t i = 0; i < v.size(); i++) {
-            result += logprob_helper<distrib>(get_value(node, i), get<params>(node), keys(), i);
-        }
+        using distrib = node_distrib_t<Node>;
+        auto f = [&result](const auto& x, const auto&... params) {
+            result += distrib::logprob(x, params...);
+        };
+        across_values_params(node, f, index);
         return result;
     }
-
-    template <class Node>
-    double logprob(node_matrix_tag, Node& node, NoIndex = NoIndex{}) {
-        using distrib = node_distrib_t<Node>;
-        using keys = map_key_list_t<typename distrib::param_decl>;
-        double result = 0;
-        auto& v = get<value>(node);
-        for (size_t i = 0; i < v.size(); i++) {
-            for (size_t j = 0; j < v[i].size(); j++) {
-                result +=
-                    logprob_helper<distrib>(get_value(node, i, j), get<params>(node), keys(), i, j);
-            }
-        }
-        return result;
-    }
-
-    template <class Node>
-    double logprob(node_matrix_tag, Node& node, ArrayIndex index) {
-        using distrib = node_distrib_t<Node>;
-        using keys = map_key_list_t<typename distrib::param_decl>;
-        double result = 0;
-        auto& v = get<value>(node);
-        for (size_t j = 0; j < v[index.i].size(); j++) {
-            result += logprob_helper<distrib>(get_value(node, index.i, j), get<params>(node),
-                                              keys(), index.i, j);
-        }
-        return result;
-    }
-
-    // @todo: add matrix overload with MatrixIndex
 
     template <class View>
     double logprob(view_tag, View& view, NoIndex = NoIndex()) {
