@@ -57,6 +57,15 @@ struct is_node_matrix : std::false_type {};
 template <class MD, class... Fields>
 struct is_node_matrix<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_matrix_tag, MD> {};
 
+template <class... Ts>
+using to_void = void;
+
+template <class T, class = void>
+struct has_array_logprob : std::false_type {};
+
+template <class T>
+struct has_array_logprob<T, to_void<decltype(T::array_logprob)>> : std::true_type {};
+
 //==================================================================================================
 // node introspection
 

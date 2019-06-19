@@ -29,6 +29,7 @@ license and that you accept its terms.*/
 #include "doctest.h"
 
 #include "basic_moves.hpp"
+#include "distributions/dirichlet.hpp"
 #include "distributions/exponential.hpp"
 #include "distributions/gamma.hpp"
 #include "distributions/poisson.hpp"
@@ -520,4 +521,9 @@ TEST_CASE("across_values_params") {
     ss.str("");
     across_values_params(m, f, 1, 0);
     CHECK(ss.str() == "2(3);");
+}
+
+TEST_CASE("has_array_logprob") {
+    CHECK(!has_array_logprob<poisson>::value);
+    CHECK(has_array_logprob<dirichlet>::value);
 }
