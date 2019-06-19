@@ -72,6 +72,15 @@ namespace overloads {
         assert(index.i >= 0 and index.i < get<value>(node).size());
         return get<value>(node)[index.i];
     }
+
+    template <class Node>
+    const auto& raw_value(node_matrix_tag, const Node& node, MatrixIndex index) {
+        auto& v = get<value>(node);
+        assert(index.i >= 0 and index.i < v.size());
+        assert(v.size() > 0);
+        assert(index.j >= 0 and index.j < v.at(0).size());
+        return v[index.i][index.j];
+    }
 };  // namespace overloads
 
 template <class T, class... Rest>
