@@ -32,7 +32,7 @@ license and that you accept its terms.*/
 //==================================================================================================
 // Parameter unpacking
 
-template <typename Distrib, class T = typename Distrib::raw_value, typename Param,
+template <typename Distrib, class T = typename Distrib::get_value, typename Param,
           class... ParamKeys, class... Indexes>
 auto logprob_helper(const T& value, const Param& param, std::tuple<ParamKeys...>,
                     Indexes... indexes) {
@@ -61,14 +61,14 @@ namespace overloads {
     double logprob(lone_node_tag, Node& node, NoIndex = NoIndex{}) {
         using distrib = node_distrib_t<Node>;
         using keys = map_key_list_t<typename distrib::param_decl>;
-        return logprob_helper<distrib>(raw_value(node), get<params>(node), keys());
+        return logprob_helper<distrib>(get_value(node), get<params>(node), keys());
     }
 
     template <class Node>
     double logprob(node_array_tag, Node& node, ArrayIndex index) {
         using distrib = node_distrib_t<Node>;
         using keys = map_key_list_t<typename distrib::param_decl>;
-        return logprob_helper<distrib>(raw_value(node, index), get<params>(node), keys(), index.i);
+        return logprob_helper<distrib>(get_value(node, index), get<params>(node), keys(), index.i);
     }
 
     template <class Node>
@@ -78,7 +78,7 @@ namespace overloads {
         double result = 0;
         auto& v = get<value>(node);
         for (size_t i = 0; i < v.size(); i++) {
-            result += logprob_helper<distrib>(raw_value(node, i), get<params>(node), keys(), i);
+            result += logprob_helper<distrib>(get_value(node, i), get<params>(node), keys(), i);
         }
         return result;
     }
@@ -92,7 +92,7 @@ namespace overloads {
         for (size_t i = 0; i < v.size(); i++) {
             for (size_t j = 0; j < v[i].size(); j++) {
                 result +=
-                    logprob_helper<distrib>(raw_value(node, i, j), get<params>(node), keys(), i, j);
+                    logprob_helper<distrib>(get_value(node, i, j), get<params>(node), keys(), i, j);
             }
         }
         return result;
@@ -105,7 +105,7 @@ namespace overloads {
         double result = 0;
         auto& v = get<value>(node);
         for (size_t j = 0; j < v[index.i].size(); j++) {
-            result += logprob_helper<distrib>(raw_value(node, index.i, j), get<params>(node),
+            result += logprob_helper<distrib>(get_value(node, index.i, j), get<params>(node),
                                               keys(), index.i, j);
         }
         return result;

@@ -31,8 +31,8 @@ license and that you accept its terms.*/
 #include "distributions/poisson.hpp"
 #include "mcmc_utils.hpp"
 #include "operations/backup.hpp"
+#include "operations/get_value.hpp"
 #include "operations/logprob.hpp"
-#include "operations/raw_value.hpp"
 #include "operations/set_value.hpp"
 #include "structure/array_utils.hpp"
 #include "structure/view.hpp"
@@ -60,7 +60,7 @@ void scaling_move(Node& node, MB blanket, Gen& gen, IndexArgs... args) {
     auto index = make_index(args...);
     auto bkp = backup(node, index);
     double logprob_before = logprob(blanket);
-    double log_hastings = scale(raw_value(node, index), gen);
+    double log_hastings = scale(get_value(node, index), gen);
     bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
     if (!accept) { restore(node, bkp, index); }
 }
@@ -79,13 +79,13 @@ int main() {
     for (int it = 0; it < 100000; it++) {
         scaling_move(alpha_(m), make_view<alpha, lambda>(m), gen);
         scaling_move(mu_(m), make_view<mu, lambda>(m), gen);
-        alpha_sum += raw_value(alpha_(m));
-        mu_sum += raw_value(mu_(m));
+        alpha_sum += get_value(alpha_(m));
+        mu_sum += get_value(mu_(m));
 
         for (size_t i = 0; i < 5; i++) {
             auto lambda_mb = make_view(make_ref<K>(m, i), make_ref<lambda>(m, i));
             scaling_move(lambda_(m), lambda_mb, gen, i);
-            lambda_sum += raw_value(lambda_(m), i);
+            lambda_sum += get_value(lambda_(m), i);
         }
     }
 

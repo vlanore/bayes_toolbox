@@ -33,8 +33,8 @@ license and that you accept its terms.*/
 #include "distributions/gamma.hpp"
 #include "distributions/poisson.hpp"
 #include "operations/backup.hpp"
+#include "operations/get_value.hpp"
 #include "operations/logprob.hpp"
-#include "operations/raw_value.hpp"
 #include "structure/array_utils.hpp"
 #include "structure/type_tag.hpp"
 #include "structure/view.hpp"
@@ -145,8 +145,8 @@ TEST_CASE("make array") {
     auto c = make_node_array<gamma_ss>(12, n_to_n(a), n_to_n(b));
     CHECK(get<value>(a).size() == 12);
     CHECK(get<params, rate>(a)(10) == 1.0);
-    raw_value(a, 2) = 17.0;
-    raw_value(b, 2) = 19.0;
+    get_value(a, 2) = 17.0;
+    get_value(b, 2) = 19.0;
     CHECK(get<params, shape>(c)(2) == 17.0);
     CHECK(get<params, struct scale>(c)(2) == 19.0);
 }
@@ -161,9 +161,9 @@ TEST_CASE("Logprobs") {
     auto n1 = make_node<poisson>(2.0);
     auto n2 = make_node<poisson>(2.0);
     auto n3 = make_node<poisson>(2.0);
-    raw_value(n1) = 1;
-    raw_value(n2) = 2;
-    raw_value(n3) = 3;
+    get_value(n1) = 1;
+    get_value(n2) = 2;
+    get_value(n3) = 3;
     auto a = make_node_array<poisson>(3, n_to_constant(2.0));
     set_value(a, {1, 2, 3});
     CHECK(logprob(n1) == logprob(a, 0));
@@ -277,31 +277,31 @@ TEST_CASE("Views with indices") {
 // TEST_CASE("node backups") {
 //     auto node = make_backuped_node<exponential>(1);
 //     auto array = make_backuped_node_array<poisson>(5, n_to_one(node));
-//     auto& a_3 = raw_value(array, 3);
-//     get_raw_value(node) = 1.3;
+//     auto& a_3 = get_value(array, 3);
+//     get_get_value(node) = 1.3;
 //     set_value(array, 2, 4, 5, 8, 9);
 //     backup(node);
 //     backup(array);
 //     CHECK(a_3 == 8);
 
-//     get_raw_value(node) = 3.1;
+//     get_get_value(node) = 3.1;
 //     set_value(array, 8, 9, 0, 12, 3);
-//     CHECK(get_raw_value(node) == 3.1);
-//     CHECK(raw_value(array, 0) == 8);
-//     CHECK(raw_value(array, 1) == 9);
-//     CHECK(raw_value(array, 2) == 0);
-//     CHECK(raw_value(array, 3) == 12);
-//     CHECK(raw_value(array, 4) == 3);
+//     CHECK(get_get_value(node) == 3.1);
+//     CHECK(get_value(array, 0) == 8);
+//     CHECK(get_value(array, 1) == 9);
+//     CHECK(get_value(array, 2) == 0);
+//     CHECK(get_value(array, 3) == 12);
+//     CHECK(get_value(array, 4) == 3);
 //     CHECK(a_3 == 12);
 
 //     restore(node);
 //     restore(array);
-//     CHECK(get_raw_value(node) == 1.3);
-//     CHECK(raw_value(array, 0) == 2);
-//     CHECK(raw_value(array, 1) == 4);
-//     CHECK(raw_value(array, 2) == 5);
-//     CHECK(raw_value(array, 3) == 8);
-//     CHECK(raw_value(array, 4) == 9);
+//     CHECK(get_get_value(node) == 1.3);
+//     CHECK(get_value(array, 0) == 2);
+//     CHECK(get_value(array, 1) == 4);
+//     CHECK(get_value(array, 2) == 5);
+//     CHECK(get_value(array, 3) == 8);
+//     CHECK(get_value(array, 4) == 9);
 //     CHECK(a_3 == 8);
 // }
 
@@ -312,18 +312,18 @@ TEST_CASE("Views with indices") {
 //         auto c = make_backuped_node<exponential>(1);
 //         return make_model(node<n1>(a), node<n2>(b), node<n3>(c));
 //     }();
-//     get_raw_value(get<n1>(m)) = 1.;
-//     get_raw_value(get<n2>(m)) = 2.;
-//     get_raw_value(get<n3>(m)) = 3.;
+//     get_get_value(get<n1>(m)) = 1.;
+//     get_get_value(get<n2>(m)) = 2.;
+//     get_get_value(get<n3>(m)) = 3.;
 //     auto v = make_view<n1, n3>(m);
 //     backup(v);
-//     get_raw_value(get<n1>(m)) = 4;
-//     get_raw_value(get<n2>(m)) = 5;
-//     get_raw_value(get<n3>(m)) = 6;
+//     get_get_value(get<n1>(m)) = 4;
+//     get_get_value(get<n2>(m)) = 5;
+//     get_get_value(get<n3>(m)) = 6;
 //     restore(v);
-//     CHECK(get_raw_value(get<n1>(m)) == 1);
-//     CHECK(get_raw_value(get<n2>(m)) == 5);
-//     CHECK(get_raw_value(get<n3>(m)) == 3);
+//     CHECK(get_get_value(get<n1>(m)) == 1);
+//     CHECK(get_get_value(get<n2>(m)) == 5);
+//     CHECK(get_get_value(get<n3>(m)) == 3);
 // }
 
 // TEST_CASE("MCMC with views and backups") {
@@ -398,66 +398,66 @@ TEST_CASE("type_tag") {
     CHECK(std::is_same<decltype(t6), suffstat_tag>::value);
 }
 
-TEST_CASE("raw_value") {
+TEST_CASE("get_value") {
     auto n = make_node<poisson>(1);
     get<value>(n) = 2;
-    CHECK(raw_value(n) == 2);
+    CHECK(get_value(n) == 2);
 
     auto a = make_node_array<poisson>(5, n_to_constant(2.0));
     set_value(a, {1, 2, 3, 4, 5});
-    CHECK(raw_value(a, 3) == 4);
-    raw_value(a, 3) = 5;
-    CHECK(raw_value(a, 3) == 5);
+    CHECK(get_value(a, 3) == 4);
+    get_value(a, 3) = 5;
+    CHECK(get_value(a, 3) == 5);
 
     const auto& cn = n;
     const auto& ca = a;
-    CHECK(raw_value(ca, 3) == 5);
-    CHECK(raw_value(cn) == 2);
+    CHECK(get_value(ca, 3) == 5);
+    CHECK(get_value(cn) == 2);
 }
 
 TEST_CASE("Matrix basic tests") {
     auto m = make_node_matrix<poisson>(2, 2, [](int, int) { return 1.0; });
     // @todo: make set_value/array a polymorphic set_value function
     set_value(m, {{0, 1}, {2, 3}});
-    CHECK(raw_value(m, 0, 0) == 0);
-    CHECK(raw_value(m, 0, 1) == 1);
-    CHECK(raw_value(m, 1, 0) == 2);
-    CHECK(raw_value(m, 1, 1) == 3);
+    CHECK(get_value(m, 0, 0) == 0);
+    CHECK(get_value(m, 0, 1) == 1);
+    CHECK(get_value(m, 1, 0) == 2);
+    CHECK(get_value(m, 1, 1) == 3);
 
-    auto& x = raw_value(m, 0, 0);
-    auto& y = raw_value(m, 1, 1);
+    auto& x = get_value(m, 0, 0);
+    auto& y = get_value(m, 1, 1);
     set_value(m, 1, {7, 8});
     CHECK(x == 0);
     CHECK(y == 8);
-    CHECK(raw_value(m, 1, 0) == 7);
-    CHECK(raw_value(m, 1, 1) == 8);
+    CHECK(get_value(m, 1, 0) == 7);
+    CHECK(get_value(m, 1, 1) == 8);
 }
 
 TEST_CASE("Backup/restore") {
     auto n = make_node<poisson>(1.0);
-    raw_value(n) = 17;
+    get_value(n) = 17;
     auto bn = backup(n);
-    raw_value(n) = 11;
-    CHECK(raw_value(n) == 11);
+    get_value(n) = 11;
+    CHECK(get_value(n) == 11);
     restore(n, bn);
-    CHECK(raw_value(n) == 17);
+    CHECK(get_value(n) == 17);
 
     auto a = make_node_array<poisson>(3, n_to_constant(1.0));
     set_value(a, {11, 12, 13});
     auto ba = backup(a);
     auto ba1 = backup(a, 1);
     set_value(a, {1, 2, 3});
-    CHECK(raw_value(a, 0) == 1);
-    CHECK(raw_value(a, 1) == 2);
-    CHECK(raw_value(a, 2) == 3);
+    CHECK(get_value(a, 0) == 1);
+    CHECK(get_value(a, 1) == 2);
+    CHECK(get_value(a, 2) == 3);
     restore(a, ba1, 1);
-    CHECK(raw_value(a, 0) == 1);
-    CHECK(raw_value(a, 1) == 12);
-    CHECK(raw_value(a, 2) == 3);
+    CHECK(get_value(a, 0) == 1);
+    CHECK(get_value(a, 1) == 12);
+    CHECK(get_value(a, 2) == 3);
     restore(a, ba);
-    CHECK(raw_value(a, 0) == 11);
-    CHECK(raw_value(a, 1) == 12);
-    CHECK(raw_value(a, 2) == 13);
+    CHECK(get_value(a, 0) == 11);
+    CHECK(get_value(a, 1) == 12);
+    CHECK(get_value(a, 2) == 13);
 
     // @todo: write tests for matrix cases
 }

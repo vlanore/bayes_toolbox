@@ -27,7 +27,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <assert.h>
-#include "operations/raw_value.hpp"
+#include "operations/get_value.hpp"
 #include "operations/set_value.hpp"
 
 //==================================================================================================
@@ -35,7 +35,7 @@ license and that you accept its terms.*/
 
 template <class Node>
 auto n_to_one(Node& node) {
-    return [&rv = raw_value(node)](int) { return rv; };
+    return [&rv = get_value(node)](int) { return rv; };
 }
 
 template <class Node>

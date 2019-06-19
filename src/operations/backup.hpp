@@ -26,7 +26,7 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "raw_value.hpp"
+#include "get_value.hpp"
 
 namespace overloads {
     template <class T>  // @todo: add complex_node_tag or something to simplify here
@@ -47,7 +47,7 @@ namespace overloads {
 
     template <class T, class Index>
     auto backup(node_tag, T& node, Index index) {
-        return raw_value(node, index);
+        return get_value(node, index);
     }
 
 };  // namespace overloads
@@ -64,7 +64,7 @@ namespace overloads {
         assert(backup.size() > 0);
         assert(backup.at(0).size() == get<value>(node).at(0).size());
         for (size_t i = 0; i < backup.size(); i++) {
-            for (size_t j = 0; j < backup[i].size(); j++) { raw_value(node, i, j) = backup[i][j]; }
+            for (size_t j = 0; j < backup[i].size(); j++) { get_value(node, i, j) = backup[i][j]; }
         }
     }
 
@@ -72,18 +72,18 @@ namespace overloads {
     auto restore(node_matrix_tag, T& node, std::vector<V>& backup, ArrayIndex index) {
         assert(index.i >= 0 && index.i < get<value>(backup).size());
         assert(backup.size() == get<value>(node).at(index.i).size());
-        for (size_t j = 0; j < backup.size(); j++) { raw_value(node, index, j) = backup[j]; }
+        for (size_t j = 0; j < backup.size(); j++) { get_value(node, index, j) = backup[j]; }
     }
 
     template <class T, class V>
     auto restore(node_array_tag, T& node, std::vector<V>& backup, NoIndex = NoIndex()) {
         assert(backup.size() == get<value>(node).size());
-        for (size_t i = 0; i < backup.size(); i++) { raw_value(node, i) = backup[i]; }
+        for (size_t i = 0; i < backup.size(); i++) { get_value(node, i) = backup[i]; }
     }
 
     template <class T, class V, class Index>
     auto restore(node_tag, T& node, V& backup, Index index) {
-        raw_value(node, index) = backup;
+        get_value(node, index) = backup;
     }
 };  // namespace overloads
 

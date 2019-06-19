@@ -29,22 +29,22 @@ license and that you accept its terms.*/
 #include "structure/type_tag.hpp"
 
 //==================================================================================================
-// raw_value: get reference to raw value of a node (e.g. get a double& to node value)
+// get_value: get reference to raw value of a node (e.g. get a double& to node value)
 
 namespace overloads {
     template <class Node>
-    auto& raw_value(lone_node_tag, Node& node, NoIndex = NoIndex()) {
+    auto& get_value(lone_node_tag, Node& node, NoIndex = NoIndex()) {
         return get<value>(node);
     }
 
     template <class Node>
-    auto& raw_value(node_array_tag, Node& node, ArrayIndex index) {
+    auto& get_value(node_array_tag, Node& node, ArrayIndex index) {
         assert(index.i >= 0 and index.i < get<value>(node).size());
         return get<value>(node)[index.i];
     }
 
     template <class Node>
-    auto& raw_value(node_matrix_tag, Node& node, MatrixIndex index) {
+    auto& get_value(node_matrix_tag, Node& node, MatrixIndex index) {
         auto& v = get<value>(node);
         assert(index.i >= 0 and index.i < v.size());
         assert(v.size() > 0);
@@ -54,27 +54,27 @@ namespace overloads {
 };  // namespace overloads
 
 template <class T, class... Rest>
-auto& raw_value(T& t, Rest... rest) {
-    return overloads::raw_value(type_tag(t), t, make_index(rest...));
+auto& get_value(T& t, Rest... rest) {
+    return overloads::get_value(type_tag(t), t, make_index(rest...));
 }
 
 //==================================================================================================
-// raw_value const variants
+// get_value const variants
 
 namespace overloads {
     template <class Node>
-    const auto& raw_value(lone_node_tag, const Node& node, NoIndex = NoIndex()) {
+    const auto& get_value(lone_node_tag, const Node& node, NoIndex = NoIndex()) {
         return get<value>(node);
     }
 
     template <class Node>
-    const auto& raw_value(node_array_tag, const Node& node, ArrayIndex index) {
+    const auto& get_value(node_array_tag, const Node& node, ArrayIndex index) {
         assert(index.i >= 0 and index.i < get<value>(node).size());
         return get<value>(node)[index.i];
     }
 
     template <class Node>
-    const auto& raw_value(node_matrix_tag, const Node& node, MatrixIndex index) {
+    const auto& get_value(node_matrix_tag, const Node& node, MatrixIndex index) {
         auto& v = get<value>(node);
         assert(index.i >= 0 and index.i < v.size());
         assert(v.size() > 0);
@@ -84,6 +84,6 @@ namespace overloads {
 };  // namespace overloads
 
 template <class T, class... Rest>
-const auto& raw_value(const T& t, Rest... rest) {
-    return overloads::raw_value(type_tag(t), t, make_index(rest...));
+const auto& get_value(const T& t, Rest... rest) {
+    return overloads::get_value(type_tag(t), t, make_index(rest...));
 }
