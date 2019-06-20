@@ -26,14 +26,14 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "get_value.hpp"
+#include "raw_value.hpp"
 #include "structure/node.hpp"
 #include "structure/view.hpp"
 
 namespace overloads {
     template <class Node, class F>
     void across_values(lone_node_tag, Node& n, const F& f, NoIndex) {
-        f(get_value(n));
+        f(raw_value(n));
     }
 
     template <class Array, class F>
@@ -43,7 +43,7 @@ namespace overloads {
 
     template <class Array, class F>
     void across_values(node_array_tag, Array& a, const F& f, ArrayIndex index) {
-        f(get_value(a, index));
+        f(raw_value(a, index));
     }
 
     template <class Matrix, class F>
@@ -60,7 +60,7 @@ namespace overloads {
 
     template <class Matrix, class F>
     void across_values(node_matrix_tag, Matrix& m, const F& f, MatrixIndex index) {
-        f(get_value(m, index));
+        f(raw_value(m, index));
     }
 };  // namespace overloads
 

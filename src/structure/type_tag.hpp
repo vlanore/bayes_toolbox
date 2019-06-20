@@ -31,8 +31,6 @@ license and that you accept its terms.*/
 #include "suffstat_utils.hpp"
 #include "view.hpp"
 
-// @todo: have subfolders in repo
-
 template <class T>
 auto type_tag(const T&) {
     return unknown_tag();

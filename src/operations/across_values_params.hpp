@@ -26,7 +26,7 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "get_value.hpp"
+#include "raw_value.hpp"
 #include "structure/node.hpp"
 #include "structure/view.hpp"
 
@@ -39,21 +39,21 @@ namespace overloads {
     template <class Node, class F>
     void across_values_params(lone_node_tag, Node& n, const F& f, NoIndex) {
         using keys = param_keys_t<node_distrib_t<Node>>;
-        unpack_params(get_value(n), f, get<params>(n), keys());
+        unpack_params(raw_value(n), f, get<params>(n), keys());
     }
 
     template <class Array, class F>
     void across_values_params(node_array_tag, Array& a, const F& f, NoIndex) {
         using keys = param_keys_t<node_distrib_t<Array>>;
         for (size_t i = 0; i < get<value>(a).size(); i++) {
-            unpack_params(get_value(a, i), f, get<params>(a), keys(), i);
+            unpack_params(raw_value(a, i), f, get<params>(a), keys(), i);
         }
     }
 
     template <class Array, class F>
     void across_values_params(node_array_tag, Array& a, const F& f, ArrayIndex index) {
         using keys = param_keys_t<node_distrib_t<Array>>;
-        unpack_params(get_value(a, index.i), f, get<params>(a), keys(), index.i);
+        unpack_params(raw_value(a, index.i), f, get<params>(a), keys(), index.i);
     }
 
     template <class Matrix, class F>
@@ -61,7 +61,7 @@ namespace overloads {
         using keys = param_keys_t<node_distrib_t<Matrix>>;
         for (size_t i = 0; i < get<value>(m).size(); i++) {
             for (size_t j = 0; j < get<value>(m)[i].size(); j++) {
-                unpack_params(get_value(m, i, j), f, get<params>(m), keys(), i, j);
+                unpack_params(raw_value(m, i, j), f, get<params>(m), keys(), i, j);
             }
         }
     }
@@ -70,14 +70,14 @@ namespace overloads {
     void across_values_params(node_matrix_tag, Matrix& m, const F& f, ArrayIndex index) {
         using keys = param_keys_t<node_distrib_t<Matrix>>;
         for (size_t j = 0; j < get<value>(m)[index.i].size(); j++) {
-            unpack_params(get_value(m, index.i, j), f, get<params>(m), keys(), index.i, j);
+            unpack_params(raw_value(m, index.i, j), f, get<params>(m), keys(), index.i, j);
         }
     }
 
     template <class Matrix, class F>
     void across_values_params(node_matrix_tag, Matrix& m, const F& f, MatrixIndex index) {
         using keys = param_keys_t<node_distrib_t<Matrix>>;
-        unpack_params(get_value(m, index.i, index.j), f, get<params>(m), keys(), index.i, index.j);
+        unpack_params(raw_value(m, index.i, index.j), f, get<params>(m), keys(), index.i, index.j);
     }
 };  // namespace overloads
 
