@@ -85,10 +85,3 @@ using node_distrib_t = metadata_get_property<struct distrib, metadata_t<Node>>;
 
 template <class Distrib>
 using param_keys_t = map_key_list_t<typename Distrib::param_decl>;
-
-template <class Node>
-using node_value_t = std::remove_reference_t<decltype(get<value>(std::declval<Node>()))>;
-
-template <class NodeArray>  // @todo: remove?
-using node_array_value_t =
-    typename std::remove_reference_t<decltype(get<value>(std::declval<NodeArray>()))>::T;
