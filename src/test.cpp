@@ -277,85 +277,6 @@ TEST_CASE("Views with indices") {
     // TODO !
 }
 
-// TEST_CASE("node backups") {
-//     auto node = make_backuped_node<exponential>(1);
-//     auto array = make_backuped_node_array<poisson>(5, n_to_one(node));
-//     auto& a_3 = raw_value(array, 3);
-//     get_raw_value(node) = 1.3;
-//     set_value(array, 2, 4, 5, 8, 9);
-//     backup(node);
-//     backup(array);
-//     CHECK(a_3 == 8);
-
-//     get_raw_value(node) = 3.1;
-//     set_value(array, 8, 9, 0, 12, 3);
-//     CHECK(get_raw_value(node) == 3.1);
-//     CHECK(raw_value(array, 0) == 8);
-//     CHECK(raw_value(array, 1) == 9);
-//     CHECK(raw_value(array, 2) == 0);
-//     CHECK(raw_value(array, 3) == 12);
-//     CHECK(raw_value(array, 4) == 3);
-//     CHECK(a_3 == 12);
-
-//     restore(node);
-//     restore(array);
-//     CHECK(get_raw_value(node) == 1.3);
-//     CHECK(raw_value(array, 0) == 2);
-//     CHECK(raw_value(array, 1) == 4);
-//     CHECK(raw_value(array, 2) == 5);
-//     CHECK(raw_value(array, 3) == 8);
-//     CHECK(raw_value(array, 4) == 9);
-//     CHECK(a_3 == 8);
-// }
-
-// TEST_CASE("view backups") {
-//     auto m = []() {
-//         auto a = make_backuped_node<exponential>(1);
-//         auto b = make_backuped_node<exponential>(1);
-//         auto c = make_backuped_node<exponential>(1);
-//         return make_model(node<n1>(a), node<n2>(b), node<n3>(c));
-//     }();
-//     get_raw_value(get<n1>(m)) = 1.;
-//     get_raw_value(get<n2>(m)) = 2.;
-//     get_raw_value(get<n3>(m)) = 3.;
-//     auto v = make_view<n1, n3>(m);
-//     backup(v);
-//     get_raw_value(get<n1>(m)) = 4;
-//     get_raw_value(get<n2>(m)) = 5;
-//     get_raw_value(get<n3>(m)) = 6;
-//     restore(v);
-//     CHECK(get_raw_value(get<n1>(m)) == 1);
-//     CHECK(get_raw_value(get<n2>(m)) == 5);
-//     CHECK(get_raw_value(get<n3>(m)) == 3);
-// }
-
-// TEST_CASE("MCMC with views and backups") {
-//     auto gen = make_generator();
-
-//     auto param = make_backuped_node<exponential>(1);
-//     draw(param, gen);
-//     auto array = make_node_array<poisson>(20, n_to_one(param));
-//     set_value(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
-
-//     auto m = make_model(node<n1>(param), node<n2>(array));
-//     auto v = make_view<n1, n2>(m);
-
-//     vector<double> trace;
-//     for (int i = 0; i < 10000; i++) {
-//         for (int rep = 0; rep < 10; rep++) {
-//             backup(get<n1>(m));
-//             double logprob_before = logprob(v);
-//             double log_hastings = scale(get<n1, value>(m), gen);
-//             bool accept = decide(logprob(v) - logprob_before + log_hastings, gen);
-//             if (!accept) { restore(get<n1>(m)); }
-//         }
-//         trace.push_back(get<n1, value>(m));
-//     }
-//     double mean_trace = mean(trace);
-//     CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to prior
-//     CHECK(mean_trace < 2);
-// }
-
 // TEST_CASE("Suffstats") {
 //     auto array = make_node_array<poisson>(5, n_to_constant(1.0));
 //     set_value(array, 1, 2, 3, 4, 5);
@@ -529,3 +450,5 @@ TEST_CASE("has_array_logprob/draw") {
     CHECK(!has_array_draw<poisson>::value);
     CHECK(has_array_draw<dirichlet>::value);
 }
+
+TEST_CASE("array access") {}
