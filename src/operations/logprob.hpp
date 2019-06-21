@@ -32,7 +32,7 @@ license and that you accept its terms.*/
 
 namespace overloads {
     template <class Node, class Index>
-    double logprob(node_tag, Node& node, Index index) {
+    double select_logprob(std::false_type /* no array lprob */, node_tag, Node& node, Index index) {
         double result = 0;
         auto f = [&result](const auto& x, const auto&... params) {
             result += node_distrib_t<Node>::logprob(x, params...);
@@ -40,6 +40,23 @@ namespace overloads {
         across_values_params(node, f, index);
         return result;
     }
+
+    template <class Node, class... Keys>
+    double compute_array_logprob(Node& node, std::tuple<Keys...>) {
+        return node_distrib_t<Node>::array_logprob(get<value>(node),
+                                                   get<Keys...>(get<params>(node))());
+    }
+
+    template <class Node>
+    double select_logprob(std::true_type /* array logprob */, node_array_tag, Node& node, NoIndex) {
+        return compute_array_logprob(node, param_keys_t<node_distrib_t<Node>>());
+    }
+
+    template <class Node, class Index>
+    double logprob(node_tag, Node& node, Index index) {
+        return select_logprob(has_array_logprob<node_distrib_t<Node>>(), type_tag(node), node,
+                              index);
+    }  // namespace overloads
 
     template <class View>
     double logprob(view_tag, View& view, NoIndex = NoIndex()) {

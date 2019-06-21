@@ -451,4 +451,9 @@ TEST_CASE("has_array_logprob/draw") {
     CHECK(has_array_draw<dirichlet>::value);
 }
 
-TEST_CASE("array access") {}
+TEST_CASE("dirichlet logprob test") {
+    auto gen = make_generator();
+    auto v = make_vector_node<dirichlet>(3, []() { return std::vector<double>{0.1, 0.2, 0.3}; });
+    draw(v, gen);
+    CHECK(raw_value(v, 0) + raw_value(v, 1) + raw_value(v, 2) == 1.);
+}

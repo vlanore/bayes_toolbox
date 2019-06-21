@@ -49,6 +49,14 @@ auto make_node_array(size_t size, ParamArgs&&... args) {
 }
 
 template <class Distrib, class... ParamArgs>
+auto make_vector_node(size_t size, ParamArgs&&... args) {
+    std::vector<typename Distrib::T> values(size);
+    auto params = make_params<Distrib>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple<node_metadata<node_array_tag, Distrib>>(
+        unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
+}
+
+template <class Distrib, class... ParamArgs>
 auto make_node_matrix(size_t size_x, size_t size_y, ParamArgs&&... args) {
     // @todo: change to better data structure (instead of vector of vectors)
     matrix<typename Distrib::T> values(size_x, std::vector<typename Distrib::T>(size_y));

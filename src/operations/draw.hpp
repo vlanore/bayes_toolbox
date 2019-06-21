@@ -42,12 +42,28 @@ double draw_uniform(Gen& gen) {  // @todo: move elsewhere
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
 namespace overloads {
-    template <class Node, typename Gen>
-    void draw(node_tag, Node& node, NoIndex, Gen& gen) {
+    template <class Node, class Index, typename Gen>
+    void select_draw(std::false_type /*no array draw*/, node_tag, Node& node, Index index,
+                     Gen& gen) {
         auto f = [&gen](auto& x, const auto&... params) {
             x = node_distrib_t<Node>::draw(params..., gen);
         };
-        across_values_params(node, f);
+        across_values_params(node, f, index);
+    }
+
+    template <class Node, typename Gen, class... Keys>
+    void perform_draw_array(Node& node, Gen& gen, std::tuple<Keys...>) {
+        node_distrib_t<Node>::array_draw(get<value>(node), get<Keys...>(get<params>(node))(), gen);
+    }
+
+    template <class Node, typename Gen>
+    void select_draw(std::true_type /*array draw*/, node_array_tag, Node& node, NoIndex, Gen& gen) {
+        perform_draw_array(node, gen, param_keys_t<node_distrib_t<Node>>());
+    }
+
+    template <class Node, class Index, typename Gen>
+    void draw(node_tag, Node& node, Index index, Gen& gen) {
+        select_draw(has_array_draw<node_distrib_t<Node>>(), type_tag(node), node, index, gen);
     }
 
     template <class View, typename Gen>
