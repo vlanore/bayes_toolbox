@@ -98,6 +98,10 @@ TEST_CASE("Node construction") {
         auto alpha = make_node<gamma_ss>(2, 3);
         check_mean(get<value>(alpha), [&]() { draw(alpha, gen); }, 6.0, 2.0);
     }
+    SUBCASE("gamma_sr") {
+        auto alpha = make_node<gamma_sr>(2, 3);
+        check_mean(get<value>(alpha), [&]() { draw(alpha, gen); }, 0.6666, 2.0);
+    }
     SUBCASE("poisson") {
         auto alpha = make_node<poisson>(3);
         check_mean(get<value>(alpha), [&]() { draw(alpha, gen); }, 3.0, 2.0);

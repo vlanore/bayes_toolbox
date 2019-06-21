@@ -40,7 +40,7 @@ struct dirichlet {
         double sum_y{0};
         for (size_t i = 0; i < k; i++) {
             // @todo: wrong gamma distrib
-            x[i] = gamma_ss::draw(alpha[i], 1, gen);
+            x[i] = gamma_sr::draw(alpha[i], 1, gen);
             sum_y += x[i];
         }
         for (size_t i = 0; i < k; i++) { x[i] /= sum_y; }

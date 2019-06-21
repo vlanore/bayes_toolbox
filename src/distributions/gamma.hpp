@@ -73,3 +73,31 @@ struct gamma_ss_suffstats {
                (1 / theta) * ss.sum;
     }
 };
+
+struct gamma_sr {
+    using T = pos_real;
+
+    using param_decl = param_decl_t<param<shape, spos_real>, param<struct rate, spos_real>>;
+
+    template <typename Gen>
+    static T draw(spos_real shape, spos_real rate, Gen& gen) {
+        std::gamma_distribution<double> distrib(positive_real(shape), 1 / positive_real(rate));
+        return {distrib(gen)};
+    }
+
+    static real logprob(T x, spos_real alpha, spos_real beta) {
+        return alpha * log(beta) - std::lgamma(alpha) + (alpha - 1) * log(x) - beta * x;
+    }
+
+    static real partial_logprob_value(T x, spos_real alpha, spos_real beta) {
+        return (alpha - 1) * log(x) - beta * x;
+    }
+
+    static real partial_logprob_param1(T x, spos_real alpha, spos_real beta) {
+        return alpha * log(beta) - std::lgamma(alpha) + (alpha - 1) * log(x);
+    }
+
+    static real partial_logprob_param2(T x, spos_real alpha, spos_real beta) {
+        return alpha * log(beta) - beta * x;
+    }
+};
