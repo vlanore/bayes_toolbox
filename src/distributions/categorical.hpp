@@ -26,18 +26,19 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include <cstdlib>
-#include <vector>
+#include "structure/distrib_utils.hpp"
+#include "utils/math_utils.hpp"
 
-using real = double;
-using pos_real = double;
-using spos_real = double;
+struct categorical {
+    using T = pos_integer;
 
-using integer = int;
-using pos_integer = size_t;
-using spos_integer = size_t;
+    using param_decl = param_decl_t<param<weights, std::vector<double>>>;
 
-template <class T>
-using matrix = std::vector<std::vector<T>>;
+    template <typename Gen>
+    static T draw(const std::vector<double>& w, Gen& gen) {
+        std::discrete_distribution<T> distrib(w.begin(), w.end());
+        return distrib(gen);
+    }
 
-using indicator = char;
+    static double logprob(T& x, const std::vector<double>& w) { return w[x]; }
+};

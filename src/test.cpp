@@ -29,6 +29,7 @@ license and that you accept its terms.*/
 #include "doctest.h"
 
 #include "basic_moves.hpp"
+#include "distributions/categorical.hpp"
 #include "distributions/dirichlet.hpp"
 #include "distributions/exponential.hpp"
 #include "distributions/gamma.hpp"
@@ -457,7 +458,14 @@ TEST_CASE("has_array_logprob/draw") {
 
 TEST_CASE("dirichlet logprob test") {
     auto gen = make_generator();
-    auto v = make_vector_node<dirichlet>(3, []() { return std::vector<double>{0.1, 0.2, 0.3}; });
+    auto v = make_vector_node<dirichlet>(3, []() { return std::vector<double>{2, 3, 5}; });
     draw(v, gen);
     CHECK(raw_value(v, 0) + raw_value(v, 1) + raw_value(v, 2) == doctest::Approx(1.));
+    auto t = make_node<categorical>(get<value>(v));
+    check_mean(raw_value(t),
+               [&]() {
+                   draw(v, gen);
+                   draw(t, gen);
+               },
+               0.3 + 1);
 }

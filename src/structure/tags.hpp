@@ -31,6 +31,7 @@ struct rate {};
 struct shape {};
 struct scale {};
 struct concentration {};
+struct weights {};
 struct distrib {};
 struct value {};
 struct params {};
