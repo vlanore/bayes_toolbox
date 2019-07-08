@@ -32,13 +32,19 @@ license and that you accept its terms.*/
 #include "utils/random.hpp"
 
 //==================================================================================================
+// helper
+
+template <class T, class Tag>
+struct has_meta_tag : std::false_type {};
+
+template <class Tag, class MD, class... Fields>
+struct has_meta_tag<tagged_tuple<MD, Fields...>, Tag> : metadata_has_tag<Tag, MD> {};
+
+//==================================================================================================
 // node traits
 
 template <class T>
-struct is_node : std::false_type {};
-
-template <class MD, class... Fields>
-struct is_node<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_tag, MD> {};
+using is_node = has_meta_tag<T, node_tag>;
 
 template <class T>
 struct is_vector : std::false_type {};
@@ -46,17 +52,14 @@ struct is_vector : std::false_type {};
 template <class T>
 struct is_vector<std::vector<T>> : std::true_type {};
 
-template <class T, class = void>
-struct is_node_array : std::false_type {};
+template <class T>
+using is_lone_node = has_meta_tag<T, lone_node_tag>;
 
-template <class MD, class... Fields>
-struct is_node_array<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_array_tag, MD> {};
+template <class T>
+using is_node_array = has_meta_tag<T, node_array_tag>;
 
-template <class T, class = void>
-struct is_node_matrix : std::false_type {};
-
-template <class MD, class... Fields>
-struct is_node_matrix<tagged_tuple<MD, Fields...>> : metadata_has_tag<node_matrix_tag, MD> {};
+template <class T>
+using is_node_matrix = has_meta_tag<T, node_matrix_tag>;
 
 //==================================================================================================
 // distrib traits (***)

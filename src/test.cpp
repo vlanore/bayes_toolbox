@@ -469,3 +469,18 @@ TEST_CASE("dirichlet logprob test") {
                },
                0.3 + 1);
 }
+
+TEST_CASE("Node type traits") {
+    auto ln = make_node<poisson>(1.0);
+    auto na = make_node_array<poisson>(5, n_to_constant(1.0));
+    auto nm = make_node_matrix<poisson>(5, 5, [](int, int) { return 1.0; });
+    CHECK(is_lone_node<decltype(ln)>::value);
+    CHECK(!is_node_array<decltype(ln)>::value);
+    CHECK(!is_node_matrix<decltype(ln)>::value);
+    CHECK(!is_lone_node<decltype(na)>::value);
+    CHECK(is_node_array<decltype(na)>::value);
+    CHECK(!is_node_matrix<decltype(na)>::value);
+    CHECK(!is_lone_node<decltype(nm)>::value);
+    CHECK(!is_node_array<decltype(nm)>::value);
+    CHECK(is_node_matrix<decltype(nm)>::value);
+}
