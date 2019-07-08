@@ -344,6 +344,24 @@ TEST_CASE("raw_value") {
     CHECK(raw_value(cn) == 2);
 }
 
+TEST_CASE("set_value") {
+    auto ln = make_node<poisson>(1.0);
+    auto na = make_node_array<poisson>(3, n_to_constant(1.0));
+    auto nm = make_node_matrix<poisson>(3, 3, [](int, int) { return 1.0; });
+
+    set_value(ln, 17);
+    set_value(na, {17, 13, 19});
+    set_value(nm, {{11, 12, 13}, {21, 22, 23}, {31, 32, 33}});
+
+    CHECK(raw_value(ln) == 17);
+    CHECK(raw_value(na, 0) == 17);
+    CHECK(raw_value(na, 1) == 13);
+    CHECK(raw_value(na, 2) == 19);
+    CHECK(raw_value(nm, 0, 0) == 11);
+    CHECK(raw_value(nm, 1, 1) == 22);
+    CHECK(raw_value(nm, 2, 2) == 33);
+}
+
 TEST_CASE("Matrix basic tests") {
     auto m = make_node_matrix<poisson>(2, 2, [](int, int) { return 1.0; });
     // @todo: make set_value/array a polymorphic set_value function

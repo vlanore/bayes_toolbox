@@ -30,6 +30,12 @@ license and that you accept its terms.*/
 #include "raw_value.hpp"
 
 template <class ProbNode, class Distrib = node_distrib_t<ProbNode>>
+void set_value(ProbNode& node, typename Distrib::T value) {
+    static_assert(is_lone_node<ProbNode>::value, "this set_value overload expects a single value!");
+    raw_value(node) = value;
+}
+
+template <class ProbNode, class Distrib = node_distrib_t<ProbNode>>
 void set_value(ProbNode& node, std::vector<typename Distrib::T> values) {
     static_assert(is_node_array<ProbNode>::value, "this set_value overload expects an array!");
     assert(values.size() == get<value>(node).size());
