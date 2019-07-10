@@ -242,6 +242,9 @@ TEST_CASE("Basic model test") {
                1, 2.0);
 }
 
+TOKEN(tok1);
+TOKEN(tok2);
+
 TEST_CASE("new view operation") {  // acts as a test for across_value for views as well
     auto n = make_node<poisson>(1.0);
     set_value(n, 0);
@@ -251,6 +254,14 @@ TEST_CASE("new view operation") {  // acts as a test for across_value for views 
     auto vn = view(n);
     auto va = view(a);
     auto va2 = view(a, 1);
+    auto m = []() {
+        auto n1 = make_node<poisson>(1.0);
+        set_value(n1, 0);
+        auto n2 = make_node<exponential>(1.0);
+        set_value(n2, 0);
+        return make_model(tok1_ = std::move(n1), tok2_ = std::move(n2));
+    }();
+    auto vm = view(m);
 
     auto set_to = [](int x) { return [x](auto& value) { value = x; }; };
     across_values(vn, set_to(1));
@@ -263,6 +274,9 @@ TEST_CASE("new view operation") {  // acts as a test for across_value for views 
     CHECK(raw_value(a, 0) == 1);
     CHECK(raw_value(a, 1) == 2);
     CHECK(raw_value(a, 2) == 1);
+    across_values(vm, set_to(1));
+    CHECK(raw_value(tok1_(m)) == 1);
+    CHECK(raw_value(tok2_(m)) == 1);
 }
 
 TEST_CASE("Forall on views") {
@@ -292,8 +306,6 @@ TEST_CASE("Basic view test") {
                },
                1, 2.0);
 }
-
-TOKEN(tok1);
 
 TEST_CASE("Views with indices") {
     // auto gen = make_generator();

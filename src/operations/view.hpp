@@ -34,9 +34,19 @@ namespace overloads {
         return make_view(Ref<Node, Index>{node, index});
     }
 
+    template <class Model, class... Tags>
+    auto view_model_helper(Model& m, std::tuple<Tags...>) {
+        return make_view(make_ref<Tags>(m)...);
+    }
+
+    template <class Model>
+    auto view(model_tag, Model& m, NoIndex) {
+        return view_model_helper(m, map_key_list_t<field_map_t<Model>>());
+    }
+
 };  // namespace overloads
 
 template <class T, class... Args>
-auto view(T&& x, Args&&... args) {
+auto view(T& x, Args&&... args) {
     return overloads::view(type_tag(x), x, make_index(std::forward<Args>(args)...));
 }
