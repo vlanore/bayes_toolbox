@@ -35,6 +35,7 @@ struct View {
                   "View template params should only be refs");
 
     View(tuple_construct, Refs&&... refs) : refs(std::forward<Refs>(refs)...) {}
+    View(std::tuple<Refs...>&& refs) : refs(std::forward<std::tuple<Refs...>>(refs)) {}
     std::tuple<Refs...> refs;
     static constexpr size_t size() { return sizeof...(Refs); }
 };
@@ -50,10 +51,22 @@ auto make_view(Refs&&... refs) {
     return View<Refs...>(tuple_construct(), std::forward<Refs>(refs)...);
 }
 
+template <class... Refs>
+auto make_view(std::tuple<Refs...>&& refs) {
+    return View<Refs...>(std::forward<std::tuple<Refs...>>(refs));
+}
+
 template <class... Tags, class Model>
 auto make_view(Model& model) {  // @todo: maybe this version is not necessary (too specific)
     static_assert(is_model<Model>::value, "Expected a reference to a prob model");
     return make_view(make_ref<Tags>(model)...);
+}
+
+template <class... Views>
+auto view_cat(Views&&... vs) {
+    static_assert(list_and<is_view, type_list<std::remove_reference_t<Views>...>>::value,
+                  "expected only views");
+    return make_view(std::tuple_cat(vs.refs...));
 }
 
 template <class View, class F, size_t... Is>

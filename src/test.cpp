@@ -262,21 +262,21 @@ TEST_CASE("new view operation") {  // acts as a test for across_value for views 
         return make_model(tok1_ = std::move(n1), tok2_ = std::move(n2));
     }();
     auto vm = view(m);
+    auto vna2 = view_cat(vn, va2);
 
+    using iv = std::vector<size_t>;
     auto set_to = [](int x) { return [x](auto& value) { value = x; }; };
     across_values(vn, set_to(1));
     CHECK(raw_value(n) == 1);
     across_values(va, set_to(1));
-    CHECK(raw_value(a, 0) == 1);
-    CHECK(raw_value(a, 1) == 1);
-    CHECK(raw_value(a, 2) == 1);
+    CHECK(iv{raw_value(a, 0), raw_value(a, 1), raw_value(a, 2)} == iv{1, 1, 1});
     across_values(va2, set_to(2));
-    CHECK(raw_value(a, 0) == 1);
-    CHECK(raw_value(a, 1) == 2);
-    CHECK(raw_value(a, 2) == 1);
+    CHECK(iv{raw_value(a, 0), raw_value(a, 1), raw_value(a, 2)} == iv{1, 2, 1});
     across_values(vm, set_to(1));
     CHECK(raw_value(tok1_(m)) == 1);
     CHECK(raw_value(tok2_(m)) == 1);
+    across_values(vna2, set_to(3));
+    CHECK(iv{raw_value(n), raw_value(a, 0), raw_value(a, 1), raw_value(a, 2)} == iv{3, 1, 3, 1});
 }
 
 TEST_CASE("Forall on views") {
