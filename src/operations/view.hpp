@@ -31,12 +31,12 @@ license and that you accept its terms.*/
 namespace overloads {
     template <class Node, class Index = NoIndex>
     auto view(node_tag, Node& node, Index index = Index{}) {
-        return Ref<Node, Index>{node, index};
+        return make_view(Ref<Node, Index>{node, index});
     }
 
 };  // namespace overloads
 
 template <class T, class... Args>
 auto view(T&& x, Args&&... args) {
-    return overloads::view(type_tag(x), x, std::forward<Args>(args)...);
+    return overloads::view(type_tag(x), x, make_index(std::forward<Args>(args)...));
 }

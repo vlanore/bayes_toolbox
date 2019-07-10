@@ -242,13 +242,27 @@ TEST_CASE("Basic model test") {
                1, 2.0);
 }
 
-TEST_CASE("new view operation") {
+TEST_CASE("new view operation") {  // acts as a test for across_value for views as well
     auto n = make_node<poisson>(1.0);
+    set_value(n, 0);
     auto a = make_node_array<poisson>(3, n_to_constant(1.0));
+    set_value(a, {0, 0, 0});
 
     auto vn = view(n);
     auto va = view(a);
     auto va2 = view(a, 1);
+
+    auto set_to = [](int x) { return [x](auto& value) { value = x; }; };
+    across_values(vn, set_to(1));
+    CHECK(raw_value(n) == 1);
+    across_values(va, set_to(1));
+    CHECK(raw_value(a, 0) == 1);
+    CHECK(raw_value(a, 1) == 1);
+    CHECK(raw_value(a, 2) == 1);
+    across_values(va2, set_to(2));
+    CHECK(raw_value(a, 0) == 1);
+    CHECK(raw_value(a, 1) == 2);
+    CHECK(raw_value(a, 2) == 1);
 }
 
 TEST_CASE("Forall on views") {
