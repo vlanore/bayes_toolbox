@@ -26,8 +26,8 @@ license and that you accept its terms.*/
 
 #pragma once
 
+#include "Ref.hpp"
 #include "introspection.hpp"
-#include "reference.hpp"
 #include "suffstat_utils.hpp"
 #include "view.hpp"
 
@@ -65,6 +65,6 @@ auto type_tag(const view<Refs...>&) {
 }
 
 template <class Node, class Index>
-auto type_tag(const ref<Node, Index>&) {
+auto type_tag(const Ref<Node, Index>&) {
     return ref_tag();
 }

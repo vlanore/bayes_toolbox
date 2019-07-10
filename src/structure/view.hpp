@@ -26,8 +26,8 @@ license and that you accept its terms.*/
 
 #pragma once
 
+#include "Ref.hpp"
 #include "model.hpp"
-#include "reference.hpp"
 
 template <class... Refs>
 struct view {
