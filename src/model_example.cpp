@@ -34,8 +34,8 @@ license and that you accept its terms.*/
 #include "operations/logprob.hpp"
 #include "operations/raw_value.hpp"
 #include "operations/set_value.hpp"
+#include "structure/View.hpp"
 #include "structure/array_utils.hpp"
-#include "structure/view.hpp"
 #include "suffstat_utils.hpp"
 #include "tagged_tuple/src/fancy_syntax.hpp"
 using namespace std;

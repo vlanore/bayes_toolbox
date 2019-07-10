@@ -26,45 +26,27 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "raw_value.hpp"
-#include "structure/View.hpp"
-#include "structure/node.hpp"
+#include <type_traits>
+#include "index.hpp"
+#include "model.hpp"
+#include "tagged_tuple/src/tagged_tuple.hpp"
 
-namespace overloads {
-    template <class Node, class F>
-    void across_values(lone_node_tag, Node& n, const F& f, NoIndex) {
-        f(raw_value(n));
-    }
+template <class Node, class Index>
+struct Ref {
+    Node& node_ref;
+    Index index;
+    Ref(Node& node_ref, Index index) : node_ref(node_ref), index(index) {}
+};
 
-    template <class Array, class F>
-    void across_values(node_array_tag, Array& a, const F& f, NoIndex) {
-        for (auto e : get<value>(a)) { f(e); }
-    }
-
-    template <class Array, class F>
-    void across_values(node_array_tag, Array& a, const F& f, ArrayIndex index) {
-        f(raw_value(a, index));
-    }
-
-    template <class Matrix, class F>
-    void across_values(node_matrix_tag, Matrix& m, const F& f, NoIndex) {
-        for (auto v : get<value>(m)) {
-            for (auto e : v) { f(e); }
-        }
-    }
-
-    template <class Matrix, class F>
-    void across_values(node_matrix_tag, Matrix& m, const F& f, ArrayIndex index) {
-        for (auto e : get<value>(m)[index.i]) { f(e); }
-    }
-
-    template <class Matrix, class F>
-    void across_values(node_matrix_tag, Matrix& m, const F& f, MatrixIndex index) {
-        f(raw_value(m, index));
-    }
-};  // namespace overloads
-
-template <class T, class F, class... IndexArgs>
-void across_values(T& x, F&& f, IndexArgs... args) {
-    overloads::across_values(type_tag(x), x, std::forward<F>(f), make_index(args...));
+template <class Tag, class Model, class Index = NoIndex>
+auto make_ref(Model& m, Index index = Index{}) {
+    static_assert(is_model<Model>::value, "expected a prob model");
+    using NodeType = field_type<Tag, Model>;
+    return Ref<NodeType, Index>(get<Tag>(m), index);
 }
+
+template <class T>
+struct is_ref : std::false_type {};
+
+template <class Node, class Index>
+struct is_ref<Ref<Node, Index>> : std::true_type {};

@@ -39,9 +39,9 @@ license and that you accept its terms.*/
 #include "operations/backup.hpp"
 #include "operations/logprob.hpp"
 #include "operations/raw_value.hpp"
+#include "structure/View.hpp"
 #include "structure/array_utils.hpp"
 #include "structure/type_tag.hpp"
-#include "structure/view.hpp"
 #include "suffstat_utils.hpp"
 #include "tagged_tuple/src/fancy_syntax.hpp"
 using namespace std;

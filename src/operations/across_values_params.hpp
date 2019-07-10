@@ -27,8 +27,8 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "raw_value.hpp"
+#include "structure/View.hpp"
 #include "structure/node.hpp"
-#include "structure/view.hpp"
 
 namespace overloads {
     template <class T, class F, class Params, class... Keys, class... Indexes>

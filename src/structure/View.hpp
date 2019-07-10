@@ -30,11 +30,11 @@ license and that you accept its terms.*/
 #include "model.hpp"
 
 template <class... Refs>
-struct view {
+struct View {
     static_assert(list_and<is_ref, type_list<Refs...>>::value,
                   "View template params should only be refs");
 
-    view(tuple_construct, Refs&&... refs) : refs(std::forward<Refs>(refs)...) {}
+    View(tuple_construct, Refs&&... refs) : refs(std::forward<Refs>(refs)...) {}
     std::tuple<Refs...> refs;
     static constexpr size_t size() { return sizeof...(Refs); }
 };
@@ -43,11 +43,11 @@ template <class T>
 struct is_view : std::false_type {};
 
 template <class... Refs>
-struct is_view<view<Refs...>> : std::true_type {};
+struct is_view<View<Refs...>> : std::true_type {};
 
 template <class... Refs>
 auto make_view(Refs&&... refs) {
-    return view<Refs...>(tuple_construct(), std::forward<Refs>(refs)...);
+    return View<Refs...>(tuple_construct(), std::forward<Refs>(refs)...);
 }
 
 template <class... Tags, class Model>

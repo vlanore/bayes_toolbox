@@ -27,9 +27,9 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "Ref.hpp"
+#include "View.hpp"
 #include "introspection.hpp"
 #include "suffstat_utils.hpp"
-#include "view.hpp"
 
 template <class T>
 auto type_tag(const T&) {
@@ -60,7 +60,7 @@ auto type_tag(const tagged_tuple<MD, Fields...>&) {
 }
 
 template <class... Refs>
-auto type_tag(const view<Refs...>&) {
+auto type_tag(const View<Refs...>&) {
     return view_tag();
 }
 
