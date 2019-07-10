@@ -39,6 +39,7 @@ license and that you accept its terms.*/
 #include "operations/backup.hpp"
 #include "operations/logprob.hpp"
 #include "operations/raw_value.hpp"
+#include "operations/view.hpp"
 #include "structure/View.hpp"
 #include "structure/array_utils.hpp"
 #include "structure/type_tag.hpp"
@@ -239,6 +240,15 @@ TEST_CASE("Basic model test") {
                    draw(get<n2>(m), gen);
                },
                1, 2.0);
+}
+
+TEST_CASE("new view operation") {
+    auto n = make_node<poisson>(1.0);
+    auto a = make_node_array<poisson>(3, n_to_constant(1.0));
+
+    auto vn = view(n);
+    auto va = view(a);
+    auto va2 = view(a, 1);
 }
 
 TEST_CASE("Forall on views") {
