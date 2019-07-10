@@ -28,6 +28,7 @@ license and that you accept its terms.*/
 
 #include <type_traits>
 #include "index.hpp"
+#include "model.hpp"
 #include "tagged_tuple/src/tagged_tuple.hpp"
 
 template <class Node, class Index>
@@ -39,6 +40,7 @@ struct ref {
 
 template <class Tag, class Model, class Index = NoIndex>
 auto make_ref(Model& m, Index index = Index{}) {
+    static_assert(is_model<Model>::value, "expected a prob model");
     using NodeType = field_type<Tag, Model>;
     return ref<NodeType, Index>(get<Tag>(m), index);
 }
