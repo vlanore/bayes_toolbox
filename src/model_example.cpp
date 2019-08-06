@@ -73,7 +73,7 @@ void scaling_move(Node& node, MB blanket, Gen& gen, IndexArgs... args) {
 int main() {
     auto gen = make_generator();
 
-    constexpr int nb_it{100'000}, len_lambda{5}, len_K{3};
+    constexpr size_t nb_it{100'000}, len_lambda{5}, len_K{3};
     auto m = poisson_gamma(len_lambda, len_K);
 
     auto v = make_view<alpha, mu, lambda>(m);
@@ -82,7 +82,7 @@ int main() {
 
     double alpha_sum{0}, mu_sum{0}, lambda_sum{0};
 
-    for (int it = 0; it < nb_it; it++) {
+    for (size_t it = 0; it < nb_it; it++) {
         scaling_move(alpha_(m), make_view<alpha, lambda>(m), gen);
         scaling_move(mu_(m), make_view<mu, lambda>(m), gen);
         alpha_sum += raw_value(alpha_(m));
@@ -95,6 +95,7 @@ int main() {
         }
     }
 
-    std::cout << "alpha = " << alpha_sum / float(nb_it) << ", mu = " << mu_sum / float(nb_it) << std::endl;
+    std::cout << "alpha = " << alpha_sum / float(nb_it) << ", mu = " << mu_sum / float(nb_it)
+              << std::endl;
     std::cout << "lambda = " << lambda_sum / (float(nb_it) * 5) << std::endl;
 }
