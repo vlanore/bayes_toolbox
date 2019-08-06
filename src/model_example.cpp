@@ -97,5 +97,5 @@ int main() {
 
     std::cout << "alpha = " << alpha_sum / float(nb_it) << ", mu = " << mu_sum / float(nb_it)
               << std::endl;
-    std::cout << "lambda = " << lambda_sum / (float(nb_it) * 5) << std::endl;
+    std::cout << "lambda = " << lambda_sum / (float(nb_it) * len_lambda) << std::endl;
 }

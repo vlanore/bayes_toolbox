@@ -318,27 +318,6 @@ TEST_CASE("Views with indices") {
     // TODO !
 }
 
-// TEST_CASE("Suffstats") {
-//     auto array = make_node_array<poisson>(5, n_to_constant(1.0));
-//     set_value(array, 1, 2, 3, 4, 5);
-//     auto ss = make_suffstat<poisson_suffstat>(array);
-//     CHECK(!is_up_to_date(ss));
-
-//     gather(ss);
-//     CHECK(get<suffstat>(ss).sum == 15);
-//     CHECK(get<suffstat>(ss).N == 5);
-//     CHECK(is_up_to_date(ss));
-
-//     set_value(array, 1, 1, 1, 1, 1);
-//     CHECK(!is_up_to_date(ss));
-//     gather(ss);
-//     CHECK(get<suffstat>(ss).sum == 5);
-//     CHECK(is_up_to_date(ss));
-
-//     CHECK(get<params, rate>(ss)(0) == 1.0);
-//     CHECK(logprob(ss) == logprob(array));
-// }
-
 TEST_CASE("type_tag") {
     auto a = make_node<exponential>(1);
     auto ss = make_suffstat<gamma_ss_suffstats>(a);

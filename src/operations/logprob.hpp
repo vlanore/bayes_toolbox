@@ -31,6 +31,12 @@ license and that you accept its terms.*/
 #include "structure/type_tag.hpp"
 
 namespace overloads {
+    template <class Node, class... Keys>
+    double compute_array_logprob(Node& node, std::tuple<Keys...>) {
+        return node_distrib_t<Node>::array_logprob(get<value>(node),
+                                                   get<Keys...>(get<params>(node))());
+    }
+
     template <class Node, class Index>
     double select_logprob(std::false_type /* no array lprob */, node_tag, Node& node, Index index) {
         double result = 0;
@@ -39,12 +45,6 @@ namespace overloads {
         };
         across_values_params(node, f, index);
         return result;
-    }
-
-    template <class Node, class... Keys>
-    double compute_array_logprob(Node& node, std::tuple<Keys...>) {
-        return node_distrib_t<Node>::array_logprob(get<value>(node),
-                                                   get<Keys...>(get<params>(node))());
     }
 
     template <class Node>
@@ -56,7 +56,7 @@ namespace overloads {
     double logprob(node_tag, Node& node, Index index) {
         return select_logprob(has_array_logprob<node_distrib_t<Node>>(), type_tag(node), node,
                               index);
-    }  // namespace overloads
+    }
 
     template <class View>
     double logprob(view_tag, View& view, NoIndex = NoIndex()) {
