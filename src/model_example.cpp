@@ -51,8 +51,13 @@ auto poisson_gamma(size_t size, size_t size2) {
     auto lambda = make_node_array<gamma_ss>(size, n_to_one(alpha), n_to_one(mu));
     auto K = make_node_matrix<poisson>(size, size2,
                                        [& v = get<value>(lambda)](int i, int) { return v[i]; });
-
-    return make_model(alpha_ = move(alpha), mu_ = move(mu), lambda_ = move(lambda), K_ = move(K));
+    // clang-format off
+    return make_model(
+         alpha_ = move(alpha),
+            mu_ = move(mu),
+        lambda_ = move(lambda),
+             K_ = move(K)
+    );  // clang-format on
 }
 
 template <class Node, class MB, class Gen, class... IndexArgs>
@@ -68,7 +73,8 @@ void scaling_move(Node& node, MB blanket, Gen& gen, IndexArgs... args) {
 int main() {
     auto gen = make_generator();
 
-    auto m = poisson_gamma(5, 3);
+    constexpr int nb_it{100'000}, len_lambda{5}, len_K{3};
+    auto m = poisson_gamma(len_lambda, len_K);
 
     auto v = make_view<alpha, mu, lambda>(m);
     draw(v, gen);
@@ -76,7 +82,7 @@ int main() {
 
     double alpha_sum{0}, mu_sum{0}, lambda_sum{0};
 
-    for (int it = 0; it < 100'000; it++) {
+    for (int it = 0; it < nb_it; it++) {
         scaling_move(alpha_(m), make_view<alpha, lambda>(m), gen);
         scaling_move(mu_(m), make_view<mu, lambda>(m), gen);
         alpha_sum += raw_value(alpha_(m));
@@ -89,6 +95,6 @@ int main() {
         }
     }
 
-    std::cout << "alpha = " << alpha_sum / 100'000. << ", mu = " << mu_sum / 100'000. << std::endl;
-    std::cout << "lambda = " << lambda_sum / (100'000. * 5) << std::endl;
+    std::cout << "alpha = " << alpha_sum / float(nb_it) << ", mu = " << mu_sum / float(nb_it) << std::endl;
+    std::cout << "lambda = " << lambda_sum / (float(nb_it) * 5) << std::endl;
 }
