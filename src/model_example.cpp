@@ -76,7 +76,7 @@ int main() {
 
     double alpha_sum{0}, mu_sum{0}, lambda_sum{0};
 
-    for (int it = 0; it < 100000; it++) {
+    for (int it = 0; it < 100'000; it++) {
         scaling_move(alpha_(m), make_view<alpha, lambda>(m), gen);
         scaling_move(mu_(m), make_view<mu, lambda>(m), gen);
         alpha_sum += raw_value(alpha_(m));
@@ -89,6 +89,6 @@ int main() {
         }
     }
 
-    std::cout << "alpha = " << alpha_sum / 100000. << ", mu = " << mu_sum / 100000. << std::endl;
-    std::cout << "lambda = " << lambda_sum / (100000. * 5) << std::endl;
+    std::cout << "alpha = " << alpha_sum / 100'000. << ", mu = " << mu_sum / 100'000. << std::endl;
+    std::cout << "lambda = " << lambda_sum / (100'000. * 5) << std::endl;
 }
