@@ -71,7 +71,7 @@ namespace overloads {
         // @todo: transmit index
         forall_in_view(view, [&gen](auto& node, NoIndex) { draw(node, gen); });
     }
-};  // namespace overloads
+}  // namespace overloads
 
 template <class T, class... IndexArgs, class Gen>
 void draw(T& x, Gen& gen, IndexArgs... args) {

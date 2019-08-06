@@ -40,10 +40,10 @@ license and that you accept its terms.*/
 #include "tagged_tuple/src/fancy_syntax.hpp"
 using namespace std;
 
-TOKEN(alpha);
-TOKEN(mu);
-TOKEN(lambda);
-TOKEN(K);
+TOKEN(alpha)
+TOKEN(mu)
+TOKEN(lambda)
+TOKEN(K)
 
 auto poisson_gamma(size_t size, size_t size2) {
     auto alpha = make_node<exponential>(1.0);

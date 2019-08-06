@@ -242,8 +242,8 @@ TEST_CASE("Basic model test") {
                1, 2.0);
 }
 
-TOKEN(tok1);
-TOKEN(tok2);
+TOKEN(tok1)
+TOKEN(tok2)
 
 TEST_CASE("new view operation") {  // acts as a test for across_value for views as well
     auto n = make_node<poisson>(1.0);

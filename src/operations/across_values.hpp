@@ -67,7 +67,7 @@ namespace overloads {
     void across_values(view_tag, View& v, const F& f, NoIndex) {
         forall_in_view(v, [&f](auto& node, auto index) { across_values(node, f, index); });
     }
-};  // namespace overloads
+}  // namespace overloads
 
 template <class T, class F, class... IndexArgs>
 void across_values(T& x, F&& f, IndexArgs... args) {

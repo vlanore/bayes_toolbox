@@ -79,7 +79,7 @@ namespace overloads {
         using keys = param_keys_t<node_distrib_t<Matrix>>;
         unpack_params(raw_value(m, index.i, index.j), f, get<params>(m), keys(), index.i, index.j);
     }
-};  // namespace overloads
+}  // namespace overloads
 
 template <class T, class F, class... IndexArgs>
 void across_values_params(T& x, F&& f, IndexArgs... args) {

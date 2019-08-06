@@ -101,7 +101,7 @@ namespace helper {
 
         return push_front<field_tag>(std::move(param), recursive_call);
     }
-};  // namespace helper
+}  // namespace helper
 
 //==================================================================================================
 template <class Distrib, class... ParamArgs>

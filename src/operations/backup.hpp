@@ -50,7 +50,7 @@ namespace overloads {
         return raw_value(node, index);
     }
 
-};  // namespace overloads
+}  // namespace overloads
 
 template <class T, class... IndexArgs>
 auto backup(T& x, IndexArgs... args) {
@@ -85,7 +85,7 @@ namespace overloads {
     auto restore(node_tag, T& node, V& backup, Index index) {
         raw_value(node, index) = backup;
     }
-};  // namespace overloads
+}  // namespace overloads
 
 template <class T, class Backup, class... IndexArgs>
 void restore(T& x, Backup& b, IndexArgs... args) {

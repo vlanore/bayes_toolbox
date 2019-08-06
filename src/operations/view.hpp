@@ -44,7 +44,7 @@ namespace overloads {
         return view_model_helper(m, map_key_list_t<field_map_t<Model>>());
     }
 
-};  // namespace overloads
+}  // namespace overloads
 
 template <class T, class... Args>
 auto view(T& x, Args&&... args) {

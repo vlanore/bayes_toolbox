@@ -51,7 +51,7 @@ namespace overloads {
         assert(index.j >= 0 and index.j < v.at(0).size());
         return v[index.i][index.j];
     }
-};  // namespace overloads
+}  // namespace overloads
 
 template <class T, class... Rest>
 auto& raw_value(T& t, Rest... rest) {
@@ -81,7 +81,7 @@ namespace overloads {
         assert(index.j >= 0 and index.j < v.at(0).size());
         return v[index.i][index.j];
     }
-};  // namespace overloads
+}  // namespace overloads
 
 template <class T, class... Rest>
 const auto& raw_value(const T& t, Rest... rest) {

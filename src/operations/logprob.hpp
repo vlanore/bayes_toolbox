@@ -64,7 +64,7 @@ namespace overloads {
         forall_in_view(view, [&result](auto& node, auto index) { result += logprob(node, index); });
         return result;
     }
-};  // namespace overloads
+}  // namespace overloads
 
 template <class T, class... Rest>
 double logprob(T& x, Rest... rest) {
