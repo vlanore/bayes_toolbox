@@ -47,6 +47,7 @@ format:
 # ==============================================================================================================
 .PHONY: test
 test: all
-	@echo "" && _build/basic_test
-	@time -f"%E" _build/poisson_gamma
+	@echo && _build/basic_test
+	@echo && _build/new_test
+	@echo && time -f"%E" _build/poisson_gamma
 
