@@ -88,3 +88,27 @@ using node_distrib_t = metadata_get_property<struct distrib, metadata_t<Node>>;
 
 template <class Distrib>
 using param_keys_t = map_key_list_t<typename Distrib::param_decl>;
+
+//==================================================================================================
+// model traits
+
+template <class T>
+struct is_model : std::false_type {};
+
+template <class MD, class... Fields>
+struct is_model<tagged_tuple<MD, Fields...>> : metadata_has_tag<model_tag, MD> {};
+
+template <class M>
+using model_nodes = map_key_list_t<field_map_t<M>>;
+
+//==================================================================================================
+// view traits
+
+template <class...>
+struct View; // forward-decl to avoid silly include
+
+template <class T>
+struct is_view : std::false_type {};
+
+template <class... Refs>
+struct is_view<View<Refs...>> : std::true_type {};

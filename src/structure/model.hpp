@@ -39,12 +39,3 @@ template <class Tag, class... Args>
 auto node(Args&&... args) {
     return move_field<Tag>(std::forward<Args>(args)...);
 }
-
-template <class T>
-struct is_model : std::false_type {};
-
-template <class MD, class... Fields>
-struct is_model<tagged_tuple<MD, Fields...>> : metadata_has_tag<model_tag, MD> {};
-
-template <class M>
-using model_nodes = map_key_list_t<field_map_t<M>>;

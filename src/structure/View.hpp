@@ -40,12 +40,6 @@ struct View {
     static constexpr size_t size() { return sizeof...(Refs); }
 };
 
-template <class T>
-struct is_view : std::false_type {};
-
-template <class... Refs>
-struct is_view<View<Refs...>> : std::true_type {};
-
 template <class... Refs>
 auto make_view(Refs&&... refs) {
     return View<Refs...>(tuple_construct(), std::forward<Refs>(refs)...);

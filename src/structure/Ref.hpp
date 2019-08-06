@@ -28,6 +28,7 @@ license and that you accept its terms.*/
 
 #include <type_traits>
 #include "index.hpp"
+#include "introspection.hpp"
 #include "model.hpp"
 #include "tagged_tuple/src/tagged_tuple.hpp"
 
