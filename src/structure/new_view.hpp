@@ -27,11 +27,31 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <tuple>
+#include "structure/introspection.hpp"
+#include "structure/type_tag.hpp"
 
-// view : tuple of things which can be iterated on down to nodes
-// @todo: add node_iterable (and node_param_iterable) as traits for checking
+template <class T>
+auto get_apply_single(T& x) {
+    return [&x](auto& f) { f(raw_value(x)); };
+}
 
-template <class... Elements>
-struct NewView {
-    std::tuple<Elements...> data;
-};
+template <class T>
+auto get_apply_array(T& x) {
+    static_assert(is_node_array<T>::value, "Expects node array");
+    return [&v = get<value>(x)](auto&& f) {
+        for (auto& e : v) { f(e); }
+    };
+}
+
+template <class F, class... Ts, size_t... Is>
+void apply_to_tuple_helper(F f, std::tuple<Ts...> t, std::index_sequence<Is...>) {
+    std::vector<int> ignore = {(f(get<Is>(t)), 0)...};
+}
+
+template <class... Ts>
+auto get_apply_collection(Ts&&... xs) {
+    return [col = std::make_tuple(std::forward<Ts>(xs)...)](auto&& f) {
+        apply_to_tuple_helper(std::forward<decltype(f)>(f), col,
+                              std::make_index_sequence<sizeof...(Ts)>());
+    };
+}

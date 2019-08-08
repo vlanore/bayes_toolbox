@@ -28,4 +28,42 @@ license and that you accept its terms.*/
 
 #include "doctest.h"
 
+#include "distributions/gamma.hpp"
+#include "distributions/poisson.hpp"
+#include "operations/raw_value.hpp"
+#include "structure/array_utils.hpp"
+#include "structure/new_view.hpp"
+#include "structure/node.hpp"
 using namespace std;
+
+TEST_CASE("Iterating over nodes") {
+    // auto n = make_node<poisson>(1.0);
+    // set_value(n, 3);
+    auto f = [](auto& rv) { cout << rv << "\n"; };
+
+    // auto apply_to_n = single_apply(n);
+    // apply_to_n(f);
+
+    auto a = make_node<poisson>(1.0);
+    auto b = make_node_array<gamma_ss>(3, n_to_constant(1.0), n_to_constant(1.0));
+
+    auto a_it = get_apply_single(a);
+    auto b_it = get_apply_array(b);
+
+    set_value(a, 3);
+    set_value(b, {7.1, 8.2, 9.3});
+
+    a_it(f);
+    b_it(f);
+
+    auto all_it = get_apply_collection(a_it, b_it);
+    auto aaaa = [f](auto& x) { x(f); };
+
+    all_it(aaaa);
+
+    // auto a_it = make_iterator(a);
+    // iterate_values(a_it, f);
+
+    // auto v = make_dview(a, b);
+    // iterate_values(v, f);
+}

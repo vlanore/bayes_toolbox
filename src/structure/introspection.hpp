@@ -105,7 +105,7 @@ using model_nodes = map_key_list_t<field_map_t<M>>;
 // view traits
 
 template <class...>
-struct View; // forward-decl to avoid silly include
+struct View;  // forward-decl to avoid silly include
 
 template <class T>
 struct is_view : std::false_type {};
