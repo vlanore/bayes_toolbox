@@ -36,6 +36,16 @@ license and that you accept its terms.*/
 #include "structure/node.hpp"
 using namespace std;
 
+TEST_CASE("is_iterator") {
+    auto f = []() {};
+    auto g = [](auto&&) {};
+    auto h = [](auto, auto) {};
+
+    CHECK(!is_itfunc<decltype(f)>::value);
+    CHECK(is_itfunc<decltype(g)>::value);
+    CHECK(!is_itfunc<decltype(h)>::value);
+}
+
 TEST_CASE("Iterating over nodes") {
     auto f = [](auto& rv) { cout << rv << "\n"; };
 
@@ -53,21 +63,10 @@ TEST_CASE("Iterating over nodes") {
 
     auto all_it = node_collection(a, b);
 
-    // CHECK(is_node_iterator<decltype(all_it)>::value);
-    // CHECK(!is_node_iterator<decltype(a_it)>::value);
-
-    // using t = decltype(std::declval<decltype(a_it)>()(helper::node_tester{}));
-
+    // auto g = [](int& i) { cout << i << endl; };
     // auto g = [](auto f) {
     //     int i = 2;
     //     f(i);
     // };
-    // CHECK(!is_node_iterator<decltype(g)>::value);
-
-    
-    // auto bad_it = make_node_view(g);
-
-    // auto rev_apply = [f](auto& x) { x(f); };
-
-    // all_it(rev_apply);
+    // auto bad_it = make_node_view(g); // triggers static_asserts
 }

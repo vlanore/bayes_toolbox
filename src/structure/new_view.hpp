@@ -30,12 +30,12 @@ license and that you accept its terms.*/
 #include "structure/type_tag.hpp"
 
 /*==================================================================================================
-~~ Node views ~~
+~~ Static function checking ~~
 ==================================================================================================*/
 namespace helper {
     // --
     template <template <class> class Trait>
-    struct trait_checker {
+    struct trait_checker_functor {
         template <class T>
         void operator()(T&&) {
             static_assert(Trait<std::decay_t<T>>::value,
@@ -45,12 +45,31 @@ namespace helper {
         }
     };
 
-    template <template <class> class Trait, class ItF>
-    struct check_iterator_type {
-        using type = decltype(std::declval<ItF>()(trait_checker<Trait>{}));
+    struct generic_test_functor {
+        template <class T>
+        void operator()(T&&) {}
     };
 }  // namespace helper
 
+template <class T, class = void>
+struct is_itfunc : std::false_type {};
+
+template <class T>
+struct is_itfunc<T, to_void<decltype(std::declval<T>()(helper::generic_test_functor{}))>>
+    : std::true_type {};
+
+// Checks that ItF
+template <template <class> class Trait, class ItF>
+struct check_itfunc_type {
+    static_assert(is_itfunc<ItF>::value,
+                  "BAYES_TOOLBOX ERROR: Trying to build a view with a function that cannot accept "
+                  "functions as arguments.");
+    using type = decltype(std::declval<ItF>()(helper::trait_checker_functor<Trait>{}));
+};
+
+/*==================================================================================================
+~~ Node views ~~
+==================================================================================================*/
 template <class ItF>  // ItF: iteration function
 struct node_view {
     ItF itf;
@@ -61,7 +80,7 @@ struct node_view {
     }
 
     // checks that itf actually iterates over nodes
-    using check = typename helper::check_iterator_type<is_node, ItF>::type;
+    using check_itf = typename check_itfunc_type<is_node, ItF>::type;
 };
 
 template <class ItF>
