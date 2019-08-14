@@ -73,3 +73,20 @@ TEST_CASE("Iterating over nodes") {
     // };
     // auto bad_it = make_node_view(g); // triggers static_asserts
 }
+
+TEST_CASE("ith_element") {
+    auto a = make_node_array<poisson>(3, n_to_constant(1.0));
+    set_value(a, {11, 12, 13});
+
+    auto v = ith_element(a);
+    auto v2 = ith_element<1>(a);  //@todo: replace by jth_element?
+
+    int sum = 0;
+    auto f = [&sum](auto& value) { sum += value; };
+
+    v(f, 0);       // 11
+    v(f, 1);       // 12
+    v(f, 2);       // 13
+    v2(f, 17, 1);  // 12
+    CHECK(sum == (11 + 12 + 13 + 12));
+}

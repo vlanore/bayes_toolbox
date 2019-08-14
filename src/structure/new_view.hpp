@@ -106,17 +106,31 @@ auto node_collection(Nodes&... nodes) {
 /*==================================================================================================
 ~~ Value views ~~
 ==================================================================================================*/
-// template <class ItF>  // ItF: iteration function
-// struct ValueView {
-//     ItF itf;
+template <class ItF>  // ItF: iteration function
+struct ValueView {
+    ItF itf;
 
-//     template <class F>
-//     void operator()(F&& f) {
-//         itf(std::forward<F>(f));
-//     }
+    template <class... Args>
+    void operator()(Args&&... args) {
+        itf(std::forward<Args>(args)...);
+    }
 
-//     // @todo check itf
-// };
+    // @todo check itf
+};
+
+template <class ItF>
+auto make_value_view(ItF&& itf) {
+    return ValueView<ItF>{std::forward<ItF>(itf)};
+}
+
+template <size_t index_index = 0, class Node>  // for multi-variable view collections
+auto ith_element(Node& node) {
+    static_assert(is_node_array<Node>::value, "Expects a node array");
+    return make_value_view([&v = get<value>(node)](auto&& f, auto... indexes) {
+        size_t i = get<index_index>(std::forward_as_tuple(indexes...));
+        f(v[i]);
+    });
+}
 
 // /*==================================================================================================
 // ~~ Value-index views ~~
