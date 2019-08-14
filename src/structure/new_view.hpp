@@ -30,7 +30,7 @@ license and that you accept its terms.*/
 #include "structure/type_tag.hpp"
 
 /*==================================================================================================
-~~ Static function checking ~~
+~~ Static itfunc checking ~~
 ==================================================================================================*/
 namespace helper {
     // --
@@ -55,7 +55,8 @@ template <class T, class = void>
 struct is_itfunc : std::false_type {};
 
 template <class T>
-struct is_itfunc<T, to_void<decltype(std::declval<T>()(helper::generic_test_functor{}))>>
+struct is_itfunc<T, to_void<decltype(std::declval<T>()(helper::generic_test_functor{})),
+                            decltype(std::declval<T>()(helper::generic_test_functor{}, 0, 1))>>
     : std::true_type {};
 
 // Checks that ItF
@@ -70,22 +71,22 @@ struct check_itfunc_type {
 /*==================================================================================================
 ~~ Node views ~~
 ==================================================================================================*/
-template <class ItF>  // ItF: iteration function
-struct NodeView {
+template <template <class> class Trait, class ItF>  // ItF: iteration function
+struct TraitView {
     ItF itf;
 
-    template <class F>
-    void operator()(F&& f) {
-        itf(std::forward<F>(f));
+    template <class... Args>
+    void operator()(Args&&... args) {
+        itf(std::forward<Args>(args)...);
     }
 
     // checks that itf actually iterates over nodes
-    using check_itf = typename check_itfunc_type<is_node, ItF>::type;
+    using check_itf = typename check_itfunc_type<Trait, ItF>::type;
 };
 
-template <class ItF>
-auto make_node_view(ItF&& itf) {
-    return NodeView<ItF>{std::forward<ItF>(itf)};
+template <template <class> class Trait, class ItF>
+auto make_trait_view(ItF&& itf) {
+    return TraitView<Trait, ItF>{std::forward<ItF>(itf)};
 }
 
 template <class F, class... Ts, size_t... Is>
@@ -96,7 +97,7 @@ void apply_to_tuple_helper(F f, std::tuple<Ts...> t, std::index_sequence<Is...>)
 
 template <class... Nodes>
 auto node_collection(Nodes&... nodes) {
-    return make_node_view([col = std::tuple<Nodes&...>(nodes...)](auto&& f) {
+    return make_trait_view<is_node>([col = std::tuple<Nodes&...>(nodes...)](auto&& f, auto&&...) {
         apply_to_tuple_helper(std::forward<decltype(f)>(f), col,
                               std::make_index_sequence<sizeof...(Nodes)>());
     });
@@ -105,38 +106,40 @@ auto node_collection(Nodes&... nodes) {
 /*==================================================================================================
 ~~ Value views ~~
 ==================================================================================================*/
-template <class ItF>  // ItF: iteration function
-struct value_view {
-    ItF itf;
+// template <class ItF>  // ItF: iteration function
+// struct ValueView {
+//     ItF itf;
 
-    template <class F>
-    void operator()(F&& f) {
-        itf(std::forward<F>(f));
-    }
-};
+//     template <class F>
+//     void operator()(F&& f) {
+//         itf(std::forward<F>(f));
+//     }
 
-/*==================================================================================================
-~~ Value-index views ~~
-==================================================================================================*/
-template <class ItF>  // ItF: iteration function
-struct value_i_view {
-    ItF itf;
+//     // @todo check itf
+// };
 
-    template <class F>
-    void operator()(F&& f) {
-        itf(std::forward<F>(f));
-    }
-};
+// /*==================================================================================================
+// ~~ Value-index views ~~
+// ==================================================================================================*/
+// template <class ItF>  // ItF: iteration function
+// struct value_i_view {
+//     ItF itf;
 
-template <class T>
-auto get_apply_single(T& x) {
-    return [&x](auto&& f) { return f(raw_value(x)); };
-}
+//     template <class F>
+//     void operator()(F&& f) {
+//         itf(std::forward<F>(f));
+//     }
+// };
 
-template <class T>
-auto get_apply_array(T& x) {
-    static_assert(is_node_array<T>::value, "Expects node array");
-    return [&v = get<value>(x)](auto&& f) {
-        for (auto& e : v) { f(e); }
-    };
-}
+// template <class T>
+// auto get_apply_single(T& x) {
+//     return [&x](auto&& f) { return f(raw_value(x)); };
+// }
+
+// template <class T>
+// auto get_apply_array(T& x) {
+//     static_assert(is_node_array<T>::value, "Expects node array");
+//     return [&v = get<value>(x)](auto&& f) {
+//         for (auto& e : v) { f(e); }
+//     };
+// }
