@@ -37,12 +37,7 @@ license and that you accept its terms.*/
 using namespace std;
 
 TEST_CASE("Iterating over nodes") {
-    // auto n = make_node<poisson>(1.0);
-    // set_value(n, 3);
     auto f = [](auto& rv) { cout << rv << "\n"; };
-
-    // auto apply_to_n = single_apply(n);
-    // apply_to_n(f);
 
     auto a = make_node<poisson>(1.0);
     auto b = make_node_array<gamma_ss>(3, n_to_constant(1.0), n_to_constant(1.0));
@@ -56,14 +51,23 @@ TEST_CASE("Iterating over nodes") {
     a_it(f);
     b_it(f);
 
-    auto all_it = get_apply_collection(a_it, b_it);
-    auto aaaa = [f](auto& x) { x(f); };
+    auto all_it = node_collection(a, b);
 
-    all_it(aaaa);
+    // CHECK(is_node_iterator<decltype(all_it)>::value);
+    // CHECK(!is_node_iterator<decltype(a_it)>::value);
 
-    // auto a_it = make_iterator(a);
-    // iterate_values(a_it, f);
+    // using t = decltype(std::declval<decltype(a_it)>()(helper::node_tester{}));
 
-    // auto v = make_dview(a, b);
-    // iterate_values(v, f);
+    // auto g = [](auto f) {
+    //     int i = 2;
+    //     f(i);
+    // };
+    // CHECK(!is_node_iterator<decltype(g)>::value);
+
+    
+    // auto bad_it = make_node_view(g);
+
+    // auto rev_apply = [f](auto& x) { x(f); };
+
+    // all_it(rev_apply);
 }

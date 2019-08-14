@@ -27,12 +27,91 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <tuple>
-#include "structure/introspection.hpp"
 #include "structure/type_tag.hpp"
+
+/*==================================================================================================
+~~ Node views ~~
+==================================================================================================*/
+namespace helper {
+    // --
+    template <template <class> class Trait>
+    struct trait_checker {
+        template <class T>
+        void operator()(T&&) {
+            static_assert(Trait<std::decay_t<T>>::value,
+                          "BAYES_TOOLBOX ERROR: Trying to build a view with a function that calls "
+                          "its passed function on the wrong type. For example, trying to build a "
+                          "node_view with a function that iterates over values.");
+        }
+    };
+
+    template <template <class> class Trait, class ItF>
+    struct check_iterator_type {
+        using type = decltype(std::declval<ItF>()(trait_checker<Trait>{}));
+    };
+}  // namespace helper
+
+template <class ItF>  // ItF: iteration function
+struct node_view {
+    ItF itf;
+
+    template <class F>
+    void operator()(F&& f) {
+        itf(std::forward<F>(f));
+    }
+
+    // checks that itf actually iterates over nodes
+    using check = typename helper::check_iterator_type<is_node, ItF>::type;
+};
+
+template <class ItF>
+auto make_node_view(ItF&& itf) {
+    return node_view<ItF>{std::forward<ItF>(itf)};
+}
+
+template <class F, class... Ts, size_t... Is>
+void apply_to_tuple_helper(F f, std::tuple<Ts...> t, std::index_sequence<Is...>) {
+    // @todo: check if unpacking as function args would be more performant
+    std::vector<int> ignore = {(f(get<Is>(t)), 0)...};
+}
+
+template <class... Nodes>
+auto node_collection(Nodes&... nodes) {
+    return make_node_view([col = std::tuple<Nodes&...>(nodes...)](auto&& f) {
+        apply_to_tuple_helper(std::forward<decltype(f)>(f), col,
+                              std::make_index_sequence<sizeof...(Nodes)>());
+    });
+}
+
+/*==================================================================================================
+~~ Value views ~~
+==================================================================================================*/
+template <class ItF>  // ItF: iteration function
+struct value_view {
+    ItF itf;
+
+    template <class F>
+    void operator()(F&& f) {
+        itf(std::forward<F>(f));
+    }
+};
+
+/*==================================================================================================
+~~ Value-index views ~~
+==================================================================================================*/
+template <class ItF>  // ItF: iteration function
+struct value_i_view {
+    ItF itf;
+
+    template <class F>
+    void operator()(F&& f) {
+        itf(std::forward<F>(f));
+    }
+};
 
 template <class T>
 auto get_apply_single(T& x) {
-    return [&x](auto& f) { f(raw_value(x)); };
+    return [&x](auto&& f) { return f(raw_value(x)); };
 }
 
 template <class T>
@@ -40,18 +119,5 @@ auto get_apply_array(T& x) {
     static_assert(is_node_array<T>::value, "Expects node array");
     return [&v = get<value>(x)](auto&& f) {
         for (auto& e : v) { f(e); }
-    };
-}
-
-template <class F, class... Ts, size_t... Is>
-void apply_to_tuple_helper(F f, std::tuple<Ts...> t, std::index_sequence<Is...>) {
-    std::vector<int> ignore = {(f(get<Is>(t)), 0)...};
-}
-
-template <class... Ts>
-auto get_apply_collection(Ts&&... xs) {
-    return [col = std::make_tuple(std::forward<Ts>(xs)...)](auto&& f) {
-        apply_to_tuple_helper(std::forward<decltype(f)>(f), col,
-                              std::make_index_sequence<sizeof...(Ts)>());
     };
 }
