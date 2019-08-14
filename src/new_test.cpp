@@ -30,6 +30,7 @@ license and that you accept its terms.*/
 
 #include "distributions/gamma.hpp"
 #include "distributions/poisson.hpp"
+#include "operations/draw.hpp"
 #include "operations/raw_value.hpp"
 #include "structure/array_utils.hpp"
 #include "structure/new_view.hpp"
@@ -47,21 +48,21 @@ TEST_CASE("is_iterator") {
 }
 
 TEST_CASE("Iterating over nodes") {
-    auto f = [](auto& rv) { cout << rv << "\n"; };
-
     auto a = make_node<poisson>(1.0);
     auto b = make_node_array<gamma_ss>(3, n_to_constant(1.0), n_to_constant(1.0));
-
-    auto a_it = get_apply_single(a);
-    auto b_it = get_apply_array(b);
-
-    set_value(a, 3);
-    set_value(b, {7.1, 8.2, 9.3});
-
-    a_it(f);
-    b_it(f);
+    set_value(a, -1);
+    set_value(b, {-1, -1, -1});
 
     auto all_it = node_collection(a, b);
+
+    auto gen = make_generator();
+    auto f = [&gen](auto& node) { draw(node, gen); };
+    all_it(f);
+
+    CHECK(raw_value(a) != -1);
+    CHECK(raw_value(b, 0) != -1);
+    CHECK(raw_value(b, 1) != -1);
+    CHECK(raw_value(b, 2) != -1);
 
     // auto g = [](int& i) { cout << i << endl; };
     // auto g = [](auto f) {

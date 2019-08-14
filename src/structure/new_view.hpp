@@ -71,7 +71,7 @@ struct check_itfunc_type {
 ~~ Node views ~~
 ==================================================================================================*/
 template <class ItF>  // ItF: iteration function
-struct node_view {
+struct NodeView {
     ItF itf;
 
     template <class F>
@@ -85,7 +85,7 @@ struct node_view {
 
 template <class ItF>
 auto make_node_view(ItF&& itf) {
-    return node_view<ItF>{std::forward<ItF>(itf)};
+    return NodeView<ItF>{std::forward<ItF>(itf)};
 }
 
 template <class F, class... Ts, size_t... Is>

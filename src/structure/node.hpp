@@ -27,6 +27,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <vector>
+#include "datatypes.hpp"
 #include "params.hpp"
 
 template <class Tag, class Distrib>
