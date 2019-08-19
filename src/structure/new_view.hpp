@@ -123,13 +123,16 @@ auto make_value_view(ItF&& itf) {
     return ValueView<ItF>{std::forward<ItF>(itf)};
 }
 
-template <size_t index_index = 0, class Node>  // for multi-variable view collections
+template <class Node>  // for multi-variable view collections
 auto ith_element(Node& node) {
     static_assert(is_node_array<Node>::value, "Expects a node array");
-    return make_value_view([&v = get<value>(node)](auto&& f, auto... indexes) {
-        size_t i = get<index_index>(std::forward_as_tuple(indexes...));
-        f(v[i]);
-    });
+    return make_value_view([&v = get<value>(node)](auto&& f, size_t i, auto...) { f(v[i]); });
+}
+
+template <class Node>  // for multi-variable view collections
+auto jth_element(Node& node) {
+    static_assert(is_node_array<Node>::value, "Expects a node array");
+    return make_value_view([&v = get<value>(node)](auto&& f, auto, size_t j) { f(v[j]); });
 }
 
 // /*==================================================================================================

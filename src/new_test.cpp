@@ -79,7 +79,7 @@ TEST_CASE("ith_element") {
     set_value(a, {11, 12, 13});
 
     auto v = ith_element(a);
-    auto v2 = ith_element<1>(a);  //@todo: replace by jth_element?
+    auto v2 = jth_element(a);
 
     int sum = 0;
     auto f = [&sum](auto& value) { sum += value; };
