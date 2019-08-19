@@ -123,6 +123,32 @@ auto make_value_view(ItF&& itf) {
     return ValueView<ItF>{std::forward<ItF>(itf)};
 }
 
+/*================================================================================================*/
+template <class T>
+auto element_itfunc(T& ref) {
+    return [&ref](auto&& f) { f(ref); };
+}
+
+template <class T>
+auto vector_itfunc(std::vector<T>& v) {
+    return [&v](auto&& f) {
+        for (auto e : v) { f(e); };
+    };
+}
+
+template <class Node, class... Indexes>
+auto element(Node& node, Indexes... is) {
+    // @todo: check that sizeof...(Indexes) == dim(node)
+    return element_itfunc(raw_value(node, is...));
+}
+
+template <class Node, class... Indexes>
+auto row(Node& node, size_t row_nb) {
+    static_assert(is_node_matrix<Node>::value, "Expects a node matrix");
+    return vector_itfunc(get<value>(node).at(row_nb));
+}
+/*================================================================================================*/
+
 template <class Node>  // for multi-variable view collections
 auto ith_element(Node& node) {
     static_assert(is_node_array<Node>::value, "Expects a node array");
@@ -138,25 +164,3 @@ auto jth_element(Node& node) {
 // /*==================================================================================================
 // ~~ Value-index views ~~
 // ==================================================================================================*/
-// template <class ItF>  // ItF: iteration function
-// struct value_i_view {
-//     ItF itf;
-
-//     template <class F>
-//     void operator()(F&& f) {
-//         itf(std::forward<F>(f));
-//     }
-// };
-
-// template <class T>
-// auto get_apply_single(T& x) {
-//     return [&x](auto&& f) { return f(raw_value(x)); };
-// }
-
-// template <class T>
-// auto get_apply_array(T& x) {
-//     static_assert(is_node_array<T>::value, "Expects node array");
-//     return [&v = get<value>(x)](auto&& f) {
-//         for (auto& e : v) { f(e); }
-//     };
-// }

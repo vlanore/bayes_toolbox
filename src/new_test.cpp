@@ -28,6 +28,7 @@ license and that you accept its terms.*/
 
 #include "doctest.h"
 
+#include "distributions/exponential.hpp"
 #include "distributions/gamma.hpp"
 #include "distributions/poisson.hpp"
 #include "operations/draw.hpp"
@@ -72,6 +73,25 @@ TEST_CASE("Iterating over nodes") {
     //     f(i);
     // };
     // auto bad_it = make_node_view(g); // triggers static_asserts
+}
+
+TEST_CASE("element itfuncs") {
+    auto a = make_node_array<poisson>(3, n_to_constant(1.0));
+    auto m = make_node_matrix<exponential>(3, 2, [](int, int) { return 1.0; });
+    set_value(a, {11, 12, 13});
+    set_value(m, {{11, 13}, {12, 23}, {13, 33}});
+
+    // auto v = ith_element(a);
+    // auto v2 = jth_element(a);
+
+    // int sum = 0;
+    // auto f = [&sum](auto& value) { sum += value; };
+
+    // v(f, 0);       // 11
+    // v(f, 1);       // 12
+    // v(f, 2);       // 13
+    // v2(f, 17, 1);  // 12
+    // CHECK(sum == (11 + 12 + 13 + 12));
 }
 
 TEST_CASE("ith_element") {
