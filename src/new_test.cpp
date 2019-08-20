@@ -75,23 +75,24 @@ TEST_CASE("Iterating over nodes") {
     // auto bad_it = make_node_view(g); // triggers static_asserts
 }
 
-TEST_CASE("element itfuncs") {
+TEST_CASE("element/row itfuncs") {
     auto a = make_node_array<poisson>(3, n_to_constant(1.0));
     auto m = make_node_matrix<exponential>(3, 2, [](int, int) { return 1.0; });
     set_value(a, {11, 12, 13});
-    set_value(m, {{11, 13}, {12, 23}, {13, 33}});
+    set_value(m, {{11.21, 13.23}, {12.22, 23.23}, {13.23, 33.23}});
 
-    // auto v = ith_element(a);
-    // auto v2 = jth_element(a);
+    double sum = 0;
+    auto f = [&sum](auto& value) { sum += value; };
 
-    // int sum = 0;
-    // auto f = [&sum](auto& value) { sum += value; };
+    auto ea = element(a, 1);
+    auto em = element(m, 0, 1);
+    auto rm = row(m, 1);
 
-    // v(f, 0);       // 11
-    // v(f, 1);       // 12
-    // v(f, 2);       // 13
-    // v2(f, 17, 1);  // 12
-    // CHECK(sum == (11 + 12 + 13 + 12));
+    ea(f);
+    em(f);
+    CHECK(sum == 12 + 13.23);
+    rm(f);
+    CHECK(sum == 12 + 13.23 + 12.22 + 23.23);
 }
 
 TEST_CASE("ith_element") {
