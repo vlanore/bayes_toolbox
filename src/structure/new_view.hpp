@@ -97,7 +97,8 @@ void apply_to_tuple_helper(F f, std::tuple<Ts...> t, std::index_sequence<Is...>)
 
 template <class... Nodes>
 auto node_collection(Nodes&... nodes) {
-    return make_trait_view<is_node>([col = std::tuple<Nodes&...>(nodes...)](auto&& f, auto&&...) {
+    // have to name param pack to avoid g++5 bug
+    return make_trait_view<is_node>([col = std::tuple<Nodes&...>(nodes...)](auto&& f, auto&&... p) {
         apply_to_tuple_helper(std::forward<decltype(f)>(f), col,
                               std::make_index_sequence<sizeof...(Nodes)>());
     });
@@ -152,7 +153,8 @@ auto row(Node& node, size_t row_nb) {
 template <class Node>  // for multi-variable view collections
 auto ith_element(Node& node) {
     static_assert(is_node_array<Node>::value, "Expects a node array");
-    return make_value_view([&v = get<value>(node)](auto&& f, size_t i, auto...) { f(v[i]); });
+    // have to name param pack to avoid g++5 bug
+    return make_value_view([&v = get<value>(node)](auto&& f, size_t i, auto... p) { f(v[i]); });
 }
 
 template <class Node>  // for multi-variable view collections
@@ -161,6 +163,6 @@ auto jth_element(Node& node) {
     return make_value_view([&v = get<value>(node)](auto&& f, auto, size_t j) { f(v[j]); });
 }
 
-// /*==================================================================================================
-// ~~ Value-index views ~~
-// ==================================================================================================*/
+/*==================================================================================================
+~~ Value-index views ~~
+==================================================================================================*/

@@ -40,7 +40,7 @@ using namespace std;
 
 TEST_CASE("is_iterator") {
     auto f = []() {};
-    auto g = [](auto&&, auto&&...) {};
+    auto g = [](auto&&, auto&&... p) {};  // have to name param pack to avoid g++5 bug
     auto h = [](auto, auto) {};
     auto i = [](auto&&) {};
 
@@ -59,7 +59,9 @@ TEST_CASE("Iterating over nodes") {
     auto all_it = node_collection(a, b);
 
     auto gen = make_generator();
-    auto f = [&gen](auto& node, auto&&...) { draw(node, gen); };
+    auto f = [&gen](auto& node, auto&&... p) {  // have to name param pack to avoid g++5 bug
+        draw(node, gen);
+    };
     all_it(f, 1);
 
     CHECK(raw_value(a) != -1);
