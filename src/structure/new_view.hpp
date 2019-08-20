@@ -156,6 +156,8 @@ auto row(Node& node, size_t row_nb) {
     return vector_itfunc(get<value>(node).at(row_nb));
 }
 
+// @todo: write "whole" functions that auto-deduce itfunc to iterate over whole node
+
 /*==================================================================================================
 ~~ ith/jth itfunc generator generators ~~
 ==================================================================================================*/
@@ -182,6 +184,7 @@ auto ijth_element(Node& node) {
 ~~ itfunc collections ~~
 ==================================================================================================*/
 
+// @todo: allow direct node references ("whole" should be called in that case)
 template <class... ItFs>
 auto make_valueview_collection(ItFs&&... itfs) {
     // @todo: check all args are itfuncs
@@ -191,6 +194,20 @@ auto make_valueview_collection(ItFs&&... itfs) {
         apply_to_tuple_helper(std::move(g), std::move(col),
                               std::make_index_sequence<sizeof...(ItFs)>());
     });
+}
+
+// @todo: allow direct node references and value views
+template <class... ItFs>
+auto make_valueview_collection_i(ItFs&&... itfs) {
+    // @todo: check all args are itfuncs
+    return [col = std::make_tuple(itfs...)](size_t i) {
+        return make_value_view([col, i](auto&& f) {
+            // function that takes an element of the collection (an itfunc) and passes f to it
+            auto g = [i, f](auto&& itf) mutable { itf(i)(f); };
+            apply_to_tuple_helper(std::move(g), std::move(col),
+                                  std::make_index_sequence<sizeof...(ItFs)>());
+        });
+    };
 }
 
 /*==================================================================================================

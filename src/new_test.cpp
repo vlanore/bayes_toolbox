@@ -121,10 +121,12 @@ TEST_CASE("itfunc collections") {
     set_value(a, {1.2, 2.3, 3.4});
 
     auto col = make_valueview_collection(element(e), element(a, 1));
+    auto col2 = make_valueview_collection_i(ith_element(a));
 
     double sum = 0;
     auto f = [&sum](auto& value) { sum += value; };
 
     col(f);
-    CHECK(sum == 1 + 2.3);
+    col2(2)(f);
+    CHECK(sum == 1 + 2.3 + 3.4);
 }
