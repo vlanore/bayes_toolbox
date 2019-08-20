@@ -163,6 +163,12 @@ auto jth_element(Node& node) {
     return [&node](size_t, size_t j) { return element_itfunc(raw_value(node, j)); };
 }
 
+template <class Node>  // for multi-variable view collections
+auto ijth_element(Node& node) {
+    static_assert(is_node_matrix<Node>::value, "Expects a node matrix");
+    return [&node](size_t i, size_t j) { return element_itfunc(raw_value(node, i, j)); };
+}
+
 /*==================================================================================================
 ~~ Value-index views ~~
 ==================================================================================================*/

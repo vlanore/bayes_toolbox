@@ -95,10 +95,13 @@ TEST_CASE("element/row itfuncs") {
 
 TEST_CASE("ith_element") {
     auto a = make_node_array<poisson>(3, n_to_constant(1.0));
+    auto m = make_node_matrix<poisson>(2, 2, [](int, int) { return 1.0; });
     set_value(a, {11, 12, 13});
+    set_value(m, {{2, 42}, {3, 43}});
 
     auto v = ith_element(a);
     auto v2 = jth_element(a);
+    auto v3 = ijth_element(m);
 
     int sum = 0;
     auto f = [&sum](auto& value) { sum += value; };
@@ -107,5 +110,6 @@ TEST_CASE("ith_element") {
     v(1)(f);       // 12
     v(2)(f);       // 13
     v2(17, 1)(f);  // 12
-    CHECK(sum == (11 + 12 + 13 + 12));
+    v3(1, 0)(f);   // 3
+    CHECK(sum == (11 + 12 + 13 + 12 + 3));
 }
