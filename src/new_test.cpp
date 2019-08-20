@@ -113,3 +113,18 @@ TEST_CASE("ith_element") {
     v3(1, 0)(f);   // 3
     CHECK(sum == (11 + 12 + 13 + 12 + 3));
 }
+
+TEST_CASE("itfunc collections") {
+    auto e = make_node<poisson>(1.0);
+    auto a = make_node_array<exponential>(3, n_to_constant(1.0));
+    set_value(e, 1);
+    set_value(a, {1.2, 2.3, 3.4});
+
+    auto col = make_valueview_collection(element(e), element(a, 1));
+
+    double sum = 0;
+    auto f = [&sum](auto& value) { sum += value; };
+
+    col(f);
+    CHECK(sum == 1 + 2.3);
+}

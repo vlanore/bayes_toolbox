@@ -125,17 +125,23 @@ auto make_value_view(ItF&& itf) {
     return ValueView<ItF>{std::forward<ItF>(itf)};
 }
 
+template <class T>
+struct is_valueview : std::false_type {};
+
+template <class ItF>
+struct is_valueview<ValueView<ItF>> : std::true_type {};
+
 /*================================================================================================*/
 template <class T>
 auto element_itfunc(T& ref) {
-    return [&ref](auto&& f) { f(ref); };
+    return make_value_view([&ref](auto&& f) { f(ref); });
 }
 
 template <class T>
 auto vector_itfunc(std::vector<T>& v) {
-    return [&v](auto&& f) {
+    return make_value_view([&v](auto&& f) {
         for (auto e : v) { f(e); };
-    };
+    });
 }
 
 template <class Node, class... Indexes>
@@ -149,7 +155,10 @@ auto row(Node& node, size_t row_nb) {
     static_assert(is_node_matrix<Node>::value, "Expects a node matrix");
     return vector_itfunc(get<value>(node).at(row_nb));
 }
-/*================================================================================================*/
+
+/*==================================================================================================
+~~ ith/jth itfunc generator generators ~~
+==================================================================================================*/
 
 template <class Node>  // for multi-variable view collections
 auto ith_element(Node& node) {
@@ -167,6 +176,21 @@ template <class Node>  // for multi-variable view collections
 auto ijth_element(Node& node) {
     static_assert(is_node_matrix<Node>::value, "Expects a node matrix");
     return [&node](size_t i, size_t j) { return element_itfunc(raw_value(node, i, j)); };
+}
+
+/*==================================================================================================
+~~ itfunc collections ~~
+==================================================================================================*/
+
+template <class... ItFs>
+auto make_valueview_collection(ItFs&&... itfs) {
+    // @todo: check all args are itfuncs
+    return make_value_view([col = std::make_tuple(itfs...)](auto&& f) {
+        // function that takes an element of the collection (an itfunc) and passes f to it
+        auto g = [f](auto&& itf) mutable { itf(f); };
+        apply_to_tuple_helper(std::move(g), std::move(col),
+                              std::make_index_sequence<sizeof...(ItFs)>());
+    });
 }
 
 /*==================================================================================================
