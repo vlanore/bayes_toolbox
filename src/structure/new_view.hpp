@@ -55,8 +55,7 @@ template <class T, class = void>
 struct is_itfunc : std::false_type {};
 
 template <class T>
-struct is_itfunc<T, to_void<decltype(std::declval<T>()(helper::generic_test_functor{})),
-                            decltype(std::declval<T>()(helper::generic_test_functor{}, 0, 1))>>
+struct is_itfunc<T, to_void<decltype(std::declval<T>()(helper::generic_test_functor{}))>>
     : std::true_type {};
 
 // Checks that ItF
@@ -98,7 +97,7 @@ void apply_to_tuple_helper(F f, std::tuple<Ts...> t, std::index_sequence<Is...>)
 template <class... Nodes>
 auto node_collection(Nodes&... nodes) {
     // have to name param pack to avoid g++5 bug
-    return make_trait_view<is_node>([col = std::tuple<Nodes&...>(nodes...)](auto&& f, auto&&... p) {
+    return make_trait_view<is_node>([col = std::tuple<Nodes&...>(nodes...)](auto&& f) {
         apply_to_tuple_helper(std::forward<decltype(f)>(f), col,
                               std::make_index_sequence<sizeof...(Nodes)>());
     });
@@ -154,7 +153,7 @@ template <class Node>  // for multi-variable view collections
 auto ith_element(Node& node) {
     static_assert(is_node_array<Node>::value, "Expects a node array");
     // have to name param pack to avoid g++5 bug
-    return make_value_view([&v = get<value>(node)](auto&& f, size_t i, auto... p) { f(v[i]); });
+    return make_value_view([&v = get<value>(node)](auto&& f, size_t i) { f(v[i]); });
 }
 
 template <class Node>  // for multi-variable view collections

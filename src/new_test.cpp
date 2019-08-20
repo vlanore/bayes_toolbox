@@ -40,14 +40,12 @@ using namespace std;
 
 TEST_CASE("is_iterator") {
     auto f = []() {};
-    auto g = [](auto&&, auto&&... p) {};  // have to name param pack to avoid g++5 bug
     auto h = [](auto, auto) {};
     auto i = [](auto&&) {};
 
     CHECK(!is_itfunc<decltype(f)>::value);
-    CHECK(is_itfunc<decltype(g)>::value);
     CHECK(!is_itfunc<decltype(h)>::value);
-    CHECK(!is_itfunc<decltype(i)>::value);
+    CHECK(is_itfunc<decltype(i)>::value);
 }
 
 TEST_CASE("Iterating over nodes") {
@@ -59,10 +57,8 @@ TEST_CASE("Iterating over nodes") {
     auto all_it = node_collection(a, b);
 
     auto gen = make_generator();
-    auto f = [&gen](auto& node, auto&&... p) {  // have to name param pack to avoid g++5 bug
-        draw(node, gen);
-    };
-    all_it(f, 1);
+    auto f = [&gen](auto& node) { draw(node, gen); };
+    all_it(f);
 
     CHECK(raw_value(a) != -1);
     CHECK(raw_value(b, 0) != -1);

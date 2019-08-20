@@ -4,8 +4,7 @@ project(bayes_toolbox CXX)
 # Compilation options
 option(COVERAGE_MODE "For coverage mode using g++ " OFF) #OFF by default
 option(DEBUG_MODE "Debug mode (with asserts and such) " OFF) #OFF by default
-## Removed unused param warning because g++5 bug forces us to name parameter packs in lambdas
-set(ALWAYSON_CXX_FLAGS "--std=c++14 -Wall -Wextra -Wpedantic -Wfatal-errors -Wno-unused-parameter $ENV{EXTRA_CXX_FLAGS}")
+set(ALWAYSON_CXX_FLAGS "--std=c++14 -Wall -Wextra -Wpedantic -Wfatal-errors $ENV{EXTRA_CXX_FLAGS}")
 if(COVERAGE_MODE)
     set(CMAKE_CXX_FLAGS "-O0 -fprofile-arcs -ftest-coverage ${ALWAYSON_CXX_FLAGS}") # coverage mode
     message("-- INFO: Compiling in coverage mode.\n-- INFO: flags are: " ${CMAKE_CXX_FLAGS})
