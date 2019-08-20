@@ -103,9 +103,9 @@ TEST_CASE("ith_element") {
     int sum = 0;
     auto f = [&sum](auto& value) { sum += value; };
 
-    v(f, 0);       // 11
-    v(f, 1);       // 12
-    v(f, 2);       // 13
-    v2(f, 17, 1);  // 12
+    v(0)(f);       // 11
+    v(1)(f);       // 12
+    v(2)(f);       // 13
+    v2(17, 1)(f);  // 12
     CHECK(sum == (11 + 12 + 13 + 12));
 }

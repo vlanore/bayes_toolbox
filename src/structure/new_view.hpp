@@ -115,7 +115,9 @@ struct ValueView {
         itf(std::forward<Args>(args)...);
     }
 
-    // @todo check itf
+    static_assert(is_itfunc<ItF>::value,
+                  "BAYES_TOOLBOX ERROR: Trying to build a view with a function that cannot accept "
+                  "functions as arguments.");
 };
 
 template <class ItF>
@@ -152,14 +154,13 @@ auto row(Node& node, size_t row_nb) {
 template <class Node>  // for multi-variable view collections
 auto ith_element(Node& node) {
     static_assert(is_node_array<Node>::value, "Expects a node array");
-    // have to name param pack to avoid g++5 bug
-    return make_value_view([&v = get<value>(node)](auto&& f, size_t i) { f(v[i]); });
+    return [&node](size_t i, size_t = 0) { return element_itfunc(raw_value(node, i)); };
 }
 
 template <class Node>  // for multi-variable view collections
 auto jth_element(Node& node) {
     static_assert(is_node_array<Node>::value, "Expects a node array");
-    return make_value_view([&v = get<value>(node)](auto&& f, auto, size_t j) { f(v[j]); });
+    return [&node](size_t, size_t j) { return element_itfunc(raw_value(node, j)); };
 }
 
 /*==================================================================================================
