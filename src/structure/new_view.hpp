@@ -27,45 +27,8 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <tuple>
-#include "structure/type_tag.hpp"
-
-/*==================================================================================================
-~~ Static itfunc checking ~~
-==================================================================================================*/
-namespace helper {
-    // --
-    template <template <class> class Trait>
-    struct trait_checker_functor {
-        template <class T>
-        void operator()(T&&) {
-            static_assert(Trait<std::decay_t<T>>::value,
-                          "BAYES_TOOLBOX ERROR: Trying to build a view with a function that calls "
-                          "its passed function on the wrong type. For example, trying to build a "
-                          "node_view with a function that iterates over values.");
-        }
-    };
-
-    struct generic_test_functor {
-        template <class T>
-        void operator()(T&&) {}
-    };
-}  // namespace helper
-
-template <class T, class = void>
-struct is_itfunc : std::false_type {};
-
-template <class T>
-struct is_itfunc<T, to_void<decltype(std::declval<T>()(helper::generic_test_functor{}))>>
-    : std::true_type {};
-
-// Checks that ItF
-template <template <class> class Trait, class ItF>
-struct check_itfunc_type {
-    static_assert(is_itfunc<ItF>::value,
-                  "BAYES_TOOLBOX ERROR: Trying to build a view with a function that cannot accept "
-                  "functions as arguments.");
-    using type = decltype(std::declval<ItF>()(helper::trait_checker_functor<Trait>{}));
-};
+#include "ValueView.hpp"
+#include "type_tag.hpp"
 
 /*==================================================================================================
 ~~ Node views ~~
@@ -106,32 +69,6 @@ auto node_collection(Nodes&... nodes) {
 /*==================================================================================================
 ~~ Value views ~~
 ==================================================================================================*/
-template <class ItF>  // ItF: iteration function
-struct ValueView {
-    ItF itf;
-
-    template <class... Args>
-    void operator()(Args&&... args) {
-        itf(std::forward<Args>(args)...);
-    }
-
-    static_assert(is_itfunc<ItF>::value,
-                  "BAYES_TOOLBOX ERROR: Trying to build a view with a function that cannot accept "
-                  "functions as arguments.");
-};
-
-template <class ItF>
-auto make_value_view(ItF&& itf) {
-    return ValueView<ItF>{std::forward<ItF>(itf)};
-}
-
-template <class T>
-struct is_valueview : std::false_type {};
-
-template <class ItF>
-struct is_valueview<ValueView<ItF>> : std::true_type {};
-
-/*================================================================================================*/
 template <class T>
 auto element_itfunc(T& ref) {
     return make_value_view([&ref](auto&& f) { f(ref); });
