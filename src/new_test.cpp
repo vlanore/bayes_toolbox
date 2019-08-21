@@ -38,6 +38,19 @@ license and that you accept its terms.*/
 #include "structure/node.hpp"
 using namespace std;
 
+TEST_CASE("Basic ValueView test") {
+    auto a = make_node_array<poisson>(3, n_to_constant(1.0));
+    set_value(a, {3, 4, 5});
+
+    auto vv = make_value_view([& v = get<value>(a)](auto f) {
+        for (auto e : v) { f(e); }
+    });
+
+    int sum = 0;
+    vv([&sum](int e) { sum += e; });
+    CHECK(sum == 12);
+}
+
 TEST_CASE("is_iterator") {
     auto f = []() {};
     auto h = [](auto, auto) {};
