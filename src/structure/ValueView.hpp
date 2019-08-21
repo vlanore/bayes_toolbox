@@ -28,7 +28,12 @@ license and that you accept its terms.*/
 
 #include "introspection.hpp"
 
-template <class ItFunc>  // ItFunc: iteration function
+/* A value view is a functor that takes a function and applies it to a set of values.
+For example, a value view of a node array would be a function that given a function f calls f on all
+the values of the elements of the array.
+It's a simple wrapper around a lambda. It statically checks that the lambda can accept a function as
+parameter. */
+template <class ItFunc>
 struct ValueView {
     ItFunc itfunc;
 
@@ -42,11 +47,13 @@ struct ValueView {
                   "functions as arguments.");
 };
 
+// make function to auto-deduce lambda type
 template <class ItFunc>
 auto make_value_view(ItFunc&& itf) {
     return ValueView<ItFunc>{std::forward<ItFunc>(itf)};
 }
 
+// associated type trait
 template <class T>
 struct is_valueview : std::false_type {};
 
