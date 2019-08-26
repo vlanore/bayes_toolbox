@@ -39,15 +39,15 @@ license and that you accept its terms.*/
 using namespace std;
 
 TEST_CASE("Basic ValueView test") {
-    auto a = make_node_array<poisson>(3, n_to_constant(1.0));
-    set_value(a, {3, 4, 5});
+    auto my_array = make_node_array<poisson>(3, n_to_constant(1.0));
+    set_value(my_array, {3, 4, 5});
 
-    auto vv = make_value_view([& v = get<value>(a)](auto f) {
+    auto my_custom_view = make_value_view([& v = get<value>(my_array)](auto f) {
         for (auto e : v) { f(e); }
     });
 
     int sum = 0;
-    vv([&sum](int e) { sum += e; });
+    my_custom_view([&sum](int e) { sum += e; });
     CHECK(sum == 12);
 }
 
