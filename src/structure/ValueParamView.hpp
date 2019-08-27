@@ -42,14 +42,15 @@ struct ValueParamView {
         itfunc(std::forward<F>(f));
     }
 
-    static_assert(is_itfunc<ItFunc>::value,
-                  "BAYES_TOOLBOX ERROR: Trying to build a view with a function that cannot accept "
-                  "functions as arguments.");  //@fixme: not sure it works for this case
+    // static_assert(is_itfunc<ItFunc>::value,
+    //               "BAYES_TOOLBOX ERROR: Trying to build a view with a function that cannot accept
+    //               "
+    //               "functions as arguments.");  //@fixme: not sure it works for this case
 };
 
 // make function to auto-deduce lambda type
 template <class ItFunc>
-auto make_value_view(ItFunc&& itf) {
+auto make_valueparamview(ItFunc&& itf) {
     return ValueParamView<ItFunc>{std::forward<ItFunc>(itf)};
 }
 

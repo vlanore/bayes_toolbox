@@ -33,6 +33,7 @@ license and that you accept its terms.*/
 #include "distributions/poisson.hpp"
 #include "operations/draw.hpp"
 #include "operations/raw_value.hpp"
+#include "structure/ValueParamView.hpp"
 #include "structure/array_utils.hpp"
 #include "structure/new_view.hpp"
 #include "structure/node.hpp"
@@ -42,13 +43,27 @@ TEST_CASE("Basic ValueView test") {
     auto my_array = make_node_array<poisson>(3, n_to_constant(1.0));
     set_value(my_array, {3, 4, 5});
 
-    auto my_custom_view = make_value_view([& v = get<value>(my_array)](auto f) {
+    auto my_custom_view = make_valueview([& v = get<value>(my_array)](auto f) {
         for (auto e : v) { f(e); }
     });
 
     int sum = 0;
     my_custom_view([&sum](int e) { sum += e; });
     CHECK(sum == 12);
+}
+
+TEST_CASE("Basic ValueParamView test") {
+    auto my_array = make_node_array<poisson>(3, n_to_constant(1.0));
+    set_value(my_array, {3, 4, 5});
+
+    auto my_custom_view = make_valueparamview(
+        [& v = get<value>(my_array), &p = get<params, rate>(my_array) ](auto f) {
+            for (size_t i = 0; i < v.size(); i++) { f(v[i], p(i)); }
+        });
+
+    std::stringstream ss;
+    my_custom_view([&ss](int value, double param) { ss << "v:" << value << "(" << param << ");"; });
+    CHECK(ss.str() == "v:3(1);v:4(1);v:5(1);");
 }
 
 TEST_CASE("is_iterator") {

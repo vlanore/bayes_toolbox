@@ -71,12 +71,12 @@ auto node_collection(Nodes&... nodes) {
 ==================================================================================================*/
 template <class T>
 auto element_itfunc(T& ref) {
-    return make_value_view([&ref](auto&& f) { f(ref); });
+    return make_valueview([&ref](auto&& f) { f(ref); });
 }
 
 template <class T>
 auto vector_itfunc(std::vector<T>& v) {
-    return make_value_view([&v](auto&& f) {
+    return make_valueview([&v](auto&& f) {
         for (auto e : v) { f(e); };
     });
 }
@@ -142,7 +142,7 @@ auto ijth_element(Node& node) {
 ==================================================================================================*/
 template <class... Args>
 auto make_valueview_collection(Args&&... args) {
-    return make_value_view([col = std::make_tuple(full_valueview(args)...)](auto&& f) {
+    return make_valueview([col = std::make_tuple(full_valueview(args)...)](auto&& f) {
         // function that takes an element of the collection (an itfunc) and passes f to it
         auto g = [f](auto&& itf) mutable { itf(f); };
         apply_to_tuple_helper(std::move(g), std::move(col),
@@ -155,7 +155,7 @@ template <class... ItFs>
 auto make_valueview_collection_i(ItFs&&... itfs) {
     // @todo: check all args are itfuncs
     return [col = std::make_tuple(itfs...)](size_t i) {
-        return make_value_view([col, i](auto&& f) {
+        return make_valueview([col, i](auto&& f) {
             // function that takes an element of the collection (an itfunc) and passes f to it
             auto g = [i, f](auto&& itf) mutable { itf(i)(f); };
             apply_to_tuple_helper(std::move(g), std::move(col),
