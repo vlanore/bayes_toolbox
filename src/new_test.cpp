@@ -28,10 +28,12 @@ license and that you accept its terms.*/
 
 #include "doctest.h"
 
+#include <sstream>
 #include "distributions/exponential.hpp"
 #include "distributions/gamma.hpp"
 #include "distributions/poisson.hpp"
 #include "operations/draw.hpp"
+#include "operations/element_vv.hpp"
 #include "operations/raw_value.hpp"
 #include "structure/ValueParamView.hpp"
 #include "structure/array_utils.hpp"
@@ -52,12 +54,28 @@ TEST_CASE("Basic ValueView test") {
     CHECK(sum == 12);
 }
 
+TEST_CASE("Element_vv") {
+    auto my_node = make_node<exponential>(1.0);
+    auto my_array = make_node_array<poisson>(3, n_to_one(my_node));
+    set_value(my_node, 1.2);
+    set_value(my_array, {2, 3, 7});
+
+    auto view1 = element_vv(my_node);
+    auto view2 = element_vv(my_array, 1);
+
+    std::stringstream ss;
+    auto f = [&ss](auto&& x) { ss << x << ";"; };
+    view1(f);
+    view2(f);
+    CHECK(ss.str() == "1.2;3;");
+}
+
 TEST_CASE("Basic ValueParamView test") {
     auto my_array = make_node_array<poisson>(3, n_to_constant(1.0));
     set_value(my_array, {3, 4, 5});
 
-    auto my_custom_view = make_valueparamview(
-        [& v = get<value>(my_array), &p = get<params, rate>(my_array) ](auto f) {
+    auto my_custom_view =
+        make_valueparamview([& v = get<value>(my_array), &p = get<params, rate>(my_array)](auto f) {
             for (size_t i = 0; i < v.size(); i++) { f(v[i], p(i)); }
         });
 
@@ -101,60 +119,60 @@ TEST_CASE("Iterating over nodes") {
     // auto bad_it = make_node_view(g); // triggers static_asserts
 }
 
-TEST_CASE("element/row itfuncs") {
-    auto a = make_node_array<poisson>(3, n_to_constant(1.0));
-    auto m = make_node_matrix<exponential>(3, 2, [](int, int) { return 1.0; });
-    set_value(a, {11, 12, 13});
-    set_value(m, {{11.21, 13.23}, {12.22, 23.23}, {13.23, 33.23}});
+// TEST_CASE("element/row itfuncs") {
+//     auto a = make_node_array<poisson>(3, n_to_constant(1.0));
+//     auto m = make_node_matrix<exponential>(3, 2, [](int, int) { return 1.0; });
+//     set_value(a, {11, 12, 13});
+//     set_value(m, {{11.21, 13.23}, {12.22, 23.23}, {13.23, 33.23}});
 
-    double sum = 0;
-    auto f = [&sum](auto& value) { sum += value; };
+//     double sum = 0;
+//     auto f = [&sum](auto& value) { sum += value; };
 
-    auto ea = element(a, 1);
-    auto em = element(m, 0, 1);
-    auto rm = row(m, 1);
+//     auto ea = element(a, 1);
+//     auto em = element(m, 0, 1);
+//     auto rm = row(m, 1);
 
-    ea(f);
-    em(f);
-    CHECK(sum == 12 + 13.23);
-    rm(f);
-    CHECK(sum == 12 + 13.23 + 12.22 + 23.23);
-}
+//     ea(f);
+//     em(f);
+//     CHECK(sum == 12 + 13.23);
+//     rm(f);
+//     CHECK(sum == 12 + 13.23 + 12.22 + 23.23);
+// }
 
-TEST_CASE("ith_element") {
-    auto a = make_node_array<poisson>(3, n_to_constant(1.0));
-    auto m = make_node_matrix<poisson>(2, 2, [](int, int) { return 1.0; });
-    set_value(a, {11, 12, 13});
-    set_value(m, {{2, 42}, {3, 43}});
+// TEST_CASE("ith_element") {
+//     auto a = make_node_array<poisson>(3, n_to_constant(1.0));
+//     auto m = make_node_matrix<poisson>(2, 2, [](int, int) { return 1.0; });
+//     set_value(a, {11, 12, 13});
+//     set_value(m, {{2, 42}, {3, 43}});
 
-    auto v = ith_element(a);
-    auto v2 = jth_element(a);
-    auto v3 = ijth_element(m);
+//     auto v = ith_element(a);
+//     auto v2 = jth_element(a);
+//     auto v3 = ijth_element(m);
 
-    int sum = 0;
-    auto f = [&sum](auto& value) { sum += value; };
+//     int sum = 0;
+//     auto f = [&sum](auto& value) { sum += value; };
 
-    v(0)(f);       // 11
-    v(1)(f);       // 12
-    v(2)(f);       // 13
-    v2(17, 1)(f);  // 12
-    v3(1, 0)(f);   // 3
-    CHECK(sum == (11 + 12 + 13 + 12 + 3));
-}
+//     v(0)(f);       // 11
+//     v(1)(f);       // 12
+//     v(2)(f);       // 13
+//     v2(17, 1)(f);  // 12
+//     v3(1, 0)(f);   // 3
+//     CHECK(sum == (11 + 12 + 13 + 12 + 3));
+// }
 
-TEST_CASE("itfunc collections") {
-    auto e = make_node<poisson>(1.0);
-    auto a = make_node_array<exponential>(3, n_to_constant(1.0));
-    set_value(e, 1);
-    set_value(a, {1.2, 2.3, 3.4});
+// TEST_CASE("itfunc collections") {
+//     auto e = make_node<poisson>(1.0);
+//     auto a = make_node_array<exponential>(3, n_to_constant(1.0));
+//     set_value(e, 1);
+//     set_value(a, {1.2, 2.3, 3.4});
 
-    auto col = make_valueview_collection(e, element(a, 1));
-    auto col2 = make_valueview_collection_i(ith_element(a));
+//     auto col = make_valueview_collection(e, element(a, 1));
+//     auto col2 = make_valueview_collection_i(ith_element(a));
 
-    double sum = 0;
-    auto f = [&sum](auto& value) { sum += value; };
+//     double sum = 0;
+//     auto f = [&sum](auto& value) { sum += value; };
 
-    col(f);
-    col2(2)(f);
-    CHECK(sum == 1 + 2.3 + 3.4);
-}
+//     col(f);
+//     col2(2)(f);
+//     CHECK(sum == 1 + 2.3 + 3.4);
+// }

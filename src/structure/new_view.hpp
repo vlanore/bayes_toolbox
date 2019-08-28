@@ -69,51 +69,41 @@ auto node_collection(Nodes&... nodes) {
 /*==================================================================================================
 ~~ Value views ~~
 ==================================================================================================*/
-template <class T>
-auto element_itfunc(T& ref) {
-    return make_valueview([&ref](auto&& f) { f(ref); });
-}
 
-template <class T>
-auto vector_itfunc(std::vector<T>& v) {
-    return make_valueview([&v](auto&& f) {
-        for (auto e : v) { f(e); };
-    });
-}
+// template <class T>
+// auto vector_itfunc(std::vector<T>& v) {
+//     return make_valueview([&v](auto&& f) {
+//         for (auto e : v) { f(e); };
+//     });
+// }
 
-template <class Node, class... Indexes>
-auto element(Node& node, Indexes... is) {
-    // @todo: check that sizeof...(Indexes) == dim(node)
-    return element_itfunc(raw_value(node, is...));
-}
+// template <class Node, class... Indexes>
+// auto row(Node& node, size_t row_nb) {
+//     static_assert(is_node_matrix<Node>::value, "Expects a node matrix");
+//     return vector_itfunc(get<value>(node).at(row_nb));
+// }
 
-template <class Node, class... Indexes>
-auto row(Node& node, size_t row_nb) {
-    static_assert(is_node_matrix<Node>::value, "Expects a node matrix");
-    return vector_itfunc(get<value>(node).at(row_nb));
-}
+// namespace overloads {
+//     template <class Node>
+//     auto full_valueview(lone_node_tag, Node& node) {
+//         return element_itfunc(get<value>(node));
+//     }
 
-namespace overloads {
-    template <class Node>
-    auto full_valueview(lone_node_tag, Node& node) {
-        return element_itfunc(get<value>(node));
-    }
+//     template <class Node>
+//     auto full_valueview(node_array_tag, Node& node) {
+//         return vector_itfunc(get<value>(node));
+//     }
+// }  // namespace overloads
 
-    template <class Node>
-    auto full_valueview(node_array_tag, Node& node) {
-        return vector_itfunc(get<value>(node));
-    }
-}  // namespace overloads
+// template <class T>
+// auto full_valueview(T& x) {
+//     return overloads::full_valueview(type_tag(x), x);
+// }
 
-template <class T>
-auto full_valueview(T& x) {
-    return overloads::full_valueview(type_tag(x), x);
-}
-
-template <class ItF>
-auto full_valueview(ValueView<ItF>& vv) {
-    return vv;
-}
+// template <class ItF>
+// auto full_valueview(ValueView<ItF>& vv) {
+//     return vv;
+// }
 
 /*==================================================================================================
 ~~ ith/jth itfunc generator generators ~~
