@@ -49,7 +49,7 @@ struct ValueView {
 
 // make function to auto-deduce lambda type
 template <class ItFunc>
-auto make_valueview(ItFunc&& itf) {
+auto make_valueview(ItFunc&& itf) {  //@fixme: could be problematic for lvalue references?
     return ValueView<ItFunc>{std::forward<ItFunc>(itf)};
 }
 

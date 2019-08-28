@@ -33,6 +33,7 @@ license and that you accept its terms.*/
 #include "distributions/gamma.hpp"
 #include "distributions/poisson.hpp"
 #include "operations/draw.hpp"
+#include "operations/element_vpv.hpp"
 #include "operations/element_vv.hpp"
 #include "operations/raw_value.hpp"
 #include "structure/ValueParamView.hpp"
@@ -68,6 +69,24 @@ TEST_CASE("Element_vv") {
     view1(f);
     view2(f);
     CHECK(ss.str() == "1.2;3;");
+}
+
+TEST_CASE("Element_vpv") {
+    auto my_node = make_node<gamma_ss>(1.0, 1.0);
+    auto my_array = make_node_array<gamma_ss>(3, n_to_one(my_node), n_to_constant(1.4));
+    set_value(my_node, 1.2);
+    set_value(my_array, {2.2, 3.3, 7.7});
+
+    auto view1 = element_vpv(my_node);
+    auto view2 = element_vpv(my_array, 1);
+
+    std::stringstream ss;
+    auto f = [&ss](auto x, auto shape, auto scale) {
+        ss << x << ":" << shape << "," << scale << ";";
+    };
+    view1(f);
+    view2(f);
+    CHECK(ss.str() == "1.2:1,1;3.3:1.2,1.4;");
 }
 
 TEST_CASE("Basic ValueParamView test") {

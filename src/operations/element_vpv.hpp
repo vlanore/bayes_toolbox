@@ -27,20 +27,50 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "raw_value.hpp"
-#include "structure/ValueView.hpp"
+#include "structure/ValueParamView.hpp"
+#include "structure/introspection.hpp"
 #include "structure/type_tag.hpp"
+
+namespace helper {
+
+    template <class Param>
+    auto param_from_packed_index(Param& param, NoIndex) {
+        return param();
+    }
+
+    template <class Param>
+    auto param_from_packed_index(Param& param, ArrayIndex index) {
+        return param(index.i);
+    }
+
+    template <class Param>
+    auto param_from_packed_index(Param& param, MatrixIndex index) {
+        return param(index.i, index.j);
+    }
+
+    template <class F, class Value, class Index, class Params, class... Keys>
+    void apply_to_value_param_tuple(F&& f, Value& x, Index index, Params& params,
+                                    type_list<Keys...>) {
+        f(x, param_from_packed_index(get<Keys>(params), index)...);
+    }
+
+}  // namespace helper
 
 namespace overloads {
     template <class Node, class Index>
-    auto element_vv(node_tag, Node& node, Index index) {
-        auto& value_ref = raw_value(node, index);
-        auto it_func = [&value_ref](auto&& f) { f(value_ref); };
-        return make_valueview(std::move(it_func));
+    auto element_vpv(node_tag, Node& node, Index index) {
+        auto& value = raw_value(node, index);
+        auto& params = get<struct params>(node);
+        using param_key_list = param_keys_t<node_distrib_t<Node>>;
+        auto it_func = [&value, &params, index](auto&& f) {
+            helper::apply_to_value_param_tuple(f, value, index, params, param_key_list{});
+        };
+        return make_valueparamview(std::move(it_func));
     }
 }  // namespace overloads
 
 template <class T, class... Is>
-auto element_vv(T& x, Is... indices) {
+auto element_vpv(T& x, Is... indices) {
     auto index = make_index(indices...);
-    return overloads::element_vv(type_tag(x), x, index);
+    return overloads::element_vpv(type_tag(x), x, index);
 }
