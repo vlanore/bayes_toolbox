@@ -31,31 +31,6 @@ license and that you accept its terms.*/
 #include "structure/introspection.hpp"
 #include "structure/type_tag.hpp"
 
-namespace helper {
-
-    template <class Param>
-    auto param_from_packed_index(Param& param, NoIndex) {
-        return param();
-    }
-
-    template <class Param>
-    auto param_from_packed_index(Param& param, ArrayIndex index) {
-        return param(index.i);
-    }
-
-    template <class Param>
-    auto param_from_packed_index(Param& param, MatrixIndex index) {
-        return param(index.i, index.j);
-    }
-
-    template <class F, class Value, class Index, class Params, class... Keys>
-    void apply_to_value_param_tuple(F&& f, Value& x, Index index, Params& params,
-                                    type_list<Keys...>) {
-        f(x, param_from_packed_index(get<Keys>(params), index)...);
-    }
-
-}  // namespace helper
-
 namespace overloads {
     template <class Node, class Index>
     auto element_vpv(node_tag, Node& node, Index index) {
