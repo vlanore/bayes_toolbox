@@ -127,6 +127,29 @@ TEST_CASE("Basic ValueParamView test") {
     CHECK(ss.str() == "v:3(1);v:4(1);v:5(1);");
 }
 
+TEST_CASE("whole-structure vpv constructors") {
+    auto my_node = make_node<poisson>(1.1);
+    auto my_array = make_node_array<poisson>(3, n_to_constant(1.2));
+    auto my_matrix = make_node_matrix<poisson>(2, 2, [](int, int) { return 1.3; });
+    set_value(my_node, 3);
+    set_value(my_array, {4, 5, 6});
+    set_value(my_matrix, {{7, 8}, {9, 10}});
+
+    auto node_vv = make_valueparamview(my_node);
+    auto array_vv = make_valueparamview(my_array);
+    auto matrix_vv = make_valueparamview(my_matrix);
+
+    std::stringstream ss;
+    auto f = [&ss](auto x, auto rate) { ss << x << ":" << rate << ";"; };
+
+    node_vv(f);
+    CHECK(ss.str() == "3:1.1;");
+    array_vv(f);
+    CHECK(ss.str() == "3:1.1;4:1.2;5:1.2;6:1.2;");
+    matrix_vv(f);
+    CHECK(ss.str() == "3:1.1;4:1.2;5:1.2;6:1.2;7:1.3;8:1.3;9:1.3;10:1.3;");
+}
+
 TEST_CASE("Element_vpv") {
     auto my_node = make_node<gamma_ss>(1.0, 1.0);
     auto my_array = make_node_array<gamma_ss>(3, n_to_one(my_node), n_to_constant(1.4));

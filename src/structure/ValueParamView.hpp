@@ -68,10 +68,51 @@ struct ValueParamView {
     //               "functions as arguments.");  //@fixme: not sure it works for this case
 };
 
-// make function to auto-deduce lambda type
-template <class ItFunc>
-auto make_valueparamview(ItFunc&& itf) {
-    return ValueParamView<ItFunc>{std::forward<ItFunc>(itf)};
+namespace overloads {
+
+    template <class ItFunc>
+    auto make_valueparamview_impl(unknown_tag, ItFunc itf) {  // assuming unknown = lambda
+        return ValueParamView<ItFunc>{itf};
+    }
+
+    template <class Node>
+    auto make_valueparamview_impl(lone_node_tag, Node& node) {
+        return make_valueparamview_impl(
+            unknown_tag{}, [&ref = get<value>(node), &params = get<params>(node)](auto&& f) {
+                helper::apply_to_value_param_tuple(f, ref, NoIndex{}, params,
+                                                   param_keys_t<node_distrib_t<Node>>{});
+            });
+    }
+
+    template <class Node>
+    auto make_valueparamview_impl(node_array_tag, Node& node) {
+        return make_valueparamview_impl(
+            unknown_tag{}, [&ref = get<value>(node), &params = get<params>(node)](auto&& f) {
+                for (size_t i = 0; i < ref.size(); i++) {
+                    helper::apply_to_value_param_tuple(f, ref[i], ArrayIndex{i}, params,
+                                                       param_keys_t<node_distrib_t<Node>>{});
+                }
+            });
+    }
+
+    template <class Node>
+    auto make_valueparamview_impl(node_matrix_tag, Node& node) {
+        return make_valueparamview_impl(
+            unknown_tag{}, [&ref = get<value>(node), &params = get<params>(node)](auto&& f) {
+                for (size_t i = 0; i < ref.size(); i++) {
+                    for (size_t j = 0; j < ref[i].size(); j++) {
+                        helper::apply_to_value_param_tuple(f, ref[i][j], MatrixIndex{i, j}, params,
+                                                           param_keys_t<node_distrib_t<Node>>{});
+                    }
+                }
+            });
+    }
+
+}  // namespace overloads
+
+template <class T>
+auto make_valueparamview(T&& x) {
+    return overloads::make_valueparamview_impl(type_tag(x), std::forward<T>(x));
 }
 
 // associated type trait
