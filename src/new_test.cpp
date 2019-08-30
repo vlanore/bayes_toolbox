@@ -36,6 +36,7 @@ license and that you accept its terms.*/
 #include "operations/element_vpv.hpp"
 #include "operations/element_vv.hpp"
 #include "operations/raw_value.hpp"
+#include "operations/row_vpv.hpp"
 #include "operations/row_vv.hpp"
 #include "structure/ValueParamView.hpp"
 #include "structure/array_utils.hpp"
@@ -99,6 +100,21 @@ TEST_CASE("Element_vpv") {
     view1(f);
     view2(f);
     CHECK(ss.str() == "1.2:1,1;3.3:1.2,1.4;");
+}
+
+TEST_CASE("Row_vpv") {
+    auto my_matrix = make_node_matrix<gamma_ss>(3, 2, [](int i, int j) { return double(i + j); },
+                                                [](int i, int j) { return double(i - j); });
+    set_value(my_matrix, {{4.1, 2.5}, {7.2, 8.1}, {2.13, 9.3}});
+
+    auto my_view = row_vpv(my_matrix, 1);
+
+    std::stringstream ss;
+    auto f = [&ss](auto x, auto shape, auto scale) {
+        ss << x << ":" << shape << "," << scale << ";";
+    };
+    my_view(f);
+    CHECK(ss.str() == "7.2:1,1;8.1:2,0;");
 }
 
 TEST_CASE("Basic ValueParamView test") {
