@@ -36,6 +36,7 @@ license and that you accept its terms.*/
 #include "operations/element_vpv.hpp"
 #include "operations/element_vv.hpp"
 #include "operations/raw_value.hpp"
+#include "operations/row_vv.hpp"
 #include "structure/ValueParamView.hpp"
 #include "structure/array_utils.hpp"
 #include "structure/new_view.hpp"
@@ -69,6 +70,17 @@ TEST_CASE("Element_vv") {
     view1(f);
     view2(f);
     CHECK(ss.str() == "1.2;3;");
+}
+
+TEST_CASE("Row_vv") {
+    auto my_matrix = make_node_matrix<poisson>(3, 2, [](int, int) { return 1.0; });
+    set_value(my_matrix, {{4, 7}, {11, 3}, {5, 13}});
+
+    auto my_view = row_vv(my_matrix, 1);
+
+    int sum = 0;
+    my_view([&sum](auto&& e) { sum += e; });
+    CHECK(sum == 14);  // 11 + 3
 }
 
 TEST_CASE("Element_vpv") {
