@@ -60,6 +60,29 @@ TEST_CASE("Basic ValueView test") {
     CHECK(sum == 12);
 }
 
+TEST_CASE("whole-structure vv constructors") {
+    auto my_node = make_node<poisson>(1.0);
+    auto my_array = make_node_array<poisson>(3, n_to_constant(1.0));
+    auto my_matrix = make_node_matrix<poisson>(2, 2, [](int, int) { return 1.0; });
+    set_value(my_node, 3);
+    set_value(my_array, {4, 5, 6});
+    set_value(my_matrix, {{7, 8}, {9, 10}});
+
+    auto node_vv = make_valueview(my_node);
+    auto array_vv = make_valueview(my_array);
+    auto matrix_vv = make_valueview(my_matrix);
+
+    int sum = 0;
+    auto f = [&sum](int e) { sum += e; };
+
+    node_vv(f);
+    CHECK(sum == 3);
+    array_vv(f);
+    CHECK(sum == 3 + 15);
+    matrix_vv(f);
+    CHECK(sum == 3 + 15 + 34);
+}
+
 TEST_CASE("Element_vv") {
     auto my_node = make_node<exponential>(1.0);
     auto my_array = make_node_array<poisson>(3, n_to_one(my_node));

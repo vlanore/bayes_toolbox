@@ -47,10 +47,39 @@ struct ValueView {
                   "functions as arguments.");
 };
 
-// make function to auto-deduce lambda type
-template <class ItFunc>
-auto make_valueview(ItFunc&& itf) {  //@fixme: could be problematic for lvalue references?
-    return ValueView<ItFunc>{std::forward<ItFunc>(itf)};
+namespace overloads {
+
+    template <class ItFunc>
+    auto make_valueview_impl(unknown_tag, ItFunc itf) {  // assuming unknown = lambda
+        return ValueView<ItFunc>{std::forward<ItFunc>(itf)};
+    }
+
+    template <class Node>
+    auto make_valueview_impl(lone_node_tag, Node& node) {
+        return make_valueview_impl(unknown_tag{}, [&ref = get<value>(node)](auto&& f) { f(ref); });
+    }
+
+    template <class Node>
+    auto make_valueview_impl(node_array_tag, Node& node) {
+        return make_valueview_impl(unknown_tag{}, [&ref = get<value>(node)](auto&& f) {
+            for (auto& e : ref) { f(e); }
+        });
+    }
+
+    template <class Node>
+    auto make_valueview_impl(node_matrix_tag, Node& node) {
+        return make_valueview_impl(unknown_tag{}, [&ref = get<value>(node)](auto&& f) {
+            for (auto& row : ref) {
+                for (auto& e : row) { f(e); }
+            }
+        });
+    }
+
+}  // namespace overloads
+
+template <class T>
+auto make_valueview(T&& x) {
+    return overloads::make_valueview_impl(type_tag(x), std::forward<T>(x));
 }
 
 // associated type trait
