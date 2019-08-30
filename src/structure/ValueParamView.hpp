@@ -115,6 +115,16 @@ auto make_valueparamview(T&& x) {
     return overloads::make_valueparamview_impl(type_tag(x), std::forward<T>(x));
 }
 
+template <class... Args>
+auto make_valueparamview_collection(Args&&... args) {
+    return make_valueparamview([col = std::make_tuple(make_valueparamview(args)...)](auto&& f) {
+        // function that takes an element of the collection (an itfunc) and passes f to it
+        auto g = [f](auto&& itf) mutable { itf(f); };
+        apply_to_tuple_helper(std::move(g), std::move(col),
+                              std::make_index_sequence<sizeof...(Args)>());
+    });
+}
+
 // associated type trait
 template <class T>
 struct is_valueparamview : std::false_type {};

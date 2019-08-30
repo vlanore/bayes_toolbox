@@ -199,6 +199,22 @@ TEST_CASE("Row_vpv") {
     CHECK(ss.str() == "7.2:1,1;8.1:2,0;");
 }
 
+TEST_CASE("ValueParamView collection") {
+    auto my_array = make_node_array<poisson>(3, n_to_constant(1.1));
+    auto my_matrix =
+        make_node_matrix<poisson>(3, 2, [](int i, int j) { return double(i + j + 0.2); });
+    set_value(my_array, {3, 4, 5});
+    set_value(my_matrix, {{6, 7}, {8, 9}, {10, 11}});
+
+    auto col = make_valueparamview_collection(my_array, row_vpv(my_matrix, 1));
+
+    std::stringstream ss;
+    auto f = [&ss](auto x, auto rate) { ss << x << ":" << rate << ";"; };
+
+    col(f);
+    CHECK(ss.str() == "3:1.1;4:1.1;5:1.1;8:1.2;9:2.2;");
+}
+
 /*==================================================================================================
 ~~ Other view-related stuff ~~
 ==================================================================================================*/
