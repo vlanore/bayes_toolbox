@@ -26,24 +26,23 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include <cstdlib>  // for size_t
+#include "raw_value.hpp"
+#include "structure/ValueView.hpp"
+#include "structure/type_tag.hpp"
 
-struct NoIndex {};
+namespace overloads {
+    template <class Node>
+    auto row_vv(node_matrix_tag, Node& node, ArrayIndex index) {
+        assert(index.i >= 0 && index.i < get<value>(node).size());
+        auto& row_ref = get<value>(node)[index.i];
+        auto it_func = [&row_ref](auto&& f) {
+            for (auto& e : row_ref) { f(e); }
+        };
+        return make_valueview(std::move(it_func));
+    }
+}  // namespace overloads
 
-struct ArrayIndex {
-    size_t i;
-    ArrayIndex(size_t i) : i(i) {}
-};
-
-struct MatrixIndex {
-    size_t i;
-    size_t j;
-    MatrixIndex(size_t i, size_t j) : i(i), j(j) {}
-};
-
-auto make_index() { return NoIndex(); }
-auto make_index(size_t i) { return ArrayIndex{i}; }
-auto make_index(size_t i, size_t j) { return MatrixIndex{i, j}; }
-auto make_index(NoIndex index) { return index; }
-auto make_index(ArrayIndex index) { return index; }
-auto make_index(MatrixIndex index) { return index; }
+template <class T>
+auto row_vv(T& x, ArrayIndex index) {
+    return overloads::row_vv(type_tag(x), x, index);
+}
