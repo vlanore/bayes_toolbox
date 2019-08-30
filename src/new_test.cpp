@@ -44,6 +44,9 @@ license and that you accept its terms.*/
 #include "structure/node.hpp"
 using namespace std;
 
+/*==================================================================================================
+~~ Value views ~~
+==================================================================================================*/
 TEST_CASE("Basic ValueView test") {
     auto my_array = make_node_array<poisson>(3, n_to_constant(1.0));
     set_value(my_array, {3, 4, 5});
@@ -84,6 +87,23 @@ TEST_CASE("Row_vv") {
     CHECK(sum == 14);  // 11 + 3
 }
 
+/*==================================================================================================
+~~ Value param views ~~
+==================================================================================================*/
+TEST_CASE("Basic ValueParamView test") {
+    auto my_array = make_node_array<poisson>(3, n_to_constant(1.0));
+    set_value(my_array, {3, 4, 5});
+
+    auto my_custom_view =
+        make_valueparamview([& v = get<value>(my_array), &p = get<params, rate>(my_array)](auto f) {
+            for (size_t i = 0; i < v.size(); i++) { f(v[i], p(i)); }
+        });
+
+    std::stringstream ss;
+    my_custom_view([&ss](int value, double param) { ss << "v:" << value << "(" << param << ");"; });
+    CHECK(ss.str() == "v:3(1);v:4(1);v:5(1);");
+}
+
 TEST_CASE("Element_vpv") {
     auto my_node = make_node<gamma_ss>(1.0, 1.0);
     auto my_array = make_node_array<gamma_ss>(3, n_to_one(my_node), n_to_constant(1.4));
@@ -117,20 +137,9 @@ TEST_CASE("Row_vpv") {
     CHECK(ss.str() == "7.2:1,1;8.1:2,0;");
 }
 
-TEST_CASE("Basic ValueParamView test") {
-    auto my_array = make_node_array<poisson>(3, n_to_constant(1.0));
-    set_value(my_array, {3, 4, 5});
-
-    auto my_custom_view =
-        make_valueparamview([& v = get<value>(my_array), &p = get<params, rate>(my_array)](auto f) {
-            for (size_t i = 0; i < v.size(); i++) { f(v[i], p(i)); }
-        });
-
-    std::stringstream ss;
-    my_custom_view([&ss](int value, double param) { ss << "v:" << value << "(" << param << ");"; });
-    CHECK(ss.str() == "v:3(1);v:4(1);v:5(1);");
-}
-
+/*==================================================================================================
+~~ Other view-related stuff ~~
+==================================================================================================*/
 TEST_CASE("is_iterator") {
     auto f = []() {};
     auto h = [](auto, auto) {};
