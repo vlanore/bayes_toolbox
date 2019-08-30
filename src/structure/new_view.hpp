@@ -67,45 +67,6 @@ auto node_collection(Nodes&... nodes) {
 }
 
 /*==================================================================================================
-~~ Value views ~~
-==================================================================================================*/
-
-// template <class T>
-// auto vector_itfunc(std::vector<T>& v) {
-//     return make_valueview([&v](auto&& f) {
-//         for (auto e : v) { f(e); };
-//     });
-// }
-
-// template <class Node, class... Indexes>
-// auto row(Node& node, size_t row_nb) {
-//     static_assert(is_node_matrix<Node>::value, "Expects a node matrix");
-//     return vector_itfunc(get<value>(node).at(row_nb));
-// }
-
-// namespace overloads {
-//     template <class Node>
-//     auto full_valueview(lone_node_tag, Node& node) {
-//         return element_itfunc(get<value>(node));
-//     }
-
-//     template <class Node>
-//     auto full_valueview(node_array_tag, Node& node) {
-//         return vector_itfunc(get<value>(node));
-//     }
-// }  // namespace overloads
-
-// template <class T>
-// auto full_valueview(T& x) {
-//     return overloads::full_valueview(type_tag(x), x);
-// }
-
-// template <class ItF>
-// auto full_valueview(ValueView<ItF>& vv) {
-//     return vv;
-// }
-
-/*==================================================================================================
 ~~ ith/jth itfunc generator generators ~~
 ==================================================================================================*/
 
@@ -130,15 +91,6 @@ auto ijth_element(Node& node) {
 /*==================================================================================================
 ~~ itfunc collections ~~
 ==================================================================================================*/
-template <class... Args>
-auto make_valueview_collection(Args&&... args) {
-    return make_valueview([col = std::make_tuple(full_valueview(args)...)](auto&& f) {
-        // function that takes an element of the collection (an itfunc) and passes f to it
-        auto g = [f](auto&& itf) mutable { itf(f); };
-        apply_to_tuple_helper(std::move(g), std::move(col),
-                              std::make_index_sequence<sizeof...(Args)>());
-    });
-}
 
 // @todo: allow direct node references and value views
 template <class... ItFs>

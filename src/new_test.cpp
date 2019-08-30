@@ -110,6 +110,22 @@ TEST_CASE("Row_vv") {
     CHECK(sum == 14);  // 11 + 3
 }
 
+TEST_CASE("ValueView collection") {
+    auto my_array = make_node_array<poisson>(3, n_to_constant(1.0));
+    auto my_matrix = make_node_matrix<gamma_ss>(3, 2, [](int i, int j) { return double(i + j); },
+                                                [](int i, int j) { return double(i - j); });
+    set_value(my_array, {3, 4, 5});
+    set_value(my_matrix, {{6.1, 7.1}, {8.1, 9.1}, {10.1, 11.1}});
+
+    auto col = make_valueview_collection(my_array, row_vv(my_matrix, 1));
+
+    double sum = 0;
+    auto f = [&sum](double e) { sum += e; };
+
+    col(f);
+    CHECK(sum == 12 + 8.1 + 9.1);
+}
+
 /*==================================================================================================
 ~~ Value param views ~~
 ==================================================================================================*/

@@ -82,6 +82,16 @@ auto make_valueview(T&& x) {
     return overloads::make_valueview_impl(type_tag(x), std::forward<T>(x));
 }
 
+template <class... Args>
+auto make_valueview_collection(Args&&... args) {
+    return make_valueview([col = std::make_tuple(make_valueview(args)...)](auto&& f) {
+        // function that takes an element of the collection (an itfunc) and passes f to it
+        auto g = [f](auto&& itf) mutable { itf(f); };
+        apply_to_tuple_helper(std::move(g), std::move(col),
+                              std::make_index_sequence<sizeof...(Args)>());
+    });
+}
+
 // associated type trait
 template <class T>
 struct is_valueview : std::false_type {};
