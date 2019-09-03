@@ -26,6 +26,8 @@ license and that you accept its terms.*/
 
 #pragma once
 
+#include "mcmc_utils.hpp"
+#include "operations/backup.hpp"
 #include "operations/draw.hpp"
 
 template <typename Gen>
