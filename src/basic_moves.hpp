@@ -34,3 +34,12 @@ double scale(double& value, Gen& gen, double tuning = 1.0) {
     value *= exp(multiplier);
     return multiplier;
 }
+
+template <class Target, class LogprobLambda, class Gen>
+void scaling_move(Target& target, LogprobLambda& logprob, Gen& gen) {
+    auto bkp = backup(target);
+    double logprob_before = logprob();
+    double log_hastings = scale(raw_value(target), gen);
+    bool accept = decide(logprob() - logprob_before + log_hastings, gen);
+    if (!accept) { restore(target, bkp); }
+}
