@@ -58,3 +58,38 @@ struct dirichlet {
         return sum_alpha_logx + std::lgamma(sum_alpha) - sum_lgam_alpha;
     }
 };
+
+struct dirichlet_cic {
+    using T = double;
+
+    using param_decl = param_decl_t<param<center, std::vector<double>>, param<invconc, double>>;
+
+    template <typename Gen>
+    static void array_draw(std::vector<T>& x, const std::vector<double>& center, double invconc,
+                           Gen& gen) {
+        size_t k = x.size();
+        assert(k = center.size());
+        double sum_y{0};
+        auto alpha = [&center, &invconc](size_t i) { return center[i] / invconc; };
+        for (size_t i = 0; i < k; i++) {
+            // @todo: wrong gamma distrib
+            x[i] = gamma_sr::draw(alpha(i), 1, gen);
+            sum_y += x[i];
+        }
+        for (size_t i = 0; i < k; i++) { x[i] /= sum_y; }
+    }
+
+    static double array_logprob(std::vector<T>& x, const std::vector<double>& center,
+                                double invconc) {
+        size_t k = x.size();
+        assert(k = center.size());
+        double sum_alpha{0}, sum_lgam_alpha{0}, sum_alpha_logx{0};
+        auto alpha = [&center, &invconc](size_t i) { return center[i] / invconc; };
+        for (size_t i = 0; i < k; i++) {
+            sum_alpha += alpha(i);
+            sum_lgam_alpha += std::lgamma(alpha(i));
+            sum_alpha_logx += (alpha(i) - 1) * log(x[i]);
+        }
+        return sum_alpha_logx + std::lgamma(sum_alpha) - sum_lgam_alpha;
+    }
+};

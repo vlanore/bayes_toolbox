@@ -54,7 +54,7 @@ namespace overloads {
 
     template <class Node, typename Gen, class... Keys>
     void perform_draw_array(Node& node, Gen& gen, std::tuple<Keys...>) {
-        node_distrib_t<Node>::array_draw(get<value>(node), get<Keys...>(get<params>(node))(), gen);
+        node_distrib_t<Node>::array_draw(get<value>(node), get<Keys>(get<params>(node))()..., gen);
     }
 
     template <class Node, typename Gen>
