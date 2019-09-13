@@ -37,6 +37,44 @@ double scale(double& value, Gen& gen, double tuning = 1.0) {
     return multiplier;
 }
 
+template <class Gen>
+double slide(double& value, Gen& gen, double tuning = 1.0) {
+    auto slide_amount = tuning * (draw_uniform(gen) - 0.5);
+    value += slide_amount;
+    return 0.;
+}
+
+template <class Gen>
+double slide_constrained(double& value, double min, double max, Gen& gen, double tuning = 1.0) {
+    assert(value >= min && value <= max);
+    slide(value, gen, tuning);
+    while (value < min || value > max) {
+        if (value < min) { value = 2 * min - value; }
+        if (value > max) { value = 2 * max - value; }
+    }
+    return 0.;
+}
+
+template <class Gen>
+double profile_move(std::vector<double>& vec, double tuning, Gen& gen) {
+    size_t n = vec.size();
+    assert(n > 1);
+
+    // draw two distinct indices in the vector
+    size_t i1 = std::uniform_int_distribution<size_t>(0, n - 1)(gen);
+    size_t i2 = std::uniform_int_distribution<size_t>(0, n - 2)(gen);
+    if (i1 == i2) { i2 += 1; }  // avoid collision
+
+    // slide move v1 and compensate to keep v1+v2 sum constant
+    double &v1{vec[i1]}, &v2{vec[i2]};
+    assert(v1 >= 0 && v2 >= 0);
+    double v1_before = v1;
+    slide_constrained(v1, 0, v1 + v2, gen, tuning);
+    v2 += v1_before - v1;  // compensation
+
+    return 0.;  // sliding move
+}
+
 template <class Target, class LogprobLambda, class Gen>
 void scaling_move(Target& target, LogprobLambda& logprob, Gen& gen) {
     auto bkp = backup(target);

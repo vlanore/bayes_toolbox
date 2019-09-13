@@ -28,6 +28,7 @@ license and that you accept its terms.*/
 
 #include "doctest.h"
 
+#include <iostream>
 #include "basic_moves.hpp"
 #include "distributions/categorical.hpp"
 #include "distributions/dirichlet.hpp"
@@ -516,4 +517,17 @@ TEST_CASE("Node type traits") {
     CHECK(!is_lone_node<decltype(nm)>::value);
     CHECK(!is_node_array<decltype(nm)>::value);
     CHECK(is_node_matrix<decltype(nm)>::value);
+}
+
+TEST_CASE("Profile move") {
+    auto gen = make_generator();
+    vector<double> v{0.1, 0.2, 0.25, 0.15, 0.3};
+    for (int i = 0; i < 5; i++) {
+        std::vector<double> v_cpy = v;
+
+        profile_move(v, 0.5, gen);
+
+        CHECK(::sum(v) == doctest::Approx(1.));
+        CHECK(v != v_cpy);
+    }
 }
