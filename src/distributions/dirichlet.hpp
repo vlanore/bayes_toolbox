@@ -84,7 +84,7 @@ struct dirichlet_cic {
         size_t k = x.size();
         assert(k = center.size());
         double sum_alpha{0}, sum_lgam_alpha{0}, sum_alpha_logx{0};
-        auto alpha = [&center, &invconc](size_t i) { return center[i] / invconc; };
+        auto alpha = [&center, invconc](size_t i) { return center[i] / invconc; };
         for (size_t i = 0; i < k; i++) {
             sum_alpha += alpha(i);
             sum_lgam_alpha += std::lgamma(alpha(i));

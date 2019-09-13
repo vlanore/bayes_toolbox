@@ -34,7 +34,7 @@ namespace overloads {
     template <class Node, class... Keys>
     double compute_array_logprob(Node& node, std::tuple<Keys...>) {
         return node_distrib_t<Node>::array_logprob(get<value>(node),
-                                                   get<Keys...>(get<params>(node))());
+                                                   get<Keys>(get<params>(node))()...);
     }
 
     template <class Node, class Index>
