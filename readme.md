@@ -20,6 +20,8 @@ draw(lambda, gen); // draws whole array
 double my_logprob = logprob(alpha) + logprob(mu) + logprob(lambda);
 ```
 
+More detail about library usage can be found in [the documentation](doc/index.md).
+
 Bayes' toolbox uses the following header-only libraries:
 * tagged_tuple - [github repo](https://github.com/vlanore/tagged_tuple) - [CeCill-C license](LICENSE.txt)
 * doctest - [github repo](https://github.com/onqtam/doctest) - [MIT license](utils/LICENSE.txt)
