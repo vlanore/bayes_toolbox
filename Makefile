@@ -50,4 +50,5 @@ test: all
 	@echo && _build/basic_test
 	@echo && _build/new_test
 	@echo && time -f"%E" _build/poisson_gamma
+	@echo && _build/example_1_1
 
