@@ -46,7 +46,7 @@ struct dirichlet {
         for (size_t i = 0; i < k; i++) { x[i] /= sum_y; }
     }
 
-    static double array_logprob(std::vector<T>& x, const std::vector<double>& alpha) {
+    static double array_logprob(const std::vector<T>& x, const std::vector<double>& alpha) {
         size_t k = x.size();
         assert(k = alpha.size());
         double sum_alpha{0}, sum_lgam_alpha{0}, sum_alpha_logx{0};
@@ -79,7 +79,7 @@ struct dirichlet_cic {
         for (size_t i = 0; i < k; i++) { x[i] /= sum_y; }
     }
 
-    static double array_logprob(std::vector<T>& x, const std::vector<double>& center,
+    static double array_logprob(const std::vector<T>& x, const std::vector<double>& center,
                                 double invconc) {
         size_t k = x.size();
         assert(k = center.size());
@@ -90,6 +90,9 @@ struct dirichlet_cic {
             sum_lgam_alpha += std::lgamma(alpha(i));
             sum_alpha_logx += (alpha(i) - 1) * log(x[i]);
         }
+        // DEBUG("P_dirichlet(x={}, center={}, invconc={}) = {}", vector_to_string(x),
+        //       vector_to_string(center), invconc,
+        //       sum_alpha_logx - std::lgamma(sum_alpha) + sum_lgam_alpha);
         return sum_alpha_logx + std::lgamma(sum_alpha) - sum_lgam_alpha;
     }
 };
