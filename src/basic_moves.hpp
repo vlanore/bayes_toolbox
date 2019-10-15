@@ -75,11 +75,36 @@ double profile_move(std::vector<double>& vec, double tuning, Gen& gen) {
     return 0.;  // sliding move
 }
 
-template <class Target, class LogprobLambda, class Gen>
-void scaling_move(Target& target, LogprobLambda& logprob, Gen& gen) {
-    auto bkp = backup(target);
-    double logprob_before = logprob();
-    double log_hastings = scale(raw_value(target), gen);
-    bool accept = decide(logprob() - logprob_before + log_hastings, gen);
-    if (!accept) { restore(target, bkp); }
+struct NoUpdate {
+    void operator()() {}
+};
+
+/**
+ * Generic Metropolis-Hastings move function
+ * Proposal distribution should be a lambda function that returns Hastings log ratio
+ */
+template <class Node, class MB, class Proposal, class Gen, class Update = NoUpdate>
+void mh_move(Node& node, MB blanket, Proposal P, Gen& gen, Update update = {}) {
+    auto bkp = backup(node);
+    double logprob_before = logprob(blanket);
+    double log_hastings = P(raw_value(node), gen);
+    update();
+    bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
+    if (!accept) {
+        restore(node, bkp);
+        update();
+    }
+}
+
+template <class Node, class MB, class Gen>
+void scaling_move(Node& node, MB blanket, Gen& gen) {
+    mh_move(node, blanket, [](auto& value, auto& gen) { return scale(value, gen); }, gen);
+}
+
+template <class Node, class MB, class Gen>
+void slide_constrained_move(Node& node, MB blanket, Gen& gen, double min, double max) {
+    assert(raw_value(node) >= min && raw_value(node) <= max);
+    mh_move(node, blanket,
+            [min, max](auto& value, auto& gen) { return slide_constrained(value, min, max, gen); },
+            gen);
 }
