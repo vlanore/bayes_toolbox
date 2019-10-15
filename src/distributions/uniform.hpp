@@ -26,36 +26,19 @@ license and that you accept its terms.*/
 
 #pragma once
 
-// tags for struct indexation
-struct rate {};
-struct shape {};
-struct scale {};
-struct weight_a {};
-struct weight_b {};
-struct prob {};
-struct concentration {};
-struct center {};
-struct invconc {};
-struct invshape {};
-struct mean {};
-struct weights {};
-struct distrib {};
-struct value {};
-struct params {};
-struct backup_value {};
-struct suffstat {};
-struct suffstat_type {};
-struct target {};
-struct lower_bound {};
-struct upper_bound {};
+#include "structure/distrib_utils.hpp"
 
-// tags for class typing
-struct model_tag {};
-struct node_tag {};
-struct lone_node_tag : node_tag {};
-struct node_array_tag : node_tag {};
-struct node_matrix_tag : node_tag {};
-struct view_tag {};
-struct unknown_tag {};
-struct suffstat_tag {};
-struct ref_tag {};
+struct uniform {
+    using T = pos_real;
+
+    using param_decl =
+        param_decl_t<param<struct lower_bound, spos_real>, param<struct upper_bound, spos_real>>;
+
+    template <typename Gen>
+    static T draw(spos_real lower_bound, spos_real upper_bound, Gen& gen) {
+        std::uniform_real_distribution<double> distrib(lower_bound, upper_bound);
+        return distrib(gen);
+    }
+
+    static real logprob(T x, spos_real a, spos_real b) { return -log(b - a); }
+};
