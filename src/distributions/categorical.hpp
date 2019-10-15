@@ -40,5 +40,5 @@ struct categorical {
         return distrib(gen);
     }
 
-    static double logprob(T& x, const std::vector<double>& w) { return w[x]; }
+    static double logprob(const T& x, const std::vector<double>& w) { return log(w[x]); }
 };
