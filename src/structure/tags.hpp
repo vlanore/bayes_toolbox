@@ -30,6 +30,9 @@ license and that you accept its terms.*/
 struct rate {};
 struct shape {};
 struct scale {};
+struct weight_a {};
+struct weight_b {};
+struct prob {};
 struct concentration {};
 struct center {};
 struct invconc {};

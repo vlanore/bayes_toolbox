@@ -26,19 +26,43 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include <cstdlib>
-#include <vector>
+#include "structure/distrib_utils.hpp"
+#include "utils/math_utils.hpp"
 
-using real = double;
-using pos_real = double;
-using spos_real = double;
-using unit_real = double;
+struct beta_ss {
+    using T = unit_real;
 
-using integer = int;
-using pos_integer = size_t;
-using spos_integer = size_t;
+    using param_decl = param_decl_t<param<weight_a, spos_real>, param<weight_b, spos_real>>;
 
-template <class T>
-using matrix = std::vector<std::vector<T>>;
+    template <typename Gen>
+    static T draw(spos_real weight_a, spos_real weight_b, Gen& gen) {
+        std::gamma_distribution<double> distriba(positive_real(weight_a), 1.0);
+        std::gamma_distribution<double> distribb(positive_real(weight_b), 1.0);
+        auto aa = distriba(gen);
+        auto bb = distribb(gen); 
+        return {aa / (aa+bb)};
+    }
 
-using indicator = char;
+    static real logprob(T x, spos_real alpha, spos_real beta) {
+        return std::lgamma(alpha + beta) - std::lgamma(alpha) - std::lgamma(beta) + (alpha-1) * log(x) + (beta-1) * log(1-x);
+    }
+};
+
+/*
+struct gamma_ss_suffstats {
+    double sum;
+    double sum_log;
+    size_t N;
+
+    using distrib = gamma_ss;
+
+    static gamma_ss_suffstats gather(const std::vector<typename gamma_ss::T>& array) {
+        return {::sum(array), ::sum(array), array.size()};
+    }
+
+    static double logprob(gamma_ss_suffstats ss, spos_real k, spos_real theta) {
+        return -ss.N * std::lgamma(k) - ss.N * k * log(theta) + (k - 1) * ss.sum_log -
+               (1 / theta) * ss.sum;
+    }
+};
+*/

@@ -26,19 +26,20 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include <cstdlib>
-#include <vector>
+#include "structure/distrib_utils.hpp"
+#include "utils/math_utils.hpp"
 
-using real = double;
-using pos_real = double;
-using spos_real = double;
-using unit_real = double;
+struct bernoulli {
+    using T = pos_integer;
 
-using integer = int;
-using pos_integer = size_t;
-using spos_integer = size_t;
+    using param_decl = param_decl_t<param<prob, unit_real>>;
 
-template <class T>
-using matrix = std::vector<std::vector<T>>;
+    template <typename Gen>
+    static T draw(unit_real pi, Gen& gen) {
+        std::vector<double> w = {pi, 1-pi};
+        std::discrete_distribution<T> distrib(w.begin(), w.end());
+        return distrib(gen);
+    }
 
-using indicator = char;
+    static double logprob(T x, unit_real prob) { return x ? log(prob) : log(1.0 - prob); }
+};
