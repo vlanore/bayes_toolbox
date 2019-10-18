@@ -28,5 +28,5 @@ add_executable(example_1_1 "examples/example_1_1.cpp")
 
 add_executable(model_example "src/model_example.cpp")
 add_executable(example_1_1b "examples/example_1_1b.cpp")
-
+add_executable(unif_bern "examples/unif_bern.cpp")
 # add_executable(poisson_gamma_mixture "src/model_example_2.cpp")
