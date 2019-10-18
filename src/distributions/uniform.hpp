@@ -40,5 +40,5 @@ struct uniform {
         return distrib(gen);
     }
 
-    static real logprob(T x, spos_real a, spos_real b) { return -log(b - a); }
+    static real logprob(T, spos_real a, spos_real b) { return -log(b - a); }
 };
