@@ -87,7 +87,7 @@ template <class Node, class MB, class Proposal, class Gen, class Update = NoUpda
 void mh_move(Node& node, MB blanket, Proposal P, Gen& gen, Update update = {}) {
     auto bkp = backup(node);
     double logprob_before = logprob(blanket);
-    double log_hastings = P(raw_value(node), gen);
+    double log_hastings = P(get<value>(node), gen);
     update();
     bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
     if (!accept) {
