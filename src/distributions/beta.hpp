@@ -39,12 +39,13 @@ struct beta_ss {
         std::gamma_distribution<double> distriba(positive_real(weight_a), 1.0);
         std::gamma_distribution<double> distribb(positive_real(weight_b), 1.0);
         auto aa = distriba(gen);
-        auto bb = distribb(gen); 
-        return {aa / (aa+bb)};
+        auto bb = distribb(gen);
+        return {aa / (aa + bb)};
     }
 
     static real logprob(T x, spos_real alpha, spos_real beta) {
-        return std::lgamma(alpha + beta) - std::lgamma(alpha) - std::lgamma(beta) + (alpha-1) * log(x) + (beta-1) * log(1-x);
+        return std::lgamma(alpha + beta) - std::lgamma(alpha) - std::lgamma(beta) +
+               (alpha - 1) * log(x) + (beta - 1) * log(1 - x);
     }
 };
 

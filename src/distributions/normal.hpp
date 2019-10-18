@@ -40,8 +40,7 @@ struct normal {
     }
 
     static real logprob(T x, pos_real mean, spos_real variance) {
-      double y = ( x - mean ) / variance;
-      return -0.5 * y * y  - log( variance * sqrt ( 2.0 * RbConstants::PI ) );
+        double y = (x - mean) / variance;
+        return -0.5 * y * y - log(variance * sqrt(2.0 * RbConstants::PI));
     }
-
 };
