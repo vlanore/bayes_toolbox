@@ -19,7 +19,7 @@ of free software, that may mean that it is complicated to manipulate, and that a
 that it is reserved for developers and experienced professionals having in-depth computer knowledge.
 Users are therefore encouraged to load and test the software's suitability as regards their
 requirements in conditions enabling the security of their systems and/or data to be ensured and,
-more generally, to use and operate it in the same conditions as regards security.
+more generally, to use and opebeta_ it in the same conditions as regards security.
 
 The fact that you are presently reading this means that you have had knowledge of the CeCILL-C
 license and that you accept its terms.*/
@@ -40,62 +40,65 @@ license and that you accept its terms.*/
 #include "tagged_tuple/src/fancy_syntax.hpp"
 using namespace std;
 
-TOKEN(alpha)
-TOKEN(mu)
+TOKEN(alpha_)
+TOKEN(beta_)
 TOKEN(lambda)
 TOKEN(K)
 
 auto poisson_gamma(size_t size, size_t size2) {
-    auto alpha = make_node<exponential>(1.0);
-    auto mu = make_node<exponential>(1.0);
-    auto lambda = make_node_array<gamma_ss>(size, n_to_one(alpha), n_to_one(mu));
+    auto alpha_ = make_node<exponential>(1.0);
+    auto beta_ = make_node<exponential>(1.0);
+    auto lambda = make_node_array<gamma_sr>(size, n_to_one(alpha_), n_to_one(beta_));
     auto K = make_node_matrix<poisson>(size, size2,
                                        [& v = get<value>(lambda)](int i, int) { return v[i]; });
     // clang-format off
     return make_model(
-         alpha_ = move(alpha),
-            mu_ = move(mu),
+        alpha__ = move(alpha_),
+         beta__ = move(beta_),
         lambda_ = move(lambda),
              K_ = move(K)
     );  // clang-format on
 }
 
-template <class Node, class MB, class Gen, class... IndexArgs>
-void scaling_move(Node& node, MB blanket, Gen& gen, IndexArgs... args) {
-    auto index = make_index(args...);
-    auto bkp = backup(node, index);
-    double logprob_before = logprob(blanket);
-    double log_hastings = scale(raw_value(node, index), gen);
-    bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
-    if (!accept) { restore(node, bkp, index); }
-}
-
 int main() {
     auto gen = make_generator();
 
-    constexpr size_t nb_it{100'000}, len_lambda{5}, len_K{3};
+    constexpr size_t nb_it{100'000}, len_lambda{50}, len_K{20};
     auto m = poisson_gamma(len_lambda, len_K);
 
-    auto v = make_view<alpha, mu, lambda>(m);
-    draw(v, gen);
-    set_value(K_(m), {{1, 2, 1}, {1, 2, 2}, {1, 2, 1}, {2, 1, 2}, {2, 1, 3}});
+    auto v = make_view<alpha_, beta_, lambda, K>(m);
 
-    double alpha_sum{0}, mu_sum{0}, lambda_sum{0};
+    // Generate initial model parameters, including "observed" values K
+    draw(v, gen);
+    // Save simulated values
+    auto bkp_alpha = get<alpha_, value>(m);
+    auto bkp_beta = get<beta_, value>(m);
+    auto bkp_lambda = get<lambda, value>(m);
+    auto bkp_K = get<K, value>(m);
+
+    // Reset model
+    draw(v, gen);
+    // Set observations
+    set_value(K_(m), bkp_K);
+
+    double alpha__sum{0}, beta__sum{0}, lambda_sum{0};
 
     for (size_t it = 0; it < nb_it; it++) {
-        scaling_move(alpha_(m), make_view<alpha, lambda>(m), gen);
-        scaling_move(mu_(m), make_view<mu, lambda>(m), gen);
-        alpha_sum += raw_value(alpha_(m));
-        mu_sum += raw_value(mu_(m));
+        scaling_move(alpha__(m), make_view<alpha_, lambda>(m), gen);
+        scaling_move(beta__(m), make_view<beta_, lambda>(m), gen);
+        alpha__sum += raw_value(alpha__(m));
+        beta__sum += raw_value(beta__(m));
 
-        for (size_t i = 0; i < 5; i++) {
+        for (size_t i = 0; i < len_lambda; i++) {
             auto lambda_mb = make_view(make_ref<K>(m, i), make_ref<lambda>(m, i));
-            scaling_move(lambda_(m), lambda_mb, gen, i);
+            mh_move(lambda_(m), lambda_mb,
+                    [i](auto& value, auto& gen) { return scale(value[i], gen); }, gen);
             lambda_sum += raw_value(lambda_(m), i);
         }
     }
 
-    std::cout << "alpha = " << alpha_sum / float(nb_it) << ", mu = " << mu_sum / float(nb_it)
-              << std::endl;
-    std::cout << "lambda = " << lambda_sum / (float(nb_it) * len_lambda) << std::endl;
+    std::cout << "alpha_MCMC = " << alpha__sum / float(nb_it) << "\n"
+              << "alpha_bkp = " << bkp_alpha << "\n"
+              << "beta_ = " << beta__sum / float(nb_it) << "\n"
+              << "beta_bkp = " << bkp_beta << "\n";
 }
