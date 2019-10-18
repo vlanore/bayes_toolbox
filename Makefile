@@ -43,7 +43,7 @@ clean:
 # ==================================================================================================
 .PHONY: format # Requires: clang-format
 format:
-	@clang-format -i `find src -name *.*pp`
+	@clang-format -i `find src -name *.*pp` `find examples -name *.*pp`
 
 # ==================================================================================================
 #  TESTING
