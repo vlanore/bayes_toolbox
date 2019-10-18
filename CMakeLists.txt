@@ -24,4 +24,9 @@ add_executable(basic_test "src/test.cpp")
 add_executable(new_test "src/new_test.cpp")
 add_executable(poisson_gamma "src/model_example.cpp")
 add_executable(example_1_1 "examples/example_1_1.cpp")
+
+
+add_executable(model_example "src/model_example.cpp")
+add_executable(example_1_1b "examples/example_1_1b.cpp")
+
 # add_executable(poisson_gamma_mixture "src/model_example_2.cpp")
