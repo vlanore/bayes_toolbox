@@ -10,6 +10,9 @@ _build: CMakeLists.txt
 	@mkdir _build
 	@cd _build ; cmake ..
 
+modules:
+	git submodule update --init --recursive
+
 .PHONY: coverage
 coverage:
 	@rm -rf _build
