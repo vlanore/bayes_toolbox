@@ -63,7 +63,7 @@ auto poisson_gamma(size_t size, size_t size2) {
 int main() {
     auto gen = make_generator();
 
-    constexpr size_t nb_it{100'000}, len_lambda{50}, len_K{20};
+    constexpr size_t nb_it{100'000}, len_lambda{5}, len_K{3};
     auto m = poisson_gamma(len_lambda, len_K);
 
     auto v = make_view<alpha_, beta_, lambda, K>(m);
