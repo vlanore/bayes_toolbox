@@ -29,14 +29,18 @@ license and that you accept its terms.*/
 #include "gamma.hpp"
 
 struct dirichlet {
-    using T = double;
-
+    using T = std::vector<double>;
     using param_decl = param_decl_t<param<concentration, std::vector<double>>>;
 
     template <typename Gen>
-    static void array_draw(std::vector<T>& x, const std::vector<double>& alpha, Gen& gen) {
+    static T draw(const std::vector<double>& alpha, Gen& gen) {
+    // static void array_draw(T& x, const std::vector<double>& alpha, Gen& gen) {
+        size_t k = alpha.size();
+        T x(k,0);
+        /*
         size_t k = x.size();
         assert(k = alpha.size());
+        */
         double sum_y{0};
         for (size_t i = 0; i < k; i++) {
             // @todo: wrong gamma distrib
@@ -44,9 +48,10 @@ struct dirichlet {
             sum_y += x[i];
         }
         for (size_t i = 0; i < k; i++) { x[i] /= sum_y; }
+        return x;
     }
 
-    static double array_logprob(const std::vector<T>& x, const std::vector<double>& alpha) {
+    static double logprob(T x, const std::vector<double>& alpha) {
         size_t k = x.size();
         assert(k = alpha.size());
         double sum_alpha{0}, sum_lgam_alpha{0}, sum_alpha_logx{0};

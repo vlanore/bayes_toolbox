@@ -483,18 +483,20 @@ TEST_CASE("across_values_params") {
     CHECK(ss.str() == "2(3);");
 }
 
+/*
 TEST_CASE("has_array_logprob/draw") {
     CHECK(!has_array_logprob<poisson>::value);
     CHECK(has_array_logprob<dirichlet>::value);
     CHECK(!has_array_draw<poisson>::value);
     CHECK(has_array_draw<dirichlet>::value);
 }
+*/
 
 TEST_CASE("dirichlet logprob test") {
     auto gen = make_generator();
-    auto v = make_vector_node<dirichlet>(3, []() { return std::vector<double>{2, 3, 5}; });
+    auto v = make_node<dirichlet>(std::vector<double>{2,3,5});
     draw(v, gen);
-    CHECK(raw_value(v, 0) + raw_value(v, 1) + raw_value(v, 2) == doctest::Approx(1.));
+    CHECK(raw_value(v)[0] + raw_value(v)[1] + raw_value(v)[2] == doctest::Approx(1.));
     auto t = make_node<categorical>(get<value>(v));
     check_mean(raw_value(t),
                [&]() {

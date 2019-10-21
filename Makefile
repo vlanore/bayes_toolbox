@@ -52,7 +52,7 @@ format:
 test: all
 	@echo && _build/basic_test
 	@echo && _build/new_test
-	@echo && time -f"%E" _build/poisson_gamma
+	@echo && time _build/poisson_gamma
 	@echo && _build/example_1_1
 	@echo && _build/coin_toss
 	@echo && _build/coin_tosses
