@@ -47,13 +47,13 @@ TOKEN(bern)
 
 // Model definition
 auto bernoulli_model(size_t size) {
-    auto p = make_node<uniform>(0., 1.);    // p ~ U(0,1)
-    auto bern = make_node_array<bernoulli>(size, n_to_one(p));    // bern ~ Bern(p)
+    auto p = make_node<uniform>(0., 1.);                        // p ~ U(0,1)
+    auto bern = make_node_array<bernoulli>(size, n_to_one(p));  // bern ~ Bern(p)
     // clang-format off
     return make_model(
            p_ = move(p),
         bern_ = move(bern)
-    );  // clang-format on
+    );                      // clang-format on
 }
 
 int main() {
@@ -71,13 +71,12 @@ int main() {
 
     for (size_t it = 0; it < nb_it; ++it) {
         // propose move for p, provided a Markov blanket of p
-        slide_constrained_move(p_(m), v, gen, 0., 1.);
+        slide_constrained_move(p_(m), logprob_of_blanket(v), gen, 0., 1.);
         p_sum += raw_value(p_(m));
     }
-    float p_mean =  p_sum / float(nb_it);
+    float p_mean = p_sum / float(nb_it);
     std::cout << "p = " << p_mean << std::endl;
-    if (std::abs(p_mean - (n_obs+1.) / (n_obs+2.)) > 0.1)
-    {
+    if (std::abs(p_mean - (n_obs + 1.) / (n_obs + 2.)) > 0.1) {
         return 1;
     } else {
         return 0;

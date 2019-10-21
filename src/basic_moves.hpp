@@ -83,28 +83,33 @@ struct NoUpdate {
  * Generic Metropolis-Hastings move function
  * Proposal distribution should be a lambda function that returns Hastings log ratio
  */
-template <class Node, class MB, class Proposal, class Gen, class Update = NoUpdate>
-void mh_move(Node& node, MB blanket, Proposal P, Gen& gen, Update update = {}) {
+template <class Node, class LogProb, class Proposal, class Gen, class Update = NoUpdate>
+void mh_move(Node& node, LogProb lp, Proposal P, Gen& gen, Update update = {}) {
     auto bkp = backup(node);
-    double logprob_before = logprob(blanket);
+    double logprob_before = lp();
     double log_hastings = P(get<value>(node), gen);
     update();
-    bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
+    bool accept = decide(lp() - logprob_before + log_hastings, gen);
     if (!accept) {
         restore(node, bkp);
         update();
     }
 }
 
-template <class Node, class MB, class Gen>
-void scaling_move(Node& node, MB blanket, Gen& gen) {
-    mh_move(node, blanket, [](auto& value, auto& gen) { return scale(value, gen); }, gen);
+template <class Node, class LogProb, class Gen>
+void scaling_move(Node& node, LogProb lp, Gen& gen) {
+    mh_move(node, lp, [](auto& value, auto& gen) { return scale(value, gen); }, gen);
 }
 
-template <class Node, class MB, class Gen>
-void slide_constrained_move(Node& node, MB blanket, Gen& gen, double min, double max) {
+template <class Node, class LogProb, class Gen>
+void slide_constrained_move(Node& node, LogProb lp, Gen& gen, double min, double max) {
     assert(raw_value(node) >= min && raw_value(node) <= max);
-    mh_move(node, blanket,
+    mh_move(node, lp,
             [min, max](auto& value, auto& gen) { return slide_constrained(value, min, max, gen); },
             gen);
+}
+
+template <class MB>
+auto logprob_of_blanket(MB blanket) {
+    return [blanket]() { return logprob(blanket); };
 }

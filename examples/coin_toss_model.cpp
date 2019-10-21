@@ -71,17 +71,14 @@ int main() {
 
     for (size_t it = 0; it < nb_it; ++it) {
         // propose move for p, provided a Markov blanket of p
-        slide_constrained_move(p_(m), v, gen, 0., 1.);
+        slide_constrained_move(p_(m), logprob_of_blanket(v), gen, 0., 1.);
         p_sum += raw_value(p_(m));
     }
     float p_mean = p_sum / float(nb_it);
     std::cout << "p = " << p_mean << std::endl;
-    if (std::abs(p_mean - 2. / 3.) > 0.1)
-    {
+    if (std::abs(p_mean - 2. / 3.) > 0.1) {
         return 1;
     } else {
         return 0;
     }
 }
-
-

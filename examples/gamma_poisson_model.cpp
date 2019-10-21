@@ -84,14 +84,14 @@ int main() {
     double alpha__sum{0}, beta__sum{0}, lambda_sum{0};
 
     for (size_t it = 0; it < nb_it; it++) {
-        scaling_move(alpha__(m), make_view<alpha_, lambda>(m), gen);
-        scaling_move(beta__(m), make_view<beta_, lambda>(m), gen);
+        scaling_move(alpha__(m), logprob_of_blanket(make_view<alpha_, lambda>(m)), gen);
+        scaling_move(beta__(m), logprob_of_blanket(make_view<beta_, lambda>(m)), gen);
         alpha__sum += raw_value(alpha__(m));
         beta__sum += raw_value(beta__(m));
 
         for (size_t i = 0; i < len_lambda; i++) {
             auto lambda_mb = make_view(make_ref<K>(m, i), make_ref<lambda>(m, i));
-            mh_move(lambda_(m), lambda_mb,
+            mh_move(lambda_(m), logprob_of_blanket(lambda_mb),
                     [i](auto& value, auto& gen) { return scale(value[i], gen); }, gen);
             lambda_sum += raw_value(lambda_(m), i);
         }
