@@ -56,3 +56,4 @@ test: all
 	@echo && _build/example_1_1
 	@echo && _build/coin_toss
 	@echo && _build/coin_tosses
+	@echo && _build/coin_tosses_beta
