@@ -26,9 +26,11 @@ license and that you accept its terms.*/
 
 #include <iostream>
 #include "basic_moves.hpp"
+#include "distributions/bernoulli.hpp"
 #include "distributions/exponential.hpp"
 #include "distributions/gamma.hpp"
 #include "distributions/poisson.hpp"
+#include "distributions/uniform.hpp"
 #include "mcmc_utils.hpp"
 #include "operations/backup.hpp"
 #include "operations/logprob.hpp"
@@ -40,62 +42,43 @@ license and that you accept its terms.*/
 #include "tagged_tuple/src/fancy_syntax.hpp"
 using namespace std;
 
-TOKEN(alpha)
-TOKEN(mu)
-TOKEN(lambda)
-TOKEN(K)
+TOKEN(p)
+TOKEN(bern)
 
-auto poisson_gamma(size_t size, size_t size2) {
-    auto alpha = make_node<exponential>(1.0);
-    auto mu = make_node<exponential>(1.0);
-    auto lambda = make_node_array<gamma_ss>(size, n_to_one(alpha), n_to_one(mu));
-    auto K = make_node_matrix<poisson>(size, size2,
-                                       [& v = get<value>(lambda)](int i, int) { return v[i]; });
+// Model definition
+auto bernoulli_model(size_t size) {
+    auto p = make_node<uniform>(0., 1.);                        // p ~ U(0,1)
+    auto bern = make_node_array<bernoulli>(size, n_to_one(p));  // bern ~ Bern(p)
     // clang-format off
     return make_model(
-         alpha_ = move(alpha),
-            mu_ = move(mu),
-        lambda_ = move(lambda),
-             K_ = move(K)
-    );  // clang-format on
-}
-
-template <class Node, class MB, class Gen, class... IndexArgs>
-void scaling_move(Node& node, MB blanket, Gen& gen, IndexArgs... args) {
-    auto index = make_index(args...);
-    auto bkp = backup(node, index);
-    double logprob_before = logprob(blanket);
-    double log_hastings = scale(raw_value(node, index), gen);
-    bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
-    if (!accept) { restore(node, bkp, index); }
+           p_ = move(p),
+        bern_ = move(bern)
+    );                      // clang-format on
 }
 
 int main() {
     auto gen = make_generator();
 
-    constexpr size_t nb_it{100'000}, len_lambda{5}, len_K{3};
-    auto m = poisson_gamma(len_lambda, len_K);
-
-    auto v = make_view<alpha, mu, lambda>(m);
+    constexpr size_t nb_it{100'000};
+    int n_obs = 2;
+    auto m = bernoulli_model(n_obs);
+    auto v = make_view<p, bern>(m);
     draw(v, gen);
-    set_value(K_(m), {{1, 2, 1}, {1, 2, 2}, {1, 2, 1}, {2, 1, 2}, {2, 1, 3}});
 
-    double alpha_sum{0}, mu_sum{0}, lambda_sum{0};
+    set_value(bern_(m), {true, true});
 
-    for (size_t it = 0; it < nb_it; it++) {
-        scaling_move(alpha_(m), make_view<alpha, lambda>(m), gen);
-        scaling_move(mu_(m), make_view<mu, lambda>(m), gen);
-        alpha_sum += raw_value(alpha_(m));
-        mu_sum += raw_value(mu_(m));
+    double p_sum{0};
 
-        for (size_t i = 0; i < 5; i++) {
-            auto lambda_mb = make_view(make_ref<K>(m, i), make_ref<lambda>(m, i));
-            scaling_move(lambda_(m), lambda_mb, gen, i);
-            lambda_sum += raw_value(lambda_(m), i);
-        }
+    for (size_t it = 0; it < nb_it; ++it) {
+        // propose move for p, provided a Markov blanket of p
+        slide_constrained_move(p_(m), logprob_of_blanket(v), gen, 0., 1.);
+        p_sum += raw_value(p_(m));
     }
-
-    std::cout << "alpha = " << alpha_sum / float(nb_it) << ", mu = " << mu_sum / float(nb_it)
-              << std::endl;
-    std::cout << "lambda = " << lambda_sum / (float(nb_it) * len_lambda) << std::endl;
+    float p_mean = p_sum / float(nb_it);
+    std::cout << "p = " << p_mean << std::endl;
+    if (std::abs(p_mean - (n_obs + 1.) / (n_obs + 2.)) > 0.1) {
+        return 1;
+    } else {
+        return 0;
+    }
 }

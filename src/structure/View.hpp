@@ -65,12 +65,12 @@ auto view_cat(Views&&... vs) {
 
 template <class View, class F, size_t... Is>
 void forall_in_view_impl(View& view, const F& f, std::index_sequence<Is...>) {
-    static_assert(is_view<View>::value, "Expected a reference to a view");
+    static_assert(is_view<std::decay_t<View>>::value, "Expected a reference to a view");
     std::vector<int> ignore = {(f(get<Is>(view.refs).node_ref, get<Is>(view.refs).index), 0)...};
 }
 
 template <class View, class F>
 void forall_in_view(View& view, const F& f) {
-    static_assert(is_view<View>::value, "Expected a reference to a view");
+    static_assert(is_view<std::decay_t<View>>::value, "Expected a reference to a view");
     forall_in_view_impl(view, f, std::make_index_sequence<View::size()>());
 }
