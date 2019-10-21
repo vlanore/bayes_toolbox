@@ -74,6 +74,14 @@ int main() {
         slide_constrained_move(p_(m), v, gen, 0., 1.);
         p_sum += raw_value(p_(m));
     }
-
-    std::cout << "p = " << p_sum / float(nb_it) << std::endl;
+    float p_mean = p_sum / float(nb_it);
+    std::cout << "p = " << p_mean << std::endl;
+    if (std::abs(p_mean - 2. / 3.) > 0.1)
+    {
+        return 1;
+    } else {
+        return 0;
+    }
 }
+
+

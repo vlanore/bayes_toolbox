@@ -60,8 +60,8 @@ int main() {
     auto gen = make_generator();
 
     constexpr size_t nb_it{100'000};
-
-    auto m = bernoulli_model(2);
+    int n_obs = 2;
+    auto m = bernoulli_model(n_obs);
     auto v = make_view<p, bern>(m);
     draw(v, gen);
 
@@ -74,6 +74,12 @@ int main() {
         slide_constrained_move(p_(m), v, gen, 0., 1.);
         p_sum += raw_value(p_(m));
     }
-
-    std::cout << "p = " << p_sum / float(nb_it) << std::endl;
+    float p_mean =  p_sum / float(nb_it);
+    std::cout << "p = " << p_mean << std::endl;
+    if (std::abs(p_mean - (n_obs+1.) / (n_obs+2.)) > 0.1)
+    {
+        return 1;
+    } else {
+        return 0;
+    }
 }
