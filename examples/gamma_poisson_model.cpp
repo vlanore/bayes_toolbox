@@ -25,19 +25,7 @@ The fact that you are presently reading this means that you have had knowledge o
 license and that you accept its terms.*/
 
 #include <iostream>
-#include "basic_moves.hpp"
-#include "distributions/exponential.hpp"
-#include "distributions/gamma.hpp"
-#include "distributions/poisson.hpp"
-#include "mcmc_utils.hpp"
-#include "operations/backup.hpp"
-#include "operations/logprob.hpp"
-#include "operations/raw_value.hpp"
-#include "operations/set_value.hpp"
-#include "structure/View.hpp"
-#include "structure/array_utils.hpp"
-#include "suffstat_utils.hpp"
-#include "tagged_tuple/src/fancy_syntax.hpp"
+#include "bayes_toolbox.hpp"
 using namespace std;
 
 TOKEN(alpha_)

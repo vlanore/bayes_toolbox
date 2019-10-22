@@ -27,6 +27,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "structure/distrib_utils.hpp"
+#include "utils/math_utils.hpp"
 
 struct normal {
     using T = pos_real;
@@ -41,6 +42,6 @@ struct normal {
 
     static real logprob(T x, pos_real mean, spos_real variance) {
         double y = (x - mean) / variance;
-        return -0.5 * y * y - log(variance * sqrt(2.0 * RbConstants::PI));
+        return -0.5 * y * y - log(variance * sqrt(2.0 * constants::pi()));
     }
 };

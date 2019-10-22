@@ -59,3 +59,7 @@ template <class Value>
 auto mean(std::vector<Value> v) {
     return sum(v) / v.size();
 }
+
+struct constants {
+    static constexpr double pi() { return 3.14159265358979323846; }
+};
