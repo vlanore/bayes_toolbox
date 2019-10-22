@@ -35,12 +35,12 @@ struct beta_ss {
     using param_decl = param_decl_t<param<weight_a, spos_real>, param<weight_b, spos_real>>;
 
     template <typename Gen>
-    static T draw(spos_real weight_a, spos_real weight_b, Gen& gen) {
+    static void draw(T& x, spos_real weight_a, spos_real weight_b, Gen& gen) {
         std::gamma_distribution<double> distriba(positive_real(weight_a), 1.0);
         std::gamma_distribution<double> distribb(positive_real(weight_b), 1.0);
         auto aa = distriba(gen);
         auto bb = distribb(gen);
-        return {aa / (aa + bb)};
+        x = {aa / (aa + bb)};
     }
 
     static real logprob(T x, spos_real alpha, spos_real beta) {

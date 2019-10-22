@@ -34,9 +34,9 @@ struct normal {
     using param_decl = param_decl_t<param<rate, spos_real>>;
 
     template <typename Gen>
-    static T draw(pos_real mean, spos_real variance, Gen& gen) {
+    static void draw(T& x, pos_real mean, spos_real variance, Gen& gen) {
         std::normal_distribution<double> distrib(real(mean), positive_real(variance));
-        return distrib(gen);
+        x = distrib(gen);
     }
 
     static real logprob(T x, pos_real mean, spos_real variance) {

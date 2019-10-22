@@ -33,7 +33,7 @@ struct dirichlet {
     using param_decl = param_decl_t<param<concentration, std::vector<double>>>;
 
     template <typename Gen>
-    static T draw(const std::vector<double>& alpha, Gen& gen) {
+    static void draw(T& value, const std::vector<double>& alpha, Gen& gen) {
     // static void array_draw(T& x, const std::vector<double>& alpha, Gen& gen) {
         size_t k = alpha.size();
         T x(k,0);
@@ -44,11 +44,11 @@ struct dirichlet {
         double sum_y{0};
         for (size_t i = 0; i < k; i++) {
             // @todo: wrong gamma distrib
-            x[i] = gamma_sr::draw(alpha[i], 1, gen);
+            gamma_sr::draw(x[i], alpha[i], 1, gen);
             sum_y += x[i];
         }
         for (size_t i = 0; i < k; i++) { x[i] /= sum_y; }
-        return x;
+        value = x;
     }
 
     static double logprob(T x, const std::vector<double>& alpha) {

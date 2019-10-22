@@ -35,9 +35,9 @@ struct gamma_ss {
     using param_decl = param_decl_t<param<shape, spos_real>, param<struct scale, spos_real>>;
 
     template <typename Gen>
-    static T draw(spos_real shape, spos_real scale, Gen& gen) {
+    static void draw(T& x, spos_real shape, spos_real scale, Gen& gen) {
         std::gamma_distribution<double> distrib(positive_real(shape), positive_real(scale));
-        return {distrib(gen)};
+        x = {distrib(gen)};
     }
 
     static real logprob(T x, spos_real k, spos_real theta) {
@@ -80,9 +80,9 @@ struct gamma_sr {
     using param_decl = param_decl_t<param<shape, spos_real>, param<struct rate, spos_real>>;
 
     template <typename Gen>
-    static T draw(spos_real shape, spos_real rate, Gen& gen) {
+    static void draw(T& x, spos_real shape, spos_real rate, Gen& gen) {
         std::gamma_distribution<double> distrib(positive_real(shape), 1 / positive_real(rate));
-        return {distrib(gen)};
+        x = {distrib(gen)};
     }
 
     static real logprob(T x, spos_real alpha, spos_real beta) {

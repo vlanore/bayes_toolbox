@@ -35,9 +35,9 @@ struct categorical {
     using param_decl = param_decl_t<param<weights, std::vector<double>>>;
 
     template <typename Gen>
-    static T draw(const std::vector<double>& w, Gen& gen) {
+    static void draw(T& x, const std::vector<double>& w, Gen& gen) {
         std::discrete_distribution<T> distrib(w.begin(), w.end());
-        return distrib(gen);
+        x = distrib(gen);
     }
 
     // static double logprob(T x, const std::vector<double>& w) { return log(w[x]); }

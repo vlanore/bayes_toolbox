@@ -35,9 +35,9 @@ struct uniform {
         param_decl_t<param<struct lower_bound, spos_real>, param<struct upper_bound, spos_real>>;
 
     template <typename Gen>
-    static T draw(spos_real lower_bound, spos_real upper_bound, Gen& gen) {
+    static void draw(T& x, spos_real lower_bound, spos_real upper_bound, Gen& gen) {
         std::uniform_real_distribution<double> distrib(lower_bound, upper_bound);
-        return distrib(gen);
+        x = distrib(gen);
     }
 
     static real logprob(T, spos_real a, spos_real b) { return -log(b - a); }

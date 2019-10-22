@@ -34,9 +34,9 @@ struct exponential {
     using param_decl = param_decl_t<param<rate, spos_real>>;
 
     template <typename Gen>
-    static T draw(spos_real rate, Gen& gen) {
+    static void draw(T& x, spos_real rate, Gen& gen) {
         std::exponential_distribution<double> distrib(positive_real(rate));
-        return distrib(gen);
+        x = distrib(gen);
     }
 
     static real logprob(T x, spos_real lambda) { return log(lambda) - lambda * x; }

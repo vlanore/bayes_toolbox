@@ -47,7 +47,7 @@ namespace overloads {
     void select_draw(std::false_type /*no array draw*/, node_tag, Node& node, Index index,
                      Gen& gen) {
         auto f = [&gen](auto& x, const auto&... params) {
-            x = node_distrib_t<Node>::draw(params..., gen);
+            node_distrib_t<Node>::draw(x, params..., gen);
         };
         across_values_params(node, f, index);
     }

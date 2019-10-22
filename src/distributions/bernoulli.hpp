@@ -35,10 +35,10 @@ struct bernoulli {
     using param_decl = param_decl_t<param<prob, unit_real>>;
 
     template <typename Gen>
-    static T draw(unit_real pi, Gen& gen) {
+    static void draw(T& x, unit_real pi, Gen& gen) {
         std::vector<double> w = {pi, 1 - pi};
         std::discrete_distribution<T> distrib(w.begin(), w.end());
-        return distrib(gen);
+        x = distrib(gen);
     }
 
     static double logprob(T x, unit_real prob) { return x ? log(prob) : log(1.0 - prob); }
