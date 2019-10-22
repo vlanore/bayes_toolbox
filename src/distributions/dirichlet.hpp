@@ -34,9 +34,9 @@ struct dirichlet {
 
     template <typename Gen>
     static void draw(T& value, const std::vector<double>& alpha, Gen& gen) {
-    // static void array_draw(T& x, const std::vector<double>& alpha, Gen& gen) {
+        // static void array_draw(T& x, const std::vector<double>& alpha, Gen& gen) {
         size_t k = alpha.size();
-        T x(k,0);
+        T x(k, 0);
         /*
         size_t k = x.size();
         assert(k = alpha.size());
@@ -78,7 +78,7 @@ struct dirichlet_cic {
         auto alpha = [&center, &invconc](size_t i) { return center[i] / invconc; };
         for (size_t i = 0; i < k; i++) {
             // @todo: wrong gamma distrib
-            x[i] = gamma_sr::draw(alpha(i), 1, gen);
+            gamma_sr::draw(x[i], alpha(i), 1, gen);
             sum_y += x[i];
         }
         for (size_t i = 0; i < k; i++) { x[i] /= sum_y; }
