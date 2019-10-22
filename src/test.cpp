@@ -44,7 +44,6 @@ license and that you accept its terms.*/
 #include "structure/View.hpp"
 #include "structure/array_utils.hpp"
 #include "structure/type_tag.hpp"
-#include "suffstat_utils.hpp"
 #include "tagged_tuple/src/fancy_syntax.hpp"
 using namespace std;
 
@@ -321,7 +320,6 @@ TEST_CASE("Views with indices") {
 
 TEST_CASE("type_tag") {
     auto a = make_node<exponential>(1);
-    auto ss = make_suffstat<gamma_ss_suffstats>(a);
     auto m = make_model(tok1_ = move(a));
     struct {
         int a;
@@ -333,14 +331,12 @@ TEST_CASE("type_tag") {
     auto t3 = type_tag(s);
     auto t4 = type_tag(v);
     auto t5 = type_tag(make_view<tok1>(m));
-    auto t6 = type_tag(ss);
 
     CHECK(std::is_same<decltype(t1), lone_node_tag>::value);
     CHECK(std::is_same<decltype(t2), model_tag>::value);
     CHECK(std::is_same<decltype(t3), unknown_tag>::value);
     CHECK(std::is_same<decltype(t4), view_tag>::value);
     CHECK(std::is_same<decltype(t5), view_tag>::value);
-    CHECK(std::is_same<decltype(t6), suffstat_tag>::value);
 }
 
 TEST_CASE("raw_value") {

@@ -29,7 +29,6 @@ license and that you accept its terms.*/
 #include "Ref.hpp"
 #include "View.hpp"
 #include "introspection.hpp"
-#include "suffstat_utils.hpp"
 
 template <class T>
 auto type_tag(const T&) {
@@ -51,11 +50,9 @@ auto type_tag(const tagged_tuple<MD, Fields...>&) {
         >,
         conditional_t<is_model<T>::value,
             model_tag,
-            conditional_t<is_suffstat<T>::value,
-                suffstat_tag,
-                unknown_tag>
-            >
-        >();
+            unknown_tag
+        >
+    >();
     // clang-format off
 }
 

@@ -22,7 +22,6 @@
 #include "distributions/uniform.hpp"
 
 // Utils
-#include "suffstat_utils.hpp"
 #include "tagged_tuple/src/fancy_syntax.hpp"
 #include "basic_moves.hpp"
 #include "mcmc_utils.hpp"
