@@ -10,9 +10,6 @@ _build: CMakeLists.txt
 	@mkdir _build
 	@cd _build ; cmake ..
 
-modules:
-	git submodule update --init --recursive
-
 .PHONY: coverage
 coverage:
 	@rm -rf _build
@@ -20,15 +17,15 @@ coverage:
 	@cd _build ; cmake -DCOVERAGE_MODE=ON ..
 	@make --no-print-directory test
 
-.PHONY: debug
-debug:
+.PHONY: rebuild-debug
+rebuild-debug:
 	@rm -rf _build
 	@mkdir _build
 	@cd _build ; cmake -DDEBUG_MODE=ON ..
 	@make --no-print-directory
 
-.PHONY: release
-release:
+.PHONY: rebuild-release
+rebuild-release:
 	@rm -rf _build
 	@mkdir _build
 	@cd _build ; cmake ..
@@ -37,6 +34,17 @@ release:
 .PHONY: clean
 clean:
 	@rm -rf _build
+
+# ==================================================================================================
+#  SUBMODULES
+# ==================================================================================================
+.PHONY: modules
+modules:
+	git submodule update --init --recursive
+
+.PHONY: modules-latest
+modules-latest:
+	git submodule foreach git pull origin master
 
 # ==================================================================================================
 #  CODE QUALITY
