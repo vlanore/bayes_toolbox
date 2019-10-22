@@ -69,3 +69,39 @@ template <class Node, class Subset>
 auto make_subset(Node& node, Subset&& subset) {
     return NodeSubset<Node, Subset>(node, std::forward<Subset>(subset));
 }
+
+/*==================================================================================================
+~~ Set collection ~~
+==================================================================================================*/
+template <class... Sets>
+class SetCollection {
+    std::tuple<Sets...> sets;
+
+    template <class F, size_t... is>
+    void across_values_helper(F f, std::index_sequence<is...>) {
+        std::vector<int> ignore = {(get<is>(sets).across_values(f), 0)...};
+    }
+
+    template <class F, size_t... is>
+    void across_valueparams_helper(F f, std::index_sequence<is...>) {
+        std::vector<int> ignore = {(get<is>(sets).across_valueparams(f), 0)...};
+    }
+
+  public:
+    SetCollection(Sets&&... sets) : sets(std::forward<Sets>(sets)...) {}
+
+    template <class F>
+    void across_values(F f) {
+        across_values_helper(f, std::index_sequence_for<Sets...>{});
+    }
+
+    template <class F>
+    void across_valueparams(F f) {
+        across_valueparams_helper(f, std::index_sequence_for<Sets...>{});
+    }
+};
+
+template <class... Sets>
+auto make_set_collection(Sets&&... sets) {
+    return SetCollection<Sets...>(std::forward<Sets>(sets)...);
+}

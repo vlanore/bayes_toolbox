@@ -43,6 +43,9 @@ TEST_CASE("") {
         apply(f, n, 4);
     };
     auto s = make_subset(b, third_and_fourth_element);
+    auto sa = make_subset(a, [](auto& n, auto f) {
+        for (size_t i = 0; i < get<value>(n).size(); i++) { apply(f, n, i); }
+    });
 
     stringstream ss;
     auto add_to_stream = [&ss](auto& x) { ss << x << "; "; };
@@ -50,11 +53,15 @@ TEST_CASE("") {
 
     auto add_params_to_stream = [&ss](auto distrib, auto& value, auto... params) {
         std::vector<double> ps = {params...};
-        ss << "<" << value << ", ";
+        ss << "<" << typeid(distrib).name() << ": " << value << ", ";
         for (auto e : ps) { ss << e << " "; }
         ss << "> ";
     };
     s.across_valueparams(add_params_to_stream);
+
+    auto col = make_set_collection(s, sa);
+    col.across_values(add_to_stream);
+    col.across_valueparams(add_params_to_stream);
 
     cout << ss.str() << "\n";
 }
