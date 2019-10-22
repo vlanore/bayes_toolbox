@@ -5,10 +5,12 @@
 #include "structure/array_utils.hpp"
 
 // Operations
+#include "operations/across_values.hpp"
+#include "operations/across_values_params.hpp"
 #include "operations/backup.hpp"
 #include "operations/logprob.hpp"
 #include "operations/raw_value.hpp"
-#include "operations/set_value.hpp"
+#include "operations/view.hpp"
 
 // Distributions
 #include "distributions/bernoulli.hpp"
