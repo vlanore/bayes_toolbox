@@ -10,8 +10,8 @@ _build: CMakeLists.txt
 	@mkdir _build
 	@cd _build ; cmake ..
 
-.PHONY: revuild-coverage
-revuild-coverage:
+.PHONY: rebuild-coverage
+rebuild-coverage:
 	@rm -rf _build
 	@mkdir _build
 	@cd _build ; cmake -DCOVERAGE_MODE=ON ..
