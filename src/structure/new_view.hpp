@@ -25,87 +25,47 @@ The fact that you are presently reading this means that you have had knowledge o
 license and that you accept its terms.*/
 
 #pragma once
+#include "introspection.hpp"
+#include "operations/raw_value.hpp"
 
-#include <tuple>
-#include "ValueView.hpp"
-#include "type_tag.hpp"
-
-/*==================================================================================================
-~~ Node views ~~
-==================================================================================================*/
-template <template <class> class Trait, class ItF>  // ItF: iteration function
-struct TraitView {
-    ItF itf;
-
-    template <class... Args>
-    void operator()(Args&&... args) {
-        itf(std::forward<Args>(args)...);
-    }
-
-    // checks that itf actually iterates over nodes
-    using check_itf = typename check_itfunc_type<Trait, ItF>::type;
+template <class F, class KeyList>
+struct UseNodeContext {
+    F f;
 };
 
-template <template <class> class Trait, class ItF>
-auto make_trait_view(ItF&& itf) {
-    return TraitView<Trait, ItF>{std::forward<ItF>(itf)};
+template <class F, class... Keys, class Node, class... Indices>
+auto apply(UseNodeContext<F, type_list<Keys...>> cf, Node& node, Indices... is) {
+    cf.f(node_distrib_t<Node>{}, raw_value(node, is...), get<params, Keys>(node)(is...)...);
 }
 
-template <class F, class... Ts, size_t... Is>
-void apply_to_tuple_helper(F f, std::tuple<Ts...> t, std::index_sequence<Is...>) {
-    // @todo: check if unpacking as function args would be more performant
-    std::vector<int> ignore = {(f(get<Is>(t)), 0)...};
-}
-
-template <class... Nodes>
-auto node_collection(Nodes&... nodes) {
-    // have to name param pack to avoid g++5 bug
-    return make_trait_view<is_node>([col = std::tuple<Nodes&...>(nodes...)](auto&& f) {
-        apply_to_tuple_helper(std::forward<decltype(f)>(f), col,
-                              std::make_index_sequence<sizeof...(Nodes)>());
-    });
+template <class F, class Node, class... Indices>
+auto apply(F f, Node& node, Indices... is) {
+    f(raw_value(node, is...));
 }
 
 /*==================================================================================================
-~~ ith/jth itfunc generator generators ~~
+~~ Node subset ~~
 ==================================================================================================*/
+template <class Node, class Subset>
+class NodeSubset {
+    Node& node;
+    Subset subset;
 
-template <class Node>  // for multi-variable view collections
-auto ith_element(Node& node) {
-    static_assert(is_node_array<Node>::value, "Expects a node array");
-    return [&node](size_t i, size_t = 0) { return element_itfunc(raw_value(node, i)); };
+  public:
+    NodeSubset(Node& node, Subset&& subset) : node(node), subset(std::forward<Subset>(subset)) {}
+
+    template <class F>
+    void across_values(F f) {
+        subset(node, f);
+    }
+
+    template <class F>
+    void across_valueparams(F f) {
+        subset(node, UseNodeContext<F, param_keys_t<node_distrib_t<Node>>>{f});
+    }
+};
+
+template <class Node, class Subset>
+auto make_subset(Node& node, Subset&& subset) {
+    return NodeSubset<Node, Subset>(node, std::forward<Subset>(subset));
 }
-
-template <class Node>  // for multi-variable view collections
-auto jth_element(Node& node) {
-    static_assert(is_node_array<Node>::value, "Expects a node array");
-    return [&node](size_t, size_t j) { return element_itfunc(raw_value(node, j)); };
-}
-
-template <class Node>  // for multi-variable view collections
-auto ijth_element(Node& node) {
-    static_assert(is_node_matrix<Node>::value, "Expects a node matrix");
-    return [&node](size_t i, size_t j) { return element_itfunc(raw_value(node, i, j)); };
-}
-
-/*==================================================================================================
-~~ itfunc collections ~~
-==================================================================================================*/
-
-// @todo: allow direct node references and value views
-template <class... ItFs>
-auto make_valueview_collection_i(ItFs&&... itfs) {
-    // @todo: check all args are itfuncs
-    return [col = std::make_tuple(itfs...)](size_t i) {
-        return make_valueview([col, i](auto&& f) {
-            // function that takes an element of the collection (an itfunc) and passes f to it
-            auto g = [i, f](auto&& itf) mutable { itf(i)(f); };
-            apply_to_tuple_helper(std::move(g), std::move(col),
-                                  std::make_index_sequence<sizeof...(ItFs)>());
-        });
-    };
-}
-
-/*==================================================================================================
-~~ Value-index views ~~
-==================================================================================================*/
