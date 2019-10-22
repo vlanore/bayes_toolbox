@@ -22,7 +22,7 @@ matrix:
     env:
       - COMPILER=g++-5
     script:
-      - make coverage && make test
+      - make rebuild-coverage && make test
     after_success:
       - bash <(curl -s https://codecov.io/bash)
 
@@ -39,7 +39,7 @@ matrix:
     env:
       - COMPILER=clang++-3.9
     script:
-      - make debug && make test
+      - make rebuild-debug && make test
 
 before_script:
   - export CXX=$COMPILER
