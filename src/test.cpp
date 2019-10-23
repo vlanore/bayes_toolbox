@@ -151,47 +151,6 @@ TEST_CASE("Draw in array") {
     draw(a, gen);
 }
 
-TEST_CASE("Logprobs") {
-    auto n1 = make_node<poisson>(2.0);
-    auto n2 = make_node<poisson>(2.0);
-    auto n3 = make_node<poisson>(2.0);
-    raw_value(n1) = 1;
-    raw_value(n2) = 2;
-    raw_value(n3) = 3;
-    auto a = make_node_array<poisson>(3, n_to_constant(2.0));
-    set_value(a, {1, 2, 3});
-    CHECK(logprob(n1) == logprob(a, 0));
-    CHECK(logprob(n2) == logprob(a, 1));
-    CHECK(logprob(n3) == logprob(a, 2));
-    CHECK(logprob(a) == logprob(n1) + logprob(n2) + logprob(n3));
-}
-
-// // TEST_CASE("MCMC with nodes") {
-// //     auto gen = make_generator();
-
-// //     auto param = make_node<exponential>(1);
-// //     draw(param, gen);
-// //     auto array = make_node_array<poisson>(20, n_to_one(param));
-// //     set_value(array, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3, 2, 2, 2, 1, 2, 1, 2, 3, 2, 3);
-
-// //     vector<double> trace;
-// //     for (int i = 0; i < 10000; i++) {
-// //         for (int rep = 0; rep < 10; rep++) {
-// //             auto param_backup = make_value_backup(param);
-// //             double logprob_before = logprob(param) + logprob(array);
-// //             double log_hastings = scale(get<value>(param), gen);
-// //             double logprob_after = logprob(param) + logprob(array);
-// //             bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
-// //             if (!accept) { restore_from_backup(param, param_backup); }
-// //         }
-// //         trace.push_back(get<value>(param));
-// //     }
-// //     double mean_trace = mean(trace);
-// //     CHECK(1.9 < mean_trace);  // should be somewhere close to 2.0 but biaised down due to
-// prior
-// //     CHECK(mean_trace < 2);
-// // }
-
 TEST_CASE("Sum and mean functions") {
     vector<double> vd = {1, 2, 3, 4.2, 5.1, 6};
     vector<int> vi = {1, 2, 3, 4, 5};
@@ -228,80 +187,6 @@ TEST_CASE("Basic model test") {
 }
 
 TOKEN(tok1)
-TOKEN(tok2)
-
-TEST_CASE("new view operation") {  // acts as a test for across_value for views as well
-    auto n = make_node<poisson>(1.0);
-    set_value(n, 0);
-    auto a = make_node_array<poisson>(3, n_to_constant(1.0));
-    set_value(a, {0, 0, 0});
-
-    auto vn = view(n);
-    auto va = view(a);
-    auto va2 = view(a, 1);
-    auto m = []() {
-        auto n1 = make_node<poisson>(1.0);
-        set_value(n1, 0);
-        auto n2 = make_node<exponential>(1.0);
-        set_value(n2, 0);
-        return make_model(tok1_ = std::move(n1), tok2_ = std::move(n2));
-    }();
-    auto vm = view(m);
-    auto vna2 = view_cat(vn, va2);
-
-    using iv = std::vector<size_t>;
-    auto set_to = [](int x) { return [x](auto& value) { value = x; }; };
-    across_values(vn, set_to(1));
-    CHECK(raw_value(n) == 1);
-    across_values(va, set_to(1));
-    CHECK(iv{raw_value(a, 0), raw_value(a, 1), raw_value(a, 2)} == iv{1, 1, 1});
-    across_values(va2, set_to(2));
-    CHECK(iv{raw_value(a, 0), raw_value(a, 1), raw_value(a, 2)} == iv{1, 2, 1});
-    across_values(vm, set_to(1));
-    CHECK(raw_value(tok1_(m)) == 1);
-    CHECK(raw_value(tok2_(m)) == 1);
-    across_values(vna2, set_to(3));
-    CHECK(iv{raw_value(n), raw_value(a, 0), raw_value(a, 1), raw_value(a, 2)} == iv{3, 1, 3, 1});
-}
-
-TEST_CASE("Forall on views") {
-    struct n1 {};
-    struct n2 {};
-    struct n3 {};
-    auto f = [](auto& x, NoIndex) { x += x; };
-    auto m = make_model(value_field<n1>(5), value_field<n2, std::string>("ab"));
-    auto v = make_view<n1, n2>(m);
-    forall_in_view(v, f);
-    forall_in_view(v, f);
-    CHECK(get<n1>(m) == 20);
-    CHECK(get<n2>(m) == "abababab");
-}
-
-TEST_CASE("Basic view test") {
-    auto gen = make_generator();
-    auto a = make_node<exponential>(1.0);
-    auto m = my_model(a);
-    auto v = make_view<n1, n2>(m);
-    CHECK(is_view<decltype(v)>::value);
-    CHECK(not is_view<decltype(m)>::value);
-    check_mean(get<n2, value>(m),
-               [&]() {
-                   draw(a, gen);
-                   draw(v, gen);
-               },
-               1, 2.0);
-}
-
-TEST_CASE("Views with indices") {
-    // auto gen = make_generator();
-    auto a = make_node_array<exponential>(5, n_to_constant(2.0));
-    auto m = make_model(tok1_ = move(a));
-    set_value(get<tok1>(m), {0, 0, 0, 0, 0});
-    // auto v = make_view(make_ref<tok1>(m, ArrayIndex{2}));
-    // draw(v, gen);
-
-    // TODO !
-}
 
 TEST_CASE("type_tag") {
     auto a = make_node<exponential>(1);
@@ -309,19 +194,14 @@ TEST_CASE("type_tag") {
     struct {
         int a;
     } s;
-    auto v = make_view<tok1>(m);
 
     auto t1 = type_tag(a);
     auto t2 = type_tag(m);
     auto t3 = type_tag(s);
-    auto t4 = type_tag(v);
-    auto t5 = type_tag(make_view<tok1>(m));
 
     CHECK(std::is_same<decltype(t1), lone_node_tag>::value);
     CHECK(std::is_same<decltype(t2), model_tag>::value);
     CHECK(std::is_same<decltype(t3), unknown_tag>::value);
-    CHECK(std::is_same<decltype(t4), view_tag>::value);
-    CHECK(std::is_same<decltype(t5), view_tag>::value);
 }
 
 TEST_CASE("raw_value") {
@@ -445,7 +325,7 @@ TEST_CASE("across_nodes") {
     set_value(m, {{0, 1}, {2, 3}});
 
     std::stringstream ss{""};
-    auto f = [&ss](auto& x, auto... params) { ss << x << g(params...) << ";"; };
+    auto f = [&ss](auto, auto& x, auto... params) { ss << x << g(params...) << ";"; };
     across_nodes(n, f);
     CHECK(ss.str() == "3(1);");
     across_nodes(a, f);

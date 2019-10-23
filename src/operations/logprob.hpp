@@ -27,46 +27,13 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "operations/across_nodes.hpp"
-#include "structure/distrib_utils.hpp"
-#include "structure/type_tag.hpp"
 
-namespace overloads {
-    template <class Node, class... Keys>
-    double compute_array_logprob(Node& node, std::tuple<Keys...>) {
-        return node_distrib_t<Node>::array_logprob(get<value>(node),
-                                                   get<Keys>(get<params>(node))()...);
-    }
-
-    template <class Node, class Index>
-    double select_logprob(std::false_type /* no array lprob */, node_tag, Node& node, Index index) {
-        double result = 0;
-        auto f = [&result](const auto& x, const auto&... params) {
-            result += node_distrib_t<Node>::logprob(x, params...);
-        };
-        across_nodes(node, f, index);
-        return result;
-    }
-
-    template <class Node>
-    double select_logprob(std::true_type /* array logprob */, node_array_tag, Node& node, NoIndex) {
-        return compute_array_logprob(node, param_keys_t<node_distrib_t<Node>>());
-    }
-
-    template <class Node, class Index>
-    double logprob(node_tag, Node& node, Index index) {
-        return select_logprob(has_array_logprob<node_distrib_t<Node>>(), type_tag(node), node,
-                              index);
-    }
-
-    template <class View>
-    double logprob(view_tag, View& view, NoIndex = NoIndex()) {
-        double result = 0;
-        forall_in_view(view, [&result](auto& node, auto index) { result += logprob(node, index); });
-        return result;
-    }
-}  // namespace overloads
-
-template <class T, class... Rest>
-double logprob(T& x, Rest... rest) {
-    return overloads::logprob(type_tag(x), x, make_index(rest...));
+template <class T>
+double logprob(T& x) {
+    double result = 0;
+    auto f = [&result](auto distrib, auto& x, auto... params) {
+        result += decltype(distrib)::logprob(x, params...);
+    };
+    across_nodes(x, f);
+    return result;
 }

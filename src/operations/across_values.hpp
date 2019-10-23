@@ -27,7 +27,6 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "raw_value.hpp"
-#include "structure/View.hpp"
 #include "structure/new_view.hpp"
 #include "structure/node.hpp"
 
@@ -65,11 +64,6 @@ namespace overloads {
     template <class Matrix, class F>
     void across_values(node_matrix_tag, Matrix& m, const F& f, MatrixIndex index) {
         f(raw_value(m, index));
-    }
-
-    template <class View, class F>
-    void across_values(view_tag, View& v, const F& f, NoIndex) {
-        forall_in_view(v, [&f](auto& node, auto index) { across_values(node, f, index); });
     }
 
     template <class... SubsetArgs, class F>

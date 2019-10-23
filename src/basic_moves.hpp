@@ -111,5 +111,5 @@ void slide_constrained_move(Node& node, LogProb lp, Gen& gen, double min, double
 
 template <class MB>
 auto logprob_of_blanket(MB blanket) {
-    return [blanket]() { return logprob(blanket); };
+    return [blanket]() mutable { return logprob(blanket); };
 }
