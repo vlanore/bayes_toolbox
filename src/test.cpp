@@ -436,7 +436,7 @@ std::string g(double x, double y) {
     return "(" + std::to_string(int(x)) + ", " + std::to_string(int(y)) + ")";
 }
 
-TEST_CASE("across_values_params") {
+TEST_CASE("across_nodes") {
     auto n = make_node<poisson>(1.0);
     raw_value(n) = 3;
     auto a = make_node_array<gamma_ss>(3, [](int i) { return i; }, n_to_constant(3.0));
@@ -446,21 +446,21 @@ TEST_CASE("across_values_params") {
 
     std::stringstream ss{""};
     auto f = [&ss](auto& x, auto... params) { ss << x << g(params...) << ";"; };
-    across_values_params(n, f);
+    across_nodes(n, f);
     CHECK(ss.str() == "3(1);");
-    across_values_params(a, f);
+    across_nodes(a, f);
     CHECK(ss.str() == "3(1);1(0, 3);2(1, 3);3(2, 3);");
     ss.str("");
-    across_values_params(a, f, 1);
+    across_nodes(a, f, 1);
     CHECK(ss.str() == "2(1, 3);");
     ss.str("");
-    across_values_params(m, f);
+    across_nodes(m, f);
     CHECK(ss.str() == "0(3);1(3);2(3);3(3);");
     ss.str("");
-    across_values_params(m, f, 1);
+    across_nodes(m, f, 1);
     CHECK(ss.str() == "2(3);3(3);");
     ss.str("");
-    across_values_params(m, f, 1, 0);
+    across_nodes(m, f, 1, 0);
     CHECK(ss.str() == "2(3);");
 }
 

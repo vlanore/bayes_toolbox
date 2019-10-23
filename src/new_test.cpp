@@ -60,9 +60,8 @@ TEST_CASE("Basic test for new views") {
     s.across_nodes(add_params_to_stream);
 
     auto col = make_set_collection(s, sa);
-    col.across_elements([add_to_stream](auto& e) { e.across_values(add_to_stream); });
-    col.across_elements(
-        [add_params_to_stream](auto& e) { e.across_nodes(add_params_to_stream); });
+    across_values(col, add_to_stream);
+    across_nodes(col, add_params_to_stream);
 
     cout << ss.str() << "\n";
 }
@@ -85,7 +84,6 @@ TEST_CASE("Pre-made subsets") {
         ss << "> ";
     };
 
-    c.across_elements(
-        [add_params_to_stream](auto& e) { e.across_nodes(add_params_to_stream); });
+    across_nodes(c, add_params_to_stream);
     cout << "========================\n" << ss.str() << "\n";
 }

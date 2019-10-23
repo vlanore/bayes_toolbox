@@ -26,7 +26,7 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "operations/across_values_params.hpp"
+#include "operations/across_nodes.hpp"
 #include "structure/distrib_utils.hpp"
 #include "structure/type_tag.hpp"
 
@@ -43,7 +43,7 @@ namespace overloads {
         auto f = [&result](const auto& x, const auto&... params) {
             result += node_distrib_t<Node>::logprob(x, params...);
         };
-        across_values_params(node, f, index);
+        across_nodes(node, f, index);
         return result;
     }
 

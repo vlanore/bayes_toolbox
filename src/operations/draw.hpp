@@ -26,7 +26,7 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "across_values_params.hpp"
+#include "across_nodes.hpp"
 #include "structure/distrib_utils.hpp"
 #include "structure/type_tag.hpp"
 
@@ -49,7 +49,7 @@ namespace overloads {
         auto f = [&gen](auto& x, const auto&... params) {
             node_distrib_t<Node>::draw(x, params..., gen);
         };
-        across_values_params(node, f, index);
+        across_nodes(node, f, index);
     }
 
     template <class Node, typename Gen, class... Keys>

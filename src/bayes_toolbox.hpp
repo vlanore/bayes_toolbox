@@ -6,7 +6,7 @@
 
 // Operations
 #include "operations/across_values.hpp"
-#include "operations/across_values_params.hpp"
+#include "operations/across_nodes.hpp"
 #include "operations/backup.hpp"
 #include "operations/logprob.hpp"
 #include "operations/raw_value.hpp"

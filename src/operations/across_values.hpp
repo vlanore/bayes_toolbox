@@ -28,7 +28,11 @@ license and that you accept its terms.*/
 
 #include "raw_value.hpp"
 #include "structure/View.hpp"
+#include "structure/new_view.hpp"
 #include "structure/node.hpp"
+
+template <class T, class F, class... IndexArgs>
+void across_values(T& x, F&& f, IndexArgs... args); // forward decl
 
 namespace overloads {
     template <class Node, class F>
@@ -67,6 +71,17 @@ namespace overloads {
     void across_values(view_tag, View& v, const F& f, NoIndex) {
         forall_in_view(v, [&f](auto& node, auto index) { across_values(node, f, index); });
     }
+
+    template <class... SubsetArgs, class F>
+    void across_values(unknown_tag, NodeSubset<SubsetArgs...>& subset, const F& f, NoIndex) {
+        subset.across_values(f);
+    }
+
+    template <class... CollecArgs, class F>
+    void across_values(unknown_tag, SetCollection<CollecArgs...>& colec, const F& f, NoIndex) {
+        colec.across_elements([f](auto& e){ across_values(e, f); });        
+    }
+
 }  // namespace overloads
 
 template <class T, class F, class... IndexArgs>
