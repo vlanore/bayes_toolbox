@@ -60,7 +60,7 @@ class NodeSubset {
     }
 
     template <class F>
-    void across_valueparams(F f) {
+    void across_nodes(F f) {
         subset(node, UseNodeContext<F, param_keys_t<node_distrib_t<Node>>>{f});
     }
 };
@@ -69,6 +69,38 @@ template <class Node, class Subset>
 auto make_subset(Node& node, Subset&& subset) {
     return NodeSubset<Node, Subset>(node, std::forward<Subset>(subset));
 }
+
+/*==================================================================================================
+~~ Pre-made subset lambdas ~~
+==================================================================================================*/
+struct subsets {
+    template <class Node>
+    static auto element(Node& node, size_t i) {
+        return make_subset(node, [i](auto& node, auto f) {
+            static_assert(is_node_array<std::decay_t<decltype(node)>>::value,
+                          "Expects a node array");
+            apply(f, node, i);
+        });
+    }
+
+    template <class Node>
+    static auto element(Node& node, size_t i, size_t j) {
+        return make_subset(node, [i, j](auto& node, auto f) {
+            static_assert(is_node_matrix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node matrix");
+            apply(f, node, i, j);
+        });
+    }
+
+    template <class Node>
+    static auto row(Node& node, size_t i) {
+        return make_subset(node, [i](auto& node, auto f) {
+            static_assert(is_node_matrix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node matrix");
+            for (size_t j = 0; j < get<value>(node)[i].size(); j++) { apply(f, node, i, j); }
+        });
+    }
+};
 
 /*==================================================================================================
 ~~ Set collection ~~
@@ -83,8 +115,8 @@ class SetCollection {
     }
 
     template <class F, size_t... is>
-    void across_valueparams_helper(F f, std::index_sequence<is...>) {
-        std::vector<int> ignore = {(get<is>(sets).across_valueparams(f), 0)...};
+    void across_nodes_helper(F f, std::index_sequence<is...>) {
+        std::vector<int> ignore = {(get<is>(sets).across_nodes(f), 0)...};
     }
 
   public:
@@ -96,8 +128,8 @@ class SetCollection {
     }
 
     template <class F>
-    void across_valueparams(F f) {
-        across_valueparams_helper(f, std::index_sequence_for<Sets...>{});
+    void across_nodes(F f) {
+        across_nodes_helper(f, std::index_sequence_for<Sets...>{});
     }
 };
 

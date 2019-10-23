@@ -32,7 +32,7 @@ license and that you accept its terms.*/
 #include "structure/new_view.hpp"
 using namespace std;
 
-TEST_CASE("") {
+TEST_CASE("Basic test for new views") {
     auto a = make_node_array<exponential>(5, n_to_constant(1.0));
     set_value(a, {1, 2, 3, 4, 5});
     auto b = make_node_array<gamma_ss>(5, n_to_n(a), n_to_constant(2.0));
@@ -57,11 +57,34 @@ TEST_CASE("") {
         for (auto e : ps) { ss << e << " "; }
         ss << "> ";
     };
-    s.across_valueparams(add_params_to_stream);
+    s.across_nodes(add_params_to_stream);
 
     auto col = make_set_collection(s, sa);
     col.across_values(add_to_stream);
-    col.across_valueparams(add_params_to_stream);
+    col.across_nodes(add_params_to_stream);
 
     cout << ss.str() << "\n";
+}
+
+TEST_CASE("Pre-made subsets") {
+    auto a = make_node_array<exponential>(3, n_to_constant(1.0));
+    auto m =
+        make_node_matrix<exponential>(3, 2, [& v = get<value>(a)](int i, int) { return v[i]; });
+    auto gen = make_generator();
+    draw(a, gen);
+    draw(m, gen);
+
+    auto c = make_set_collection(subsets::element(a, 1), subsets::row(m, 1));
+
+    stringstream ss;
+    auto add_to_stream = [&ss](auto& x) { ss << x << "; "; };
+    auto add_params_to_stream = [&ss](auto distrib, auto& value, auto... params) {
+        std::vector<double> ps = {params...};
+        ss << "<" << typeid(distrib).name() << ": " << value << ", ";
+        for (auto e : ps) { ss << e << " "; }
+        ss << "> ";
+    };
+
+    c.across_nodes(add_params_to_stream);
+    cout << "========================\n" << ss.str() << "\n";
 }
