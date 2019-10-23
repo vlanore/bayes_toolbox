@@ -32,7 +32,7 @@ license and that you accept its terms.*/
 #include "structure/node.hpp"
 
 template <class T, class F, class... IndexArgs>
-void across_values(T& x, F&& f, IndexArgs... args); // forward decl
+void across_values(T& x, F&& f, IndexArgs... args);  // forward decl
 
 namespace overloads {
     template <class Node, class F>
@@ -79,7 +79,7 @@ namespace overloads {
 
     template <class... CollecArgs, class F>
     void across_values(unknown_tag, SetCollection<CollecArgs...>& colec, const F& f, NoIndex) {
-        colec.across_elements([f](auto& e){ across_values(e, f); });        
+        colec.across_elements([f](auto& e) { ::across_values(e, f); });
     }
 
 }  // namespace overloads
