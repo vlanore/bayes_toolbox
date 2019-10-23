@@ -60,8 +60,9 @@ TEST_CASE("Basic test for new views") {
     s.across_nodes(add_params_to_stream);
 
     auto col = make_set_collection(s, sa);
-    col.across_values(add_to_stream);
-    col.across_nodes(add_params_to_stream);
+    col.across_elements([add_to_stream](auto& e) { e.across_values(add_to_stream); });
+    col.across_elements(
+        [add_params_to_stream](auto& e) { e.across_nodes(add_params_to_stream); });
 
     cout << ss.str() << "\n";
 }
@@ -77,7 +78,6 @@ TEST_CASE("Pre-made subsets") {
     auto c = make_set_collection(subsets::element(a, 1), subsets::row(m, 1));
 
     stringstream ss;
-    auto add_to_stream = [&ss](auto& x) { ss << x << "; "; };
     auto add_params_to_stream = [&ss](auto distrib, auto& value, auto... params) {
         std::vector<double> ps = {params...};
         ss << "<" << typeid(distrib).name() << ": " << value << ", ";
@@ -85,6 +85,7 @@ TEST_CASE("Pre-made subsets") {
         ss << "> ";
     };
 
-    c.across_nodes(add_params_to_stream);
+    c.across_elements(
+        [add_params_to_stream](auto& e) { e.across_nodes(add_params_to_stream); });
     cout << "========================\n" << ss.str() << "\n";
 }

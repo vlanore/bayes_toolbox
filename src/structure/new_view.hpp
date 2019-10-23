@@ -110,26 +110,16 @@ class SetCollection {
     std::tuple<Sets...> sets;
 
     template <class F, size_t... is>
-    void across_values_helper(F f, std::index_sequence<is...>) {
-        std::vector<int> ignore = {(get<is>(sets).across_values(f), 0)...};
-    }
-
-    template <class F, size_t... is>
-    void across_nodes_helper(F f, std::index_sequence<is...>) {
-        std::vector<int> ignore = {(get<is>(sets).across_nodes(f), 0)...};
+    void across_elements_helper(F f, std::index_sequence<is...>) {
+        std::vector<int> ignore = {(f(get<is>(sets)), 0)...};
     }
 
   public:
     SetCollection(Sets&&... sets) : sets(std::forward<Sets>(sets)...) {}
 
     template <class F>
-    void across_values(F f) {
-        across_values_helper(f, std::index_sequence_for<Sets...>{});
-    }
-
-    template <class F>
-    void across_nodes(F f) {
-        across_nodes_helper(f, std::index_sequence_for<Sets...>{});
+    void across_elements(F f) {
+        across_elements_helper(f, std::index_sequence_for<Sets...>{});
     }
 };
 
