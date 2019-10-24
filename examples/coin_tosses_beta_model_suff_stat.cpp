@@ -35,6 +35,19 @@ TOKEN(beta_weight_b)
 TOKEN(p)
 TOKEN(bern)
 
+class BinomialSuffStat final : public Proxy<int> {
+    int sum{0};
+    const std::vector<pos_integer>& _bern_vector;
+    int _get() final { return sum; }
+
+public:
+    BinomialSuffStat(const std::vector<pos_integer>& bern_vector) : _bern_vector(bern_vector) {}
+
+    void gather() final {
+        sum = std::accumulate(_bern_vector.begin(), _bern_vector.end(), 0);
+    }
+};
+
 // Model definition
 auto bernoulli_model(size_t size) {
     auto beta_weight_a = make_node<exponential>(1.);
@@ -54,14 +67,18 @@ int main() {
     auto gen = make_generator();
 
     constexpr size_t nb_it{100'000};
+    constexpr size_t burn_in{nb_it / 10};
+
     int n_obs = 1;
     auto m = bernoulli_model(n_obs);
     auto v = make_collection(beta_weight_a_(m), beta_weight_b_(m), p_(m), bern_(m));
     draw(v, gen);
 
     std::vector<pos_integer> outcomes(n_obs, 1);
+    auto z = BinomialSuffStat(outcomes);
 
     set_value(bern_(m), outcomes);
+    z.gather();
 
     auto v_weight_a = make_collection(beta_weight_a_(m), p_(m));
     auto v_weight_b = make_collection(beta_weight_b_(m), p_(m));
@@ -71,10 +88,12 @@ int main() {
         // propose move for p, provided a Markov blanket of p
         scaling_move(beta_weight_a_(m), logprob_of_blanket(v_weight_a), gen);
         scaling_move(beta_weight_b_(m), logprob_of_blanket(v_weight_b), gen);
-        slide_constrained_move(p_(m), logprob_of_blanket(v), gen, 0., 1.);
-        p_sum += raw_value(p_(m));
+        int ss_value = z.get(); // get sufftat value (local copy)
+        beta_ss::draw(get<p, value>(m), get<beta_weight_a, value>(m) + ss_value, get<beta_weight_b, value>(m) + n_obs - ss_value, gen);
+        if (it >= burn_in) { p_sum += raw_value(p_(m)); }
     }
-    float p_mean = p_sum / float(nb_it);
+    float p_mean = p_sum / float(nb_it - burn_in);
+    std::cout << "Coin Tosses Beta with SuffStats " << std::endl;
     std::cout << "p = " << p_mean << std::endl;
     return 0;
 }

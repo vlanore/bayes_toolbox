@@ -52,6 +52,8 @@ int main() {
     auto gen = make_generator();
 
     constexpr size_t nb_it{100'000};
+    constexpr size_t burn_in{nb_it / 10};
+
     int n_obs = 1;
     auto m = bernoulli_model(n_obs);
     auto v = make_collection(beta_weight_a_(m), beta_weight_b_(m), p_(m), bern_(m));
@@ -70,9 +72,10 @@ int main() {
         scaling_move(beta_weight_a_(m), logprob_of_blanket(v_weight_a), gen);
         scaling_move(beta_weight_b_(m), logprob_of_blanket(v_weight_b), gen);
         slide_constrained_move(p_(m), logprob_of_blanket(v), gen, 0., 1.);
-        p_sum += raw_value(p_(m));
+        if (it >= burn_in) { p_sum += raw_value(p_(m)); }
     }
-    float p_mean = p_sum / float(nb_it);
+    float p_mean = p_sum / float(nb_it - burn_in);
+    std::cout << "Coin Tosses Beta" << std::endl;
     std::cout << "p = " << p_mean << std::endl;
     return 0;
 }

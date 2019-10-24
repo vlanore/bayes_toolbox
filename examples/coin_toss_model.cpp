@@ -61,6 +61,7 @@ int main() {
         p_sum += raw_value(p_(m));
     }
     float p_mean = p_sum / float(nb_it);
+    std::cout << "Coin Toss " << std::endl;
     std::cout << "p = " << p_mean << std::endl;
     if (std::abs(p_mean - 2. / 3.) > 0.1) {
         return 1;
