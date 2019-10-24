@@ -300,14 +300,8 @@ TEST_CASE("Across values") {
     CHECK(ss.str() == "3;");
     across_values(a, f);
     CHECK(ss.str() == "3;1;2;3;");
-    across_values(a, f, 1);
-    CHECK(ss.str() == "3;1;2;3;2;");
     across_values(m, f);
-    CHECK(ss.str() == "3;1;2;3;2;0;1;2;3;");
-    across_values(m, f, 1);
-    CHECK(ss.str() == "3;1;2;3;2;0;1;2;3;2;3;");
-    across_values(m, f, 1, 0);
-    CHECK(ss.str() == "3;1;2;3;2;0;1;2;3;2;3;2;");
+    CHECK(ss.str() == "3;1;2;3;0;1;2;3;");
 }
 
 std::string g() { return "()"; }
@@ -331,17 +325,8 @@ TEST_CASE("across_nodes") {
     across_nodes(a, f);
     CHECK(ss.str() == "3(1);1(0, 3);2(1, 3);3(2, 3);");
     ss.str("");
-    across_nodes(a, f, 1);
-    CHECK(ss.str() == "2(1, 3);");
-    ss.str("");
     across_nodes(m, f);
     CHECK(ss.str() == "0(3);1(3);2(3);3(3);");
-    ss.str("");
-    across_nodes(m, f, 1);
-    CHECK(ss.str() == "2(3);3(3);");
-    ss.str("");
-    across_nodes(m, f, 1, 0);
-    CHECK(ss.str() == "2(3);");
 }
 
 /*

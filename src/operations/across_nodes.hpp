@@ -30,8 +30,8 @@ license and that you accept its terms.*/
 #include "structure/new_view.hpp"
 #include "structure/node.hpp"
 
-template <class T, class F, class... IndexArgs>
-void across_nodes(T& x, F&& f, IndexArgs... args);  // forward decl
+template <class T, class F>
+void across_nodes(T& x, F&& f);  // forward decl
 
 namespace overloads {
     template <class Distrib, class T, class F, class Params, class... Keys, class... Indexes>
@@ -41,14 +41,14 @@ namespace overloads {
     }
 
     template <class Node, class F>
-    void across_nodes(lone_node_tag, Node& n, const F& f, NoIndex) {
+    void across_nodes(lone_node_tag, Node& n, const F& f) {
         using distrib = node_distrib_t<Node>;
         using keys = param_keys_t<distrib>;
         unpack_params(distrib{}, raw_value(n), f, get<params>(n), keys());
     }
 
     template <class Array, class F>
-    void across_nodes(node_array_tag, Array& a, const F& f, NoIndex) {
+    void across_nodes(node_array_tag, Array& a, const F& f) {
         using distrib = node_distrib_t<Array>;
         using keys = param_keys_t<distrib>;
         for (size_t i = 0; i < get<value>(a).size(); i++) {
@@ -56,15 +56,8 @@ namespace overloads {
         }
     }
 
-    template <class Array, class F>
-    void across_nodes(node_array_tag, Array& a, const F& f, ArrayIndex index) {
-        using distrib = node_distrib_t<Array>;
-        using keys = param_keys_t<distrib>;
-        unpack_params(distrib{}, raw_value(a, index.i), f, get<params>(a), keys(), index.i);
-    }
-
     template <class Matrix, class F>
-    void across_nodes(node_matrix_tag, Matrix& m, const F& f, NoIndex) {
+    void across_nodes(node_matrix_tag, Matrix& m, const F& f) {
         using distrib = node_distrib_t<Matrix>;
         using keys = param_keys_t<distrib>;
         for (size_t i = 0; i < get<value>(m).size(); i++) {
@@ -74,36 +67,18 @@ namespace overloads {
         }
     }
 
-    template <class Matrix, class F>
-    void across_nodes(node_matrix_tag, Matrix& m, const F& f, ArrayIndex index) {
-        using distrib = node_distrib_t<Matrix>;
-        using keys = param_keys_t<distrib>;
-        for (size_t j = 0; j < get<value>(m)[index.i].size(); j++) {
-            unpack_params(distrib{}, raw_value(m, index.i, j), f, get<params>(m), keys(), index.i,
-                          j);
-        }
-    }
-
-    template <class Matrix, class F>
-    void across_nodes(node_matrix_tag, Matrix& m, const F& f, MatrixIndex index) {
-        using distrib = node_distrib_t<Matrix>;
-        using keys = param_keys_t<distrib>;
-        unpack_params(distrib{}, raw_value(m, index.i, index.j), f, get<params>(m), keys(), index.i,
-                      index.j);
-    }
-
     template <class... SubsetArgs, class F>
-    void across_nodes(unknown_tag, NodeSubset<SubsetArgs...>& subset, const F& f, NoIndex) {
+    void across_nodes(unknown_tag, NodeSubset<SubsetArgs...>& subset, const F& f) {
         subset.across_nodes(f);
     }
 
     template <class... CollecArgs, class F>
-    void across_nodes(unknown_tag, SetCollection<CollecArgs...>& colec, const F& f, NoIndex) {
+    void across_nodes(unknown_tag, SetCollection<CollecArgs...>& colec, const F& f) {
         colec.across_elements([f](auto& e) { ::across_nodes(e, f); });
     }
 }  // namespace overloads
 
-template <class T, class F, class... IndexArgs>
-void across_nodes(T& x, F&& f, IndexArgs... args) {
-    overloads::across_nodes(type_tag(x), x, std::forward<F>(f), make_index(args...));
+template <class T, class F>
+void across_nodes(T& x, F&& f) {
+    overloads::across_nodes(type_tag(x), x, std::forward<F>(f));
 }
