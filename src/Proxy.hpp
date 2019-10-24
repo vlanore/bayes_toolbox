@@ -1,5 +1,7 @@
 #pragma once
 
+#include <assert.h>
+
 template <class T, class... Args>
 class Proxy {
     virtual T _get(Args... args) = 0;
