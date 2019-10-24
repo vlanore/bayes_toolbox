@@ -269,14 +269,9 @@ TEST_CASE("Backup/restore") {
     auto a = make_node_array<poisson>(3, n_to_constant(1.0));
     set_value(a, {11, 12, 13});
     auto ba = backup(a);
-    auto ba1 = backup(a, 1);
     set_value(a, {1, 2, 3});
     CHECK(raw_value(a, 0) == 1);
     CHECK(raw_value(a, 1) == 2);
-    CHECK(raw_value(a, 2) == 3);
-    restore(a, ba1, 1);
-    CHECK(raw_value(a, 0) == 1);
-    CHECK(raw_value(a, 1) == 12);
     CHECK(raw_value(a, 2) == 3);
     restore(a, ba);
     CHECK(raw_value(a, 0) == 11);
