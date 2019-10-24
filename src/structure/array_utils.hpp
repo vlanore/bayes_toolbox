@@ -1,4 +1,4 @@
-/*Copyright or © or Copr. CNRS (2019). Contributors:
+/*Copyright or © or Copr. CNRS (2019). Contributors2
 - Vincent Lanore. vincent.lanore@gmail.com
 
 This software is a computer program whose purpose is to provide a set of C++ data structures and
@@ -33,17 +33,72 @@ license and that you accept its terms.*/
 //==================================================================================================
 // array param helpers for common cases
 
-template <class Node>
-auto n_to_one(Node& node) {
-    return [&rv = raw_value(node)](int) { return rv; };
+// forward declarations
+template <class T> auto n_to_one(T& t);
+template <class T> auto mn_to_one(T& t);
+template <class T> auto n_to_n(T& t);
+
+namespace overloads {
+
+    template <class Node>
+        auto n_to_one(node_tag, Node& node)    {
+            return [&rv = raw_value(node)](int) { return rv; };
+        }
+
+    template <class Node>
+        auto mn_to_one(node_tag, Node& node)    {
+            return [&rv = raw_value(node)](int, int) { return rv; };
+        }
+
+    template <class Node>
+        auto n_to_n(node_tag, Node& node) {
+            return [&v = get<value>(node)](int i) { return v[i]; };
+        }
+
+    template <class Unknown>
+        auto n_to_one(unknown_tag, Unknown& u)    {
+            return [&u] (int i) { return u; };
+        }
+
+    template <class Unknown>
+        auto mn_to_one(unknown_tag, Unknown& u)    {
+            return [&u] (int, int) { return u; };
+        }
+
+    template <class Unknown>
+        auto n_to_n(unknown_tag, Unknown& u) {
+            return [&u] (int i) { return u[i]; };
+        }
 }
 
-template <class Node>
-auto n_to_n(Node& node) {
-    return [&v = get<value>(node)](int i) { return v[i]; };
+template <class T>
+auto n_to_one(T& t) {
+    return overloads::n_to_one(type_tag(t), t);
+    // return [&rv = raw_value(node)](int) { return rv; };
+}
+
+template <class T>
+auto mn_to_one(T& t) {
+    return overloads::mn_to_one(type_tag(t), t);
+}
+
+template <class T>
+auto n_to_n(T& t) {
+    return overloads::n_to_n(type_tag(t), t);
+    // return [&v = get<value>(node)](int i) { return v[i]; };
+}
+
+template <class T>
+auto to_constant(const T& value) {
+    return [value](int) { return value; };
 }
 
 template <class T>
 auto n_to_constant(const T& value) {
     return [value](int) { return value; };
+}
+
+template <class T>
+auto mn_to_constant(const T& value) {
+    return [value](int, int) { return value; };
 }
