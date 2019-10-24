@@ -52,11 +52,14 @@ int main() {
     auto gen = make_generator();
 
     constexpr size_t nb_it{100'000};
-    int n_obs = 2;
+    int n_obs = 1;
     auto m = bernoulli_model(n_obs);
     auto v = make_collection(beta_weight_a_(m), beta_weight_b_(m), p_(m), bern_(m));
     draw(v, gen);
-    set_value(bern_(m), {true, true});
+
+    std::vector<pos_integer> outcomes(n_obs, 1);
+    
+    set_value(bern_(m), outcomes);
 
     auto v_weight_a = make_collection(beta_weight_a_(m), p_(m));
     auto v_weight_b = make_collection(beta_weight_b_(m), p_(m));
