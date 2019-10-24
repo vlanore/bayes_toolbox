@@ -57,24 +57,23 @@ namespace overloads {
 
     template <class Unknown>
         auto n_to_one(unknown_tag, Unknown& u)    {
-            return [&u] (int i) { return u; };
+            return [&u] (int i) -> const Unknown& { return u; };
         }
 
     template <class Unknown>
         auto mn_to_one(unknown_tag, Unknown& u)    {
-            return [&u] (int, int) { return u; };
+            return [&u] (int, int) -> const Unknown& { return u; };
         }
 
     template <class Unknown>
-        auto n_to_n(unknown_tag, Unknown& u) {
-            return [&u] (int i) { return u[i]; };
+        auto n_to_n(unknown_tag, std::vector<Unknown>& u) {
+            return [&u] (int i) -> const Unknown& { return u[i]; };
         }
 }
 
 template <class T>
 auto n_to_one(T& t) {
     return overloads::n_to_one(type_tag(t), t);
-    // return [&rv = raw_value(node)](int) { return rv; };
 }
 
 template <class T>
@@ -85,20 +84,19 @@ auto mn_to_one(T& t) {
 template <class T>
 auto n_to_n(T& t) {
     return overloads::n_to_n(type_tag(t), t);
-    // return [&v = get<value>(node)](int i) { return v[i]; };
 }
 
 template <class T>
 auto to_constant(const T& value) {
-    return [value]() { return value; };
+    return [value]() -> const T& { return value; };
 }
 
 template <class T>
 auto n_to_constant(const T& value) {
-    return [value](int) { return value; };
+    return [value](int) -> const T& { return value; };
 }
 
 template <class T>
 auto mn_to_constant(const T& value) {
-    return [value](int, int) { return value; };
+    return [value](int, int) -> const T& { return value; };
 }
