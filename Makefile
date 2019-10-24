@@ -65,3 +65,4 @@ test: all
 	@echo && _build/coin_toss
 	@echo && _build/coin_tosses
 	@echo && _build/coin_tosses_beta
+	@echo && _build/coin_tosses_beta_suff_stat
