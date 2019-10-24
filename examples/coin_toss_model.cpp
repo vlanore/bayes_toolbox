@@ -48,7 +48,7 @@ int main() {
     constexpr size_t nb_it{100'000};
 
     auto m = bernoulli_model();
-    auto v = make_set_collection(p_(m), bern_(m));
+    auto v = make_collection(p_(m), bern_(m));
     draw(v, gen);
 
     set_value(bern_(m), true);

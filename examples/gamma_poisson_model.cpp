@@ -54,7 +54,7 @@ int main() {
     constexpr size_t nb_it{100'000}, len_lambda{5}, len_K{3};
     auto m = poisson_gamma(len_lambda, len_K);
 
-    auto v = make_set_collection(alpha__(m), beta__(m), lambda_(m), K_(m));
+    auto v = make_collection(alpha__(m), beta__(m), lambda_(m), K_(m));
 
     // Generate initial model parameters, including "observed" values K
     draw(v, gen);
@@ -72,16 +72,16 @@ int main() {
     double alpha__sum{0}, beta__sum{0}, lambda_sum{0};
 
     for (size_t it = 0; it < nb_it; it++) {
-        scaling_move(alpha__(m), logprob_of_blanket(make_set_collection(alpha__(m), lambda_(m))),
+        scaling_move(alpha__(m), logprob_of_blanket(make_collection(alpha__(m), lambda_(m))),
                      gen);
-        scaling_move(beta__(m), logprob_of_blanket(make_set_collection(beta__(m), lambda_(m))),
+        scaling_move(beta__(m), logprob_of_blanket(make_collection(beta__(m), lambda_(m))),
                      gen);
         alpha__sum += raw_value(alpha__(m));
         beta__sum += raw_value(beta__(m));
 
         for (size_t i = 0; i < len_lambda; i++) {
             auto lambda_mb =
-                make_set_collection(subsets::row(K_(m), i), subsets::element(lambda_(m), i));
+                make_collection(subsets::row(K_(m), i), subsets::element(lambda_(m), i));
             mh_move(lambda_(m), logprob_of_blanket(lambda_mb),
                     [i](auto& value, auto& gen) { return scale(value[i], gen); }, gen);
             lambda_sum += raw_value(lambda_(m), i);

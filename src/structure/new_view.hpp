@@ -124,6 +124,6 @@ class SetCollection {
 };
 
 template <class... Sets>
-auto make_set_collection(Sets&&... sets) {
+auto make_collection(Sets&&... sets) {
     return SetCollection<Sets...>(std::forward<Sets>(sets)...);
 }

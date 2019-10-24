@@ -54,12 +54,12 @@ int main() {
     constexpr size_t nb_it{100'000};
     int n_obs = 2;
     auto m = bernoulli_model(n_obs);
-    auto v = make_set_collection(beta_weight_a_(m), beta_weight_b_(m), p_(m), bern_(m));
+    auto v = make_collection(beta_weight_a_(m), beta_weight_b_(m), p_(m), bern_(m));
     draw(v, gen);
     set_value(bern_(m), {true, true});
 
-    auto v_weight_a = make_set_collection(beta_weight_a_(m), p_(m));
-    auto v_weight_b = make_set_collection(beta_weight_b_(m), p_(m));
+    auto v_weight_a = make_collection(beta_weight_a_(m), p_(m));
+    auto v_weight_b = make_collection(beta_weight_b_(m), p_(m));
 
     double p_sum{0};
     for (size_t it = 0; it < nb_it; ++it) {

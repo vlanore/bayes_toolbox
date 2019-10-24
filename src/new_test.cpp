@@ -59,7 +59,7 @@ TEST_CASE("Basic test for new views") {
     };
     s.across_nodes(add_params_to_stream);
 
-    auto col = make_set_collection(s, sa);
+    auto col = make_collection(s, sa);
     across_values(col, add_to_stream);
     across_nodes(col, add_params_to_stream);
 
@@ -74,7 +74,7 @@ TEST_CASE("Pre-made subsets") {
     draw(a, gen);
     draw(m, gen);
 
-    auto c = make_set_collection(subsets::element(a, 1), subsets::row(m, 1));
+    auto c = make_collection(subsets::element(a, 1), subsets::row(m, 1));
 
     stringstream ss;
     auto add_params_to_stream = [&ss](auto distrib, auto& value, auto... params) {
