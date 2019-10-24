@@ -90,7 +90,7 @@ auto n_to_n(T& t) {
 
 template <class T>
 auto to_constant(const T& value) {
-    return [value](int) { return value; };
+    return [value]() { return value; };
 }
 
 template <class T>
