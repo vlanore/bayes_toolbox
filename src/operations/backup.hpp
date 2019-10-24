@@ -27,67 +27,77 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "raw_value.hpp"
+#include "structure/introspection.hpp"
+
+template <class T>
+auto backup(T& x);  // forward decl
 
 namespace overloads {
-    template <class T>  // @todo: add complex_node_tag or something to simplify here
-    auto backup(node_matrix_tag, T& node, NoIndex = NoIndex()) {
+    template <class T>
+    auto backup(node_tag, T& node) {
         return get<value>(node);
     }
 
-    template <class T>
-    auto backup(node_matrix_tag, T& node, ArrayIndex index) {
-        assert(index.i >= 0 && index.i < get<value>(node).size());
-        return get<value>(node)[index.i];
+    template <class Node, class Subset>
+    auto backup(unknown_tag, NodeSubset<Node, Subset>& subset) {
+        using T = typename node_distrib_t<Node>::T;
+        std::vector<T> result;
+        subset.across_values([&result](auto& x) { result.push_back(x); });
+        return result;
     }
 
-    template <class T>
-    auto backup(node_array_tag, T& node, NoIndex = NoIndex()) {
-        return get<value>(node);
+    template <class... CollecArgs>
+    auto backup(unknown_tag, SetCollection<CollecArgs...>& colec) {
+        return colec.gather_across_elements([](auto& e) { return ::backup(e); });
     }
-
-    template <class T, class Index>
-    auto backup(node_tag, T& node, Index index) {
-        return raw_value(node, index);
-    }
-
 }  // namespace overloads
 
-template <class T, class... IndexArgs>
-auto backup(T& x, IndexArgs... args) {
-    return overloads::backup(type_tag(x), x, make_index(args...));
+template <class T>
+auto backup(T& x) {
+    return overloads::backup(type_tag(x), x);
 }
 
+template <class T, class Backup>
+void restore(T& x, Backup& b);  // forward decl
+
 namespace overloads {
-    template <class T, class V>
-    auto restore(node_matrix_tag, T& node, matrix<V>& backup, NoIndex = NoIndex()) {
+    template <class Node, class T = typename node_distrib_t<Node>::T>
+    void restore(node_matrix_tag, Node& node, matrix<T>& backup) {
         assert(backup.size() == get<value>(node).size());
         assert(backup.size() > 0);
         assert(backup.at(0).size() == get<value>(node).at(0).size());
         for (size_t i = 0; i < backup.size(); i++) {
-            for (size_t j = 0; j < backup[i].size(); j++) { raw_value(node, i, j) = backup[i][j]; }
+            get<value>(node)[i].assign(backup[i].begin(), backup[i].end());
         }
     }
 
-    template <class T, class V>
-    auto restore(node_matrix_tag, T& node, std::vector<V>& backup, ArrayIndex index) {
-        assert(index.i >= 0 && index.i < get<value>(backup).size());
-        assert(backup.size() == get<value>(node).at(index.i).size());
-        for (size_t j = 0; j < backup.size(); j++) { raw_value(node, index, j) = backup[j]; }
-    }
-
-    template <class T, class V>
-    auto restore(node_array_tag, T& node, std::vector<V>& backup, NoIndex = NoIndex()) {
+    template <class Node, class T = typename node_distrib_t<Node>::T>
+    void restore(node_array_tag, Node& node, std::vector<T>& backup) {
         assert(backup.size() == get<value>(node).size());
-        for (size_t i = 0; i < backup.size(); i++) { raw_value(node, i) = backup[i]; }
+        get<value>(node).assign(backup.begin(), backup.end());
     }
 
-    template <class T, class V, class Index>
-    auto restore(node_tag, T& node, V& backup, Index index) {
-        raw_value(node, index) = backup;
+    template <class Node, class T = typename node_distrib_t<Node>::T>
+    void restore(lone_node_tag, Node& node, T& backup) {
+        get<value>(node) = backup;
+    }
+
+    template <class Node, class Subset, class T = typename node_distrib_t<Node>::T>
+    void restore(unknown_tag, NodeSubset<Node, Subset>& subset, std::vector<T>& backup) {
+        auto it = backup.begin();
+        subset.across_values([&it](auto& x) {
+            x = *it;
+            it++;
+        });
+    }
+
+    template <class... CollecArgs, class... Backups>
+    void restore(unknown_tag, SetCollection<CollecArgs...>& colec, std::tuple<Backups...>& backup) {
+        colec.joint_across_elements([](auto& x, auto& bkp) { ::restore(x, bkp); }, backup);
     }
 }  // namespace overloads
 
-template <class T, class Backup, class... IndexArgs>
-void restore(T& x, Backup& b, IndexArgs... args) {
-    overloads::restore(type_tag(x), x, b, make_index(args...));
+template <class T, class Backup>
+void restore(T& x, Backup& b) {
+    overloads::restore(type_tag(x), x, b);
 }

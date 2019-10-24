@@ -114,12 +114,34 @@ class SetCollection {
         std::vector<int> ignore = {(f(get<is>(sets)), 0)...};
     }
 
+    template <class F, size_t... is>
+    auto gather_across_elements_helper(F f, std::index_sequence<is...>) {
+        return std::make_tuple(f(get<is>(sets))...);
+    }
+
+    template <class F, class... Elements, size_t... is>
+    auto joint_across_elements_helper(F f, std::tuple<Elements...>& other,
+                                      std::index_sequence<is...>) {
+        std::vector<int> ignore = {(f(get<is>(sets), get<is>(other)), 0)...};
+    }
+
   public:
     SetCollection(Sets&&... sets) : sets(std::forward<Sets>(sets)...) {}
 
     template <class F>
     void across_elements(F f) {
         across_elements_helper(f, std::index_sequence_for<Sets...>{});
+    }
+
+    template <class F, class... Elements>
+    void joint_across_elements(F f, std::tuple<Elements...>& other) {
+        static_assert(sizeof...(Sets) == sizeof...(Elements), "Wrong other size");
+        joint_across_elements_helper(f, other, std::index_sequence_for<Sets...>{});
+    }
+
+    template <class F>
+    auto gather_across_elements(F f) {
+        return gather_across_elements_helper(f, std::index_sequence_for<Sets...>{});
     }
 };
 

@@ -87,3 +87,26 @@ TEST_CASE("Pre-made subsets") {
     across_nodes(c, add_params_to_stream);
     cout << "========================\n" << ss.str() << "\n";
 }
+
+TEST_CASE("new backup implem") {
+    auto gen = make_generator();
+    auto a = make_node_array<exponential>(5, n_to_constant(1.0));
+    auto a2 = make_node_array<exponential>(5, n_to_n(a));
+
+    auto c = make_collection(a, subsets::element(a2, 2));
+    draw(c, gen);
+    cout << raw_value(a, 2) << ": " << &raw_value(a, 2) << "\n";
+
+    auto ba = backup(a);
+    draw(c, gen);
+    cout << raw_value(a, 2) << ": " << &raw_value(a, 2) << "\n";
+    restore(a, ba);
+    cout << raw_value(a, 2) << ": " << &raw_value(a, 2) << "\n";
+
+    auto bc = backup(c);
+    cout << raw_value(a2, 2) << ": " << &raw_value(a2, 2) << "\n";
+    draw(c, gen);
+    cout << raw_value(a2, 2) << ": " << &raw_value(a2, 2) << "\n";
+    restore(c, bc);
+    cout << raw_value(a2, 2) << ": " << &raw_value(a2, 2) << "\n";
+}
