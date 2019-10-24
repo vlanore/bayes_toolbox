@@ -45,7 +45,6 @@ struct dirichlet {
     }
 
     static double logprob(T& x, const std::vector<double>& alpha) {
-    // static double logprob(const T& x, const std::vector<double>& alpha) {
         size_t k = x.size();
         assert(k = alpha.size());
         double sum_alpha{0}, sum_lgam_alpha{0}, sum_alpha_logx{0};
@@ -65,7 +64,7 @@ struct dirichlet_cic {
     template <typename Gen>
     static void draw(T& x, const std::vector<double>& center, double invconc, Gen& gen) {
         size_t k = x.size();
-        assert(k == alpha.size());
+        assert(k == center.size());
         double sum_y{0};
         for (size_t i = 0; i < k; i++) {
             gamma_sr::draw(x[i], center[i] / invconc, 1, gen);
@@ -75,9 +74,8 @@ struct dirichlet_cic {
     }
 
     static double logprob(T& x, const std::vector<double>& center, double invconc) {
-    // static double logprob(const T& x, const std::vector<double>& center, double invconc) {
         size_t k = x.size();
-        assert(k = alpha.size());
+        assert(k == center.size());
         double sum_alpha{0}, sum_lgam_alpha{0}, sum_alpha_logx{0};
         for (size_t i = 0; i < k; i++) {
             double alpha = center[i] / invconc;
