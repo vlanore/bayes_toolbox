@@ -42,7 +42,6 @@ template <class T>
 auto n_to_n(T& t);
 
 namespace overloads {
-
     template <class Node>
     auto n_to_one(node_tag, Node& node) {
         return [&rv = raw_value(node)](int) { return rv; };
@@ -60,7 +59,7 @@ namespace overloads {
 
     template <class Unknown>
     auto n_to_one(unknown_tag, Unknown& u) {
-        return [&u](int i) -> const Unknown& { return u; };
+        return [&u](int) -> const Unknown& { return u; };
     }
 
     template <class Unknown>
