@@ -72,10 +72,8 @@ int main() {
     double alpha__sum{0}, beta__sum{0}, lambda_sum{0};
 
     for (size_t it = 0; it < nb_it; it++) {
-        scaling_move(alpha__(m), logprob_of_blanket(make_collection(alpha__(m), lambda_(m))),
-                     gen);
-        scaling_move(beta__(m), logprob_of_blanket(make_collection(beta__(m), lambda_(m))),
-                     gen);
+        scaling_move(alpha__(m), logprob_of_blanket(make_collection(alpha__(m), lambda_(m))), gen);
+        scaling_move(beta__(m), logprob_of_blanket(make_collection(beta__(m), lambda_(m))), gen);
         alpha__sum += raw_value(alpha__(m));
         beta__sum += raw_value(beta__(m));
 

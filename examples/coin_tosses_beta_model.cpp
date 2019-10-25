@@ -60,7 +60,7 @@ int main() {
     draw(v, gen);
 
     std::vector<pos_integer> outcomes(n_obs, 1);
-    
+
     set_value(bern_(m), outcomes);
 
     auto v_weight_a = make_collection(beta_weight_a_(m), p_(m));

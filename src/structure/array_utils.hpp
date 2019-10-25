@@ -34,42 +34,45 @@ license and that you accept its terms.*/
 // array param helpers for common cases
 
 // forward declarations
-template <class T> auto n_to_one(T& t);
-template <class T> auto mn_to_one(T& t);
-template <class T> auto n_to_n(T& t);
+template <class T>
+auto n_to_one(T& t);
+template <class T>
+auto mn_to_one(T& t);
+template <class T>
+auto n_to_n(T& t);
 
 namespace overloads {
 
     template <class Node>
-        auto n_to_one(node_tag, Node& node)    {
-            return [&rv = raw_value(node)](int) { return rv; };
-        }
+    auto n_to_one(node_tag, Node& node) {
+        return [&rv = raw_value(node)](int) { return rv; };
+    }
 
     template <class Node>
-        auto mn_to_one(node_tag, Node& node)    {
-            return [&rv = raw_value(node)](int, int) { return rv; };
-        }
+    auto mn_to_one(node_tag, Node& node) {
+        return [&rv = raw_value(node)](int, int) { return rv; };
+    }
 
     template <class Node>
-        auto n_to_n(node_tag, Node& node) {
-            return [&v = get<value>(node)](int i) { return v[i]; };
-        }
+    auto n_to_n(node_tag, Node& node) {
+        return [&v = get<value>(node)](int i) { return v[i]; };
+    }
 
     template <class Unknown>
-        auto n_to_one(unknown_tag, Unknown& u)    {
-            return [&u] (int i) -> const Unknown& { return u; };
-        }
+    auto n_to_one(unknown_tag, Unknown& u) {
+        return [&u](int i) -> const Unknown& { return u; };
+    }
 
     template <class Unknown>
-        auto mn_to_one(unknown_tag, Unknown& u)    {
-            return [&u] (int, int) -> const Unknown& { return u; };
-        }
+    auto mn_to_one(unknown_tag, Unknown& u) {
+        return [&u](int, int) -> const Unknown& { return u; };
+    }
 
     template <class Unknown>
-        auto n_to_n(unknown_tag, std::vector<Unknown>& u) {
-            return [&u] (int i) -> const Unknown& { return u[i]; };
-        }
-}
+    auto n_to_n(unknown_tag, std::vector<Unknown>& u) {
+        return [&u](int i) -> const Unknown& { return u[i]; };
+    }
+}  // namespace overloads
 
 template <class T>
 auto n_to_one(T& t) {

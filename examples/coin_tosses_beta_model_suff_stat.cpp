@@ -40,12 +40,10 @@ class BinomialSuffStat final : public Proxy<int> {
     const std::vector<pos_integer>& _bern_vector;
     int _get() final { return sum; }
 
-public:
+  public:
     BinomialSuffStat(const std::vector<pos_integer>& bern_vector) : _bern_vector(bern_vector) {}
 
-    void gather() final {
-        sum = std::accumulate(_bern_vector.begin(), _bern_vector.end(), 0);
-    }
+    void gather() final { sum = std::accumulate(_bern_vector.begin(), _bern_vector.end(), 0); }
 };
 
 // Model definition
@@ -88,8 +86,9 @@ int main() {
         // propose move for p, provided a Markov blanket of p
         scaling_move(beta_weight_a_(m), logprob_of_blanket(v_weight_a), gen);
         scaling_move(beta_weight_b_(m), logprob_of_blanket(v_weight_b), gen);
-        int ss_value = z.get(); // get sufftat value (local copy)
-        beta_ss::draw(get<p, value>(m), get<beta_weight_a, value>(m) + ss_value, get<beta_weight_b, value>(m) + n_obs - ss_value, gen);
+        int ss_value = z.get();  // get sufftat value (local copy)
+        beta_ss::draw(get<p, value>(m), get<beta_weight_a, value>(m) + ss_value,
+                      get<beta_weight_b, value>(m) + n_obs - ss_value, gen);
         if (it >= burn_in) { p_sum += raw_value(p_(m)); }
     }
     float p_mean = p_sum / float(nb_it - burn_in);
