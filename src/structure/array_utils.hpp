@@ -92,8 +92,18 @@ namespace overloads {
     }
 
     template <class Unknown>
+    auto mn_to_m(unknown_tag, Proxy<Unknown, int>& u) {
+        return [&u](int i, int j) -> const Unknown& { return u.get(i); };
+    }
+
+    template <class Unknown>
     auto mn_to_n(unknown_tag, std::vector<Unknown>& u) {
         return [&u](int i, int j) -> const Unknown& { return u[j]; };
+    }
+
+    template <class Unknown>
+    auto mn_to_n(unknown_tag, Proxy<Unknown, int>& u) {
+        return [&u](int i, int j) -> const Unknown& { return u.get(j); };
     }
 
     template <class Unknown>
