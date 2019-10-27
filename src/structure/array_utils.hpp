@@ -35,6 +35,10 @@ license and that you accept its terms.*/
 // array param helpers for common cases
 
 // forward declarations
+
+template <class T>
+auto one_to_one(T& t);
+
 template <class T>
 auto n_to_one(T& t);
 
@@ -51,6 +55,11 @@ template <class T>
 auto n_to_n(T& t);
 
 namespace overloads {
+    template <class Node>
+    auto one_to_one(node_tag, Node& node) {
+        return [&rv = raw_value(node)]() { return rv; };
+    }
+
     template <class Node>
     auto n_to_one(node_tag, Node& node) {
         return [&rv = raw_value(node)](int) { return rv; };
@@ -77,6 +86,11 @@ namespace overloads {
     }
 
     template <class Unknown>
+    auto one_to_one(unknown_tag, Unknown& u) {
+        return [&u]() -> const Unknown& { return u; };
+    }
+
+    template <class Unknown>
     auto n_to_one(unknown_tag, Unknown& u) {
         return [&u](int) -> const Unknown& { return u; };
     }
@@ -92,13 +106,28 @@ namespace overloads {
     }
 
     template <class Unknown>
-    auto mn_to_m(unknown_tag, Proxy<Unknown, int>& u) {
-        return [&u](int i, int j) -> const Unknown& { return u.get(i); };
+    auto mn_to_n(unknown_tag, std::vector<Unknown>& u) {
+        return [&u](int i, int j) -> const Unknown& { return u[j]; };
     }
 
     template <class Unknown>
-    auto mn_to_n(unknown_tag, std::vector<Unknown>& u) {
-        return [&u](int i, int j) -> const Unknown& { return u[j]; };
+    auto n_to_n(unknown_tag, std::vector<Unknown>& u) {
+        return [&u](int i) -> const Unknown& { return u[i]; };
+    }
+
+    template <class Unknown>
+    auto n_to_one(unknown_tag, Proxy<Unknown>& u) {
+        return [&u](int) -> const Unknown& { return u.get(); };
+    }
+
+    template <class Unknown>
+    auto mn_to_one(unknown_tag, Proxy<Unknown>& u) {
+        return [&u](int, int) -> const Unknown& { return u.get(); };
+    }
+
+    template <class Unknown>
+    auto mn_to_m(unknown_tag, Proxy<Unknown, int>& u) {
+        return [&u](int i, int j) -> const Unknown& { return u.get(i); };
     }
 
     template <class Unknown>
@@ -111,11 +140,12 @@ namespace overloads {
         return [&u](int i) -> const Unknown& { return u.get(i); };
     }
 
-    template <class Unknown>
-    auto n_to_n(unknown_tag, std::vector<Unknown>& u) {
-        return [&u](int i) -> const Unknown& { return u[i]; };
-    }
 }  // namespace overloads
+
+template <class T>
+auto one_to_one(T& t) {
+    return overloads::one_to_one(type_tag(t), t);
+}
 
 template <class T>
 auto n_to_one(T& t) {
@@ -143,17 +173,17 @@ auto n_to_n(T& t) {
 }
 
 template <class T>
-auto to_constant(const T& value) {
+auto one_to_const(const T& value) {
     return [value]() -> const T& { return value; };
 }
 
 template <class T>
-auto n_to_constant(const T& value) {
+auto n_to_const(const T& value) {
     return [value](int) -> const T& { return value; };
 }
 
 template <class T>
-auto mn_to_constant(const T& value) {
+auto mn_to_const(const T& value) {
     return [value](int, int) -> const T& { return value; };
 }
 
