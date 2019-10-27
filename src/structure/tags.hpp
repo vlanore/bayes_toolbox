@@ -38,6 +38,8 @@ struct center {};
 struct invconc {};
 struct invshape {};
 struct mean {};
+struct gam_mean {};
+struct gam_invshape {};
 struct weights {};
 struct distrib {};
 struct value {};

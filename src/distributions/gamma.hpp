@@ -101,3 +101,22 @@ struct gamma_sr {
         return alpha * log(beta) - beta * x;
     }
 };
+
+struct gamma_mi {
+    using T = pos_real;
+
+    using param_decl = param_decl_t<param<gam_mean, spos_real>, param<gam_invshape, spos_real>>;
+
+    template <typename Gen>
+    static void draw(T& x, spos_real mean, spos_real invshape, Gen& gen) {
+        std::gamma_distribution<double> distrib(1. / positive_real(invshape), positive_real(mean) * positive_real(invshape));
+        x = {distrib(gen)};
+    }
+
+    static real logprob(T x, spos_real mean, spos_real invshape) {
+        double alpha = 1. / invshape;
+        double beta = mean * invshape;
+        return alpha * log(beta) - std::lgamma(alpha) + (alpha - 1) * log(x) - beta * x;
+    }
+};
+
