@@ -29,6 +29,7 @@ license and that you accept its terms.*/
 #include <assert.h>
 #include "operations/raw_value.hpp"
 #include "operations/set_value.hpp"
+#include "Proxy.hpp"
 
 //==================================================================================================
 // array param helpers for common cases
@@ -36,8 +37,16 @@ license and that you accept its terms.*/
 // forward declarations
 template <class T>
 auto n_to_one(T& t);
+
 template <class T>
 auto mn_to_one(T& t);
+
+template <class T>
+auto mn_to_m(T& t);
+
+template <class T>
+auto mn_to_n(T& t);
+
 template <class T>
 auto n_to_n(T& t);
 
@@ -50,6 +59,16 @@ namespace overloads {
     template <class Node>
     auto mn_to_one(node_tag, Node& node) {
         return [&rv = raw_value(node)](int, int) { return rv; };
+    }
+
+    template <class Node>
+    auto mn_to_m(node_tag, Node& node) {
+        return [&rv = get<value>(node)](int i, int j) { return rv[i]; };
+    }
+
+    template <class Node>
+    auto mn_to_n(node_tag, Node& node) {
+        return [&rv = get<value>(node)](int i, int j) { return rv[j]; };
     }
 
     template <class Node>
@@ -68,6 +87,21 @@ namespace overloads {
     }
 
     template <class Unknown>
+    auto mn_to_m(unknown_tag, std::vector<Unknown>& u) {
+        return [&u](int i, int j) -> const Unknown& { return u[i]; };
+    }
+
+    template <class Unknown>
+    auto mn_to_n(unknown_tag, std::vector<Unknown>& u) {
+        return [&u](int i, int j) -> const Unknown& { return u[j]; };
+    }
+
+    template <class Unknown>
+    auto n_to_n(unknown_tag, Proxy<Unknown, int>& u) {
+        return [&u](int i) -> const Unknown& { return u.get(i); };
+    }
+
+    template <class Unknown>
     auto n_to_n(unknown_tag, std::vector<Unknown>& u) {
         return [&u](int i) -> const Unknown& { return u[i]; };
     }
@@ -81,6 +115,16 @@ auto n_to_one(T& t) {
 template <class T>
 auto mn_to_one(T& t) {
     return overloads::mn_to_one(type_tag(t), t);
+}
+
+template <class T>
+auto mn_to_m(T& t) {
+    return overloads::mn_to_m(type_tag(t), t);
+}
+
+template <class T>
+auto mn_to_n(T& t) {
+    return overloads::mn_to_n(type_tag(t), t);
 }
 
 template <class T>
@@ -102,3 +146,4 @@ template <class T>
 auto mn_to_constant(const T& value) {
     return [value](int, int) -> const T& { return value; };
 }
+
