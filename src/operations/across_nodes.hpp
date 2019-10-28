@@ -35,20 +35,20 @@ void across_nodes(T& x, F&& f);  // forward decl
 
 namespace overloads {
     template <class Distrib, class T, class F, class Params, class... Keys, class... Indexes>
-    void unpack_params(Distrib, T& x, const F& f, const Params& params, std::tuple<Keys...>,
+    void unpack_params(Distrib, T& x, F f, const Params& params, std::tuple<Keys...>,
                        Indexes... is) {
         f(Distrib{}, x, get<Keys>(params)(is...)...);
     }
 
     template <class Node, class F>
-    void across_nodes(lone_node_tag, Node& n, const F& f) {
+    void across_nodes(lone_node_tag, Node& n, F f) {
         using distrib = node_distrib_t<Node>;
         using keys = param_keys_t<distrib>;
         unpack_params(distrib{}, raw_value(n), f, get<params>(n), keys());
     }
 
     template <class Array, class F>
-    void across_nodes(node_array_tag, Array& a, const F& f) {
+    void across_nodes(node_array_tag, Array& a, F f) {
         using distrib = node_distrib_t<Array>;
         using keys = param_keys_t<distrib>;
         for (size_t i = 0; i < get<value>(a).size(); i++) {
@@ -57,7 +57,7 @@ namespace overloads {
     }
 
     template <class Matrix, class F>
-    void across_nodes(node_matrix_tag, Matrix& m, const F& f) {
+    void across_nodes(node_matrix_tag, Matrix& m, F f) {
         using distrib = node_distrib_t<Matrix>;
         using keys = param_keys_t<distrib>;
         for (size_t i = 0; i < get<value>(m).size(); i++) {
@@ -68,14 +68,14 @@ namespace overloads {
     }
 
     template <class Dnode, class F>
-    void across_nodes(lone_dnode_tag, Dnode& n, const F& f) {
+    void across_nodes(lone_dnode_tag, Dnode& n, F f) {
         using detfunction = dnode_detfunction_t<Dnode>;
         using keys = param_keys_t<detfunction>;
         unpack_params(detfunction{}, raw_value(n), f, get<params>(n), keys());
     }
 
     template <class Array, class F>
-    void across_nodes(dnode_array_tag, Array& a, const F& f) {
+    void across_nodes(dnode_array_tag, Array& a, F f) {
         using detfunction = dnode_detfunction_t<Array>;
         using keys = param_keys_t<detfunction>;
         for (size_t i = 0; i < get<value>(a).size(); i++) {
@@ -84,7 +84,7 @@ namespace overloads {
     }
 
     template <class Matrix, class F>
-    void across_nodes(dnode_matrix_tag, Matrix& m, const F& f) {
+    void across_nodes(dnode_matrix_tag, Matrix& m, F f) {
         using detfunction = dnode_detfunction_t<Matrix>;
         using keys = param_keys_t<detfunction>;
         for (size_t i = 0; i < get<value>(m).size(); i++) {
@@ -95,12 +95,12 @@ namespace overloads {
     }
 
     template <class... SubsetArgs, class F>
-    void across_nodes(unknown_tag, NodeSubset<SubsetArgs...>& subset, const F& f) {
+    void across_nodes(unknown_tag, NodeSubset<SubsetArgs...>& subset, F f) {
         subset.across_nodes(f);
     }
 
     template <class... CollecArgs, class F>
-    void across_nodes(unknown_tag, SetCollection<CollecArgs...>& colec, const F& f) {
+    void across_nodes(unknown_tag, SetCollection<CollecArgs...>& colec, F f) {
         colec.across_elements([f](auto& e) { ::across_nodes(e, f); });
     }
 }  // namespace overloads

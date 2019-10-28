@@ -148,9 +148,9 @@ TEST_CASE("Visitor") {
 
     CHECK(ss.str() == "Got int 2. Got double 3. ");
 
-    auto mynode = make_node<exponential>(1.0);
-    int j = 7;
-    auto c = make_collection(mynode, j);
-    c.across_elements(v);
-    CHECK(ss.str() == "Got int 2. Got double 3. Got a node. Got int 7. ");
+    auto mynode = make_node_array<exponential>(3, n_to_const(1.0));
+    auto s = subsets::element(mynode, 1);
+    auto c = make_collection(make_collection(mynode, s));
+    across_model_nodes(c, v);
+    CHECK(ss.str() == "Got int 2. Got double 3. Got a node. ");
 }

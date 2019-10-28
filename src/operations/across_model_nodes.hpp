@@ -34,18 +34,18 @@ void across_model_nodes(T& x, F&& f);  // forward decl
 
 namespace overloads {
     template <class Node, class F>
-    void across_model_nodes(node_tag, Node& n, const F& f) {
+    void across_model_nodes(node_tag, Node& n, F f) {
         f(n);
     }
 
     template <class... SubsetArgs, class F>
-    void across_model_nodes(unknown_tag, NodeSubset<SubsetArgs...>& subset, const F& f) {
+    void across_model_nodes(unknown_tag, NodeSubset<SubsetArgs...>& subset, F f) {
         f(subset);
     }
 
     template <class... CollecArgs, class F>
-    void across_model_nodes(unknown_tag, SetCollection<CollecArgs...>& colec, const F& f) {
-        colec.across_elements(f);
+    void across_model_nodes(unknown_tag, SetCollection<CollecArgs...>& colec, F f) {
+        colec.across_elements([f](auto& x) { ::across_model_nodes(x, f); });
     }
 
 }  // namespace overloads
