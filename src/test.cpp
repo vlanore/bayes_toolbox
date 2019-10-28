@@ -128,14 +128,14 @@ TEST_CASE("Poisson/gamma simple model: draw values") {
 }
 
 TEST_CASE("Make array params") {
-    auto p = make_array_params<gamma_ss>(n_to_constant(1.0), n_to_constant(2.0));
+    auto p = make_array_params<gamma_ss>(n_to_const(1.0), n_to_const(2.0));
     CHECK(get<shape>(p)(2) == 1.0);
     CHECK(get<struct scale>(p)(17) == 2.0);
 }
 
 TEST_CASE("make array") {
-    auto a = make_node_array<exponential>(12, n_to_constant(1.0));
-    auto b = make_node_array<exponential>(12, n_to_constant(1.0));
+    auto a = make_node_array<exponential>(12, n_to_const(1.0));
+    auto b = make_node_array<exponential>(12, n_to_const(1.0));
     auto c = make_node_array<gamma_ss>(12, n_to_n(a), n_to_n(b));
     CHECK(get<value>(a).size() == 12);
     CHECK(get<params, rate>(a)(10) == 1.0);
@@ -147,7 +147,7 @@ TEST_CASE("make array") {
 
 TEST_CASE("Draw in array") {
     auto gen = make_generator();
-    auto a = make_node_array<exponential>(12, n_to_constant(1.0));
+    auto a = make_node_array<exponential>(12, n_to_const(1.0));
     draw(a, gen);
 }
 
@@ -209,7 +209,7 @@ TEST_CASE("raw_value") {
     get<value>(n) = 2;
     CHECK(raw_value(n) == 2);
 
-    auto a = make_node_array<poisson>(5, n_to_constant(2.0));
+    auto a = make_node_array<poisson>(5, n_to_const(2.0));
     set_value(a, {1, 2, 3, 4, 5});
     CHECK(raw_value(a, 3) == 4);
     raw_value(a, 3) = 5;
@@ -223,7 +223,7 @@ TEST_CASE("raw_value") {
 
 TEST_CASE("set_value") {
     auto ln = make_node<poisson>(1.0);
-    auto na = make_node_array<poisson>(3, n_to_constant(1.0));
+    auto na = make_node_array<poisson>(3, n_to_const(1.0));
     auto nm = make_node_matrix<poisson>(3, 3, [](int, int) { return 1.0; });
 
     set_value(ln, 17);
@@ -266,7 +266,7 @@ TEST_CASE("Backup/restore") {
     restore(n, bn);
     CHECK(raw_value(n) == 17);
 
-    auto a = make_node_array<poisson>(3, n_to_constant(1.0));
+    auto a = make_node_array<poisson>(3, n_to_const(1.0));
     set_value(a, {11, 12, 13});
     auto ba = backup(a);
     set_value(a, {1, 2, 3});
@@ -284,7 +284,7 @@ TEST_CASE("Backup/restore") {
 TEST_CASE("Across values") {
     auto n = make_node<poisson>(1.0);
     raw_value(n) = 3;
-    auto a = make_node_array<poisson>(3, n_to_constant(1.0));
+    auto a = make_node_array<poisson>(3, n_to_const(1.0));
     set_value(a, {1, 2, 3});
     auto m = make_node_matrix<poisson>(2, 2, [](int, int) { return 1.0; });
     set_value(m, {{0, 1}, {2, 3}});
@@ -308,7 +308,7 @@ std::string g(double x, double y) {
 TEST_CASE("across_nodes") {
     auto n = make_node<poisson>(1.0);
     raw_value(n) = 3;
-    auto a = make_node_array<gamma_ss>(3, [](int i) { return i; }, n_to_constant(3.0));
+    auto a = make_node_array<gamma_ss>(3, [](int i) { return i; }, n_to_const(3.0));
     set_value(a, {1, 2, 3});
     auto m = make_node_matrix<poisson>(2, 2, [](int, int) { return 3.0; });
     set_value(m, {{0, 1}, {2, 3}});
@@ -350,7 +350,7 @@ TEST_CASE("dirichlet logprob test") {
 
 TEST_CASE("Node type traits") {
     auto ln = make_node<poisson>(1.0);
-    auto na = make_node_array<poisson>(5, n_to_constant(1.0));
+    auto na = make_node_array<poisson>(5, n_to_const(1.0));
     auto nm = make_node_matrix<poisson>(5, 5, [](int, int) { return 1.0; });
     CHECK(is_lone_node<decltype(ln)>::value);
     CHECK(!is_node_array<decltype(ln)>::value);

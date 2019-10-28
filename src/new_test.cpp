@@ -33,9 +33,9 @@ license and that you accept its terms.*/
 using namespace std;
 
 TEST_CASE("Basic test for new views") {
-    auto a = make_node_array<exponential>(5, n_to_constant(1.0));
+    auto a = make_node_array<exponential>(5, n_to_const(1.0));
     set_value(a, {1, 2, 3, 4, 5});
-    auto b = make_node_array<gamma_ss>(5, n_to_n(a), n_to_constant(2.0));
+    auto b = make_node_array<gamma_ss>(5, n_to_n(a), n_to_const(2.0));
     set_value(b, {6, 7, 8, 9, 10});
 
     auto third_and_fourth_element = [](auto& n, auto f) {
@@ -67,7 +67,7 @@ TEST_CASE("Basic test for new views") {
 }
 
 TEST_CASE("Pre-made subsets") {
-    auto a = make_node_array<exponential>(3, n_to_constant(1.0));
+    auto a = make_node_array<exponential>(3, n_to_const(1.0));
     auto m =
         make_node_matrix<exponential>(3, 2, [& v = get<value>(a)](int i, int) { return v[i]; });
     auto gen = make_generator();
@@ -90,7 +90,7 @@ TEST_CASE("Pre-made subsets") {
 
 TEST_CASE("new backup implem") {
     auto gen = make_generator();
-    auto a = make_node_array<exponential>(5, n_to_constant(1.0));
+    auto a = make_node_array<exponential>(5, n_to_const(1.0));
     auto a2 = make_node_array<exponential>(5, n_to_n(a));
 
     auto c = make_collection(a, subsets::element(a2, 2));
