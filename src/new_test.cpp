@@ -118,12 +118,20 @@ using is_double = std::is_same<T, double>;
 template <class T>
 using is_int = std::is_same<T, int>;
 
-struct IntDoubleVisitor : public Visitor<IntDoubleVisitor, is_double, is_int> {
+struct IntDoubleVisitor : public Visitor<IntDoubleVisitor, is_double, is_int, is_node> {
     std::ostream& s;
     IntDoubleVisitor(std::ostream& s) : s(s) {}
+
     void operator()(verifies<is_int>, int& i) { s << "Got int " << i << ". "; }
+
     void operator()(verifies<is_double>, double& x) { s << "Got double " << x << ". "; }
-    using Visitor<IntDoubleVisitor, is_double, is_int>::operator();
+
+    template <class Node>
+    void operator()(verifies<is_node>, Node&) {
+        s << "Got a node. ";
+    }
+
+    using Visitor<IntDoubleVisitor, is_double, is_int, is_node>::operator();
 };
 
 TEST_CASE("Visitor") {
@@ -139,4 +147,10 @@ TEST_CASE("Visitor") {
     v(n);
 
     CHECK(ss.str() == "Got int 2. Got double 3. ");
+
+    auto mynode = make_node<exponential>(1.0);
+    int j = 7;
+    auto c = make_collection(mynode, j);
+    c.across_elements(v);
+    CHECK(ss.str() == "Got int 2. Got double 3. Got a node. Got int 7. ");
 }
