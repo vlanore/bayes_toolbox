@@ -26,31 +26,31 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "across_model_nodes.hpp"
-#include "across_nodes.hpp"
-#include "structure/visitor.hpp"
+#include "structure/new_view.hpp"
+#include "structure/node.hpp"
 
-class LogProbVisitor : public Visitor<LogProbVisitor, is_node> {
-    using Parent = Visitor<LogProbVisitor, is_node>;
-    friend Parent;
+template <class T, class F>
+void across_model_nodes(T& x, F&& f);  // forward decl
 
-    double& total;
-
-    template <class Node>
-    void operator()(verifies<is_node>, Node& node) {
-        across_nodes(node, [& total = this->total](auto distrib, auto& x, auto... params) {
-            total += decltype(distrib)::logprob(x, params...);
-        });
+namespace overloads {
+    template <class Node, class F>
+    void across_model_nodes(node_tag, Node& n, const F& f) {
+        f(n);
     }
 
-  public:
-    LogProbVisitor(double& total) : total(total) {}
-    using Parent::operator();
-};
+    template <class... SubsetArgs, class F>
+    void across_model_nodes(unknown_tag, NodeSubset<SubsetArgs...>& subset, const F& f) {
+        f(subset);
+    }
 
-template <class T>
-double logprob(T& x) {
-    double result = 0;
-    across_model_nodes(x, LogProbVisitor{result});
-    return result;
+    template <class... CollecArgs, class F>
+    void across_model_nodes(unknown_tag, SetCollection<CollecArgs...>& colec, const F& f) {
+        colec.across_elements(f);
+    }
+
+}  // namespace overloads
+
+template <class T, class F>
+void across_model_nodes(T& x, F&& f) {
+    overloads::across_model_nodes(type_tag(x), x, std::forward<F>(f));
 }
