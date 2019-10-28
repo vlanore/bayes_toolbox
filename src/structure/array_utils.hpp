@@ -35,25 +35,6 @@ license and that you accept its terms.*/
 // array param helpers for common cases
 
 // forward declarations
-
-template <class T>
-auto one_to_one(T& t);
-
-template <class T>
-auto n_to_one(T& t);
-
-template <class T>
-auto mn_to_one(T& t);
-
-template <class T>
-auto mn_to_m(T& t);
-
-template <class T>
-auto mn_to_n(T& t);
-
-template <class T>
-auto n_to_n(T& t);
-
 namespace overloads {
     template <class Node>
     auto one_to_one(node_tag, Node& node) {
