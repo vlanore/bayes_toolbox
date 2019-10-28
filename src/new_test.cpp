@@ -30,6 +30,7 @@ license and that you accept its terms.*/
 #include "bayes_toolbox.hpp"
 #include "doctest.h"
 #include "structure/new_view.hpp"
+#include "structure/visitor.hpp"
 using namespace std;
 
 TEST_CASE("Basic test for new views") {
@@ -109,4 +110,33 @@ TEST_CASE("new backup implem") {
     cout << raw_value(a2, 2) << ": " << &raw_value(a2, 2) << "\n";
     restore(c, bc);
     cout << raw_value(a2, 2) << ": " << &raw_value(a2, 2) << "\n";
+}
+
+template <class T>
+using is_double = std::is_same<T, double>;
+
+template <class T>
+using is_int = std::is_same<T, int>;
+
+struct IntDoubleVisitor : public Visitor<IntDoubleVisitor, is_double, is_int> {
+    std::ostream& s;
+    IntDoubleVisitor(std::ostream& s) : s(s) {}
+    void operator()(verifies<is_int>, int& i) { s << "Got int " << i << ". "; }
+    void operator()(verifies<is_double>, double& x) { s << "Got double " << x << ". "; }
+    using Visitor<IntDoubleVisitor, is_double, is_int>::operator();
+};
+
+TEST_CASE("Visitor") {
+    std::stringstream ss;
+    IntDoubleVisitor v{ss};
+
+    int i = 2;
+    double x = 3;
+    size_t n = 5;
+
+    v(i);
+    v(x);
+    v(n);
+
+    CHECK(ss.str() == "Got int 2. Got double 3. ");
 }
