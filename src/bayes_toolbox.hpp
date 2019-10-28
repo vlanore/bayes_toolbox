@@ -8,6 +8,7 @@
 #include "operations/across_values.hpp"
 #include "operations/backup.hpp"
 #include "operations/logprob.hpp"
+#include "operations/gather.hpp"
 #include "operations/raw_value.hpp"
 
 // Distributions
@@ -20,6 +21,9 @@
 #include "distributions/normal.hpp"
 #include "distributions/poisson.hpp"
 #include "distributions/uniform.hpp"
+
+// Deterministic functions
+#include "detfunctions/product.hpp"
 
 // Utils
 #include "basic_moves.hpp"

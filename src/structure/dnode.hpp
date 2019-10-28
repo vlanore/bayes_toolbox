@@ -26,45 +26,34 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "Ref.hpp"
-#include "introspection.hpp"
+#include <vector>
+#include "datatypes.hpp"
+#include "params.hpp"
 
-template <class T>
-auto type_tag(const T&) {
-    return unknown_tag();
+template <class Tag, class DetFunction>
+using dnode_metadata = metadata<type_list<dnode_tag, Tag>, type_map<property<detfunction, DetFunction>>>;
+
+template <class DetFunction, class... ParamArgs>
+auto make_dnode(ParamArgs&&... args) {
+    auto v = typename DetFunction::T();
+    auto params = make_params<DetFunction>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple<dnode_metadata<lone_dnode_tag, DetFunction>>(
+        unique_ptr_field<struct value>(std::move(v)), value_field<struct params>(params));
 }
 
-template <class MD, class... Fields>
-auto type_tag(const tagged_tuple<MD, Fields...>&) {
-    using std::conditional_t;
-    using T = tagged_tuple<MD, Fields...>;
-    // clang-format off
-    return conditional_t<is_node<T>::value,
-        conditional_t<is_node_array<T>::value,
-            node_array_tag,
-            conditional_t<is_node_matrix<T>::value,
-                node_matrix_tag,
-                lone_node_tag
-            >
-        >,
-        conditional_t<is_dnode<T>::value,
-            conditional_t<is_dnode_array<T>::value,
-                dnode_array_tag,
-                conditional_t<is_dnode_matrix<T>::value,
-                    dnode_matrix_tag,
-                    lone_dnode_tag
-                >
-            >,
-            conditional_t<is_model<T>::value,
-                model_tag,
-                unknown_tag
-            >
-        >
-    >();
-    // clang-format off
+template <class DetFunction, class... ParamArgs>
+auto make_dnode_array(size_t size, ParamArgs&&... args) {
+    std::vector<typename DetFunction::T> values(size);
+    auto params = make_array_params<DetFunction>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple<dnode_metadata<dnode_array_tag, DetFunction>>(
+        unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
 }
 
-template <class Node, class Index>
-auto type_tag(const Ref<Node, Index>&) {
-    return ref_tag();
+template <class DetFunction, class... ParamArgs>
+auto make_dnode_matrix(size_t size_x, size_t size_y, ParamArgs&&... args) {
+    // @todo: change to better data structure (instead of vector of vectors)
+    matrix<typename DetFunction::T> values(size_x, std::vector<typename DetFunction::T>(size_y));
+    auto params = make_matrix_params<DetFunction>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple<dnode_metadata<dnode_matrix_tag, DetFunction>>(
+        unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
 }

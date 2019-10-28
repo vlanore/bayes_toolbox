@@ -42,6 +42,7 @@ struct gam_mean {};
 struct gam_invshape {};
 struct weights {};
 struct distrib {};
+struct detfunction {};
 struct value {};
 struct params {};
 struct backup_value {};
@@ -51,12 +52,26 @@ struct target {};
 struct lower_bound {};
 struct upper_bound {};
 
+// dnode deterministic functions
+struct real_a {};
+struct real_b {};
+struct real_arg {};
+struct vector_argv {};
+
+
 // tags for class typing
 struct model_tag {};
+
 struct node_tag {};
 struct lone_node_tag : node_tag {};
 struct node_array_tag : node_tag {};
 struct node_matrix_tag : node_tag {};
+
+struct dnode_tag {};
+struct lone_dnode_tag : dnode_tag {};
+struct dnode_array_tag : dnode_tag {};
+struct dnode_matrix_tag : dnode_tag {};
+
 struct view_tag {};
 struct unknown_tag {};
 struct suffstat_tag {};

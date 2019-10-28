@@ -1,4 +1,4 @@
-/*Copyright or © or Copr. CNRS (2019). Contributors:
+/*Copyright or © or Copr. CNRS (2019). Contributors2
 - Vincent Lanore. vincent.lanore@gmail.com
 
 This software is a computer program whose purpose is to provide a set of C++ data structures and
@@ -47,6 +47,9 @@ template <class T>
 using is_node = has_meta_tag<T, node_tag>;
 
 template <class T>
+using is_dnode = has_meta_tag<T, dnode_tag>;
+
+template <class T>
 struct is_vector : std::false_type {};
 
 template <class T>
@@ -60,6 +63,15 @@ using is_node_array = has_meta_tag<T, node_array_tag>;
 
 template <class T>
 using is_node_matrix = has_meta_tag<T, node_matrix_tag>;
+
+template <class T>
+using is_lone_dnode = has_meta_tag<T, lone_dnode_tag>;
+
+template <class T>
+using is_dnode_array = has_meta_tag<T, dnode_array_tag>;
+
+template <class T>
+using is_dnode_matrix = has_meta_tag<T, dnode_matrix_tag>;
 
 //==================================================================================================
 // distrib traits (***)
@@ -88,6 +100,12 @@ using node_distrib_t = metadata_get_property<struct distrib, metadata_t<Node>>;
 
 template <class Distrib>
 using param_keys_t = map_key_list_t<typename Distrib::param_decl>;
+
+//==================================================================================================
+// dnode introspection
+
+template <class Dnode>
+using dnode_detfunction_t = metadata_get_property<struct detfunction, metadata_t<Dnode>>;
 
 //==================================================================================================
 // model traits

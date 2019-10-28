@@ -1,4 +1,4 @@
-/*Copyright or © or Copr. CNRS (2019). Contributors:
+/*Copyright or © or Copr. CNRS (2019). Contributors2
 - Vincent Lanore. vincent.lanore@gmail.com
 
 This software is a computer program whose purpose is to provide a set of C++ data structures and
@@ -27,6 +27,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "node.hpp"
+#include "dnode.hpp"
 
 using model_metadata = metadata<type_list<model_tag>, type_map<>>;
 

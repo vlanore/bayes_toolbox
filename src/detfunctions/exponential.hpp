@@ -26,45 +26,12 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "Ref.hpp"
-#include "introspection.hpp"
+struct exponential {
+    using T = spos_real;
+    using param_decl = param_decl_t<param<real_a, real>>;
 
-template <class T>
-auto type_tag(const T&) {
-    return unknown_tag();
-}
-
-template <class MD, class... Fields>
-auto type_tag(const tagged_tuple<MD, Fields...>&) {
-    using std::conditional_t;
-    using T = tagged_tuple<MD, Fields...>;
-    // clang-format off
-    return conditional_t<is_node<T>::value,
-        conditional_t<is_node_array<T>::value,
-            node_array_tag,
-            conditional_t<is_node_matrix<T>::value,
-                node_matrix_tag,
-                lone_node_tag
-            >
-        >,
-        conditional_t<is_dnode<T>::value,
-            conditional_t<is_dnode_array<T>::value,
-                dnode_array_tag,
-                conditional_t<is_dnode_matrix<T>::value,
-                    dnode_matrix_tag,
-                    lone_dnode_tag
-                >
-            >,
-            conditional_t<is_model<T>::value,
-                model_tag,
-                unknown_tag
-            >
-        >
-    >();
-    // clang-format off
-}
-
-template <class Node, class Index>
-auto type_tag(const Ref<Node, Index>&) {
-    return ref_tag();
-}
+    template <typename Gen>
+    static void local_gather(T& x, real a)  {
+        x = std::exp(a);
+    }
+};

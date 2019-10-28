@@ -93,6 +93,15 @@ struct subsets {
     }
 
     template <class Node>
+    static auto column(Node& node, size_t j) {
+        return make_subset(node, [j](auto& node, auto f) {
+            static_assert(is_node_matrix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node matrix");
+            for (size_t i = 0; i < get<value>(node).size(); i++) { apply(f, node, i, j); }
+        });
+    }
+
+    template <class Node>
     static auto row(Node& node, size_t i) {
         return make_subset(node, [i](auto& node, auto f) {
             static_assert(is_node_matrix<std::decay_t<decltype(node)>>::value,

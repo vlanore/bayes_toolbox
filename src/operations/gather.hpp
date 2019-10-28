@@ -1,4 +1,4 @@
-/*Copyright or © or Copr. CNRS (2019). Contributors:
+/*Copyright or © or Copr. CNRS (2019). Contributors2
 - Vincent Lanore. vincent.lanore@gmail.com
 
 This software is a computer program whose purpose is to provide a set of C++ data structures and
@@ -26,45 +26,13 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "Ref.hpp"
-#include "introspection.hpp"
-
+#include "across_nodes.hpp"
+#include "structure/distrib_utils.hpp"
+#include "structure/type_tag.hpp"
 template <class T>
-auto type_tag(const T&) {
-    return unknown_tag();
-}
-
-template <class MD, class... Fields>
-auto type_tag(const tagged_tuple<MD, Fields...>&) {
-    using std::conditional_t;
-    using T = tagged_tuple<MD, Fields...>;
-    // clang-format off
-    return conditional_t<is_node<T>::value,
-        conditional_t<is_node_array<T>::value,
-            node_array_tag,
-            conditional_t<is_node_matrix<T>::value,
-                node_matrix_tag,
-                lone_node_tag
-            >
-        >,
-        conditional_t<is_dnode<T>::value,
-            conditional_t<is_dnode_array<T>::value,
-                dnode_array_tag,
-                conditional_t<is_dnode_matrix<T>::value,
-                    dnode_matrix_tag,
-                    lone_dnode_tag
-                >
-            >,
-            conditional_t<is_model<T>::value,
-                model_tag,
-                unknown_tag
-            >
-        >
-    >();
-    // clang-format off
-}
-
-template <class Node, class Index>
-auto type_tag(const Ref<Node, Index>&) {
-    return ref_tag();
+void gather(T& x)   {
+    auto gather_dnode = [](auto detfunction, auto& x, auto... params) {
+        decltype(detfunction)::gather(x, params...);
+    };
+    across_nodes(x, gather_dnode);
 }
