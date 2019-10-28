@@ -109,7 +109,8 @@ struct gamma_mi {
 
     template <typename Gen>
     static void draw(T& x, spos_real mean, spos_real invshape, Gen& gen) {
-        std::gamma_distribution<double> distrib(1. / positive_real(invshape), positive_real(mean) * positive_real(invshape));
+        std::gamma_distribution<double> distrib(1. / positive_real(invshape),
+                                                positive_real(mean) * positive_real(invshape));
         x = {distrib(gen)};
     }
 
@@ -119,4 +120,3 @@ struct gamma_mi {
         return alpha * log(beta) - std::lgamma(alpha) + (alpha - 1) * log(x) - beta * x;
     }
 };
-
