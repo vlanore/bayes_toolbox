@@ -27,9 +27,9 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <assert.h>
+#include "Proxy.hpp"
 #include "operations/raw_value.hpp"
 #include "operations/set_value.hpp"
-#include "Proxy.hpp"
 
 //==================================================================================================
 // array param helpers for common cases
@@ -72,12 +72,12 @@ namespace overloads {
 
     template <class Node>
     auto mn_to_m(node_tag, Node& node) {
-        return [&rv = get<value>(node)](int i, int j) { return rv[i]; };
+        return [&rv = get<value>(node)](int i, int) { return rv[i]; };
     }
 
     template <class Node>
     auto mn_to_n(node_tag, Node& node) {
-        return [&rv = get<value>(node)](int i, int j) { return rv[j]; };
+        return [&rv = get<value>(node)](int, int j) { return rv[j]; };
     }
 
     template <class Node>
@@ -102,12 +102,12 @@ namespace overloads {
 
     template <class Unknown>
     auto mn_to_m(unknown_tag, std::vector<Unknown>& u) {
-        return [&u](int i, int j) -> const Unknown& { return u[i]; };
+        return [&u](int i, int) -> const Unknown& { return u[i]; };
     }
 
     template <class Unknown>
     auto mn_to_n(unknown_tag, std::vector<Unknown>& u) {
-        return [&u](int i, int j) -> const Unknown& { return u[j]; };
+        return [&u](int, int j) -> const Unknown& { return u[j]; };
     }
 
     template <class Unknown>
@@ -127,12 +127,12 @@ namespace overloads {
 
     template <class Unknown>
     auto mn_to_m(unknown_tag, Proxy<Unknown, int>& u) {
-        return [&u](int i, int j) -> const Unknown& { return u.get(i); };
+        return [&u](int i, int) -> const Unknown& { return u.get(i); };
     }
 
     template <class Unknown>
     auto mn_to_n(unknown_tag, Proxy<Unknown, int>& u) {
-        return [&u](int i, int j) -> const Unknown& { return u.get(j); };
+        return [&u](int, int j) -> const Unknown& { return u.get(j); };
     }
 
     template <class Unknown>
@@ -186,4 +186,3 @@ template <class T>
 auto mn_to_const(const T& value) {
     return [value](int, int) -> const T& { return value; };
 }
-
