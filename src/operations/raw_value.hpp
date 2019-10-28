@@ -51,6 +51,26 @@ namespace overloads {
         assert(index.j >= 0 and index.j < v.at(0).size());
         return v[index.i][index.j];
     }
+
+    template <class Dnode>
+    auto& raw_value(lone_dnode_tag, Dnode& node, NoIndex = NoIndex()) {
+        return get<value>(node);
+    }
+
+    template <class Dnode>
+    auto& raw_value(dnode_array_tag, Dnode& node, ArrayIndex index) {
+        assert(index.i >= 0 and index.i < get<value>(node).size());
+        return get<value>(node)[index.i];
+    }
+
+    template <class Dnode>
+    auto& raw_value(dnode_matrix_tag, Dnode& node, MatrixIndex index) {
+        auto& v = get<value>(node);
+        assert(index.i >= 0 and index.i < v.size());
+        assert(v.size() > 0);
+        assert(index.j >= 0 and index.j < v.at(0).size());
+        return v[index.i][index.j];
+    }
 }  // namespace overloads
 
 template <class T, class... Rest>
