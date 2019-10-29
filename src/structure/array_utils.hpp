@@ -66,6 +66,36 @@ namespace overloads {
         return [&v = get<value>(node)](int i) { return v[i]; };
     }
 
+    template <class Dnode>
+    auto one_to_one(dnode_tag, Dnode& dnode) {
+        return [&rv = raw_value(dnode)]() { return rv; };
+    }
+
+    template <class Dnode>
+    auto n_to_one(dnode_tag, Dnode& dnode) {
+        return [&rv = raw_value(dnode)](int) { return rv; };
+    }
+
+    template <class Dnode>
+    auto mn_to_one(dnode_tag, Dnode& dnode) {
+        return [&rv = raw_value(dnode)](int, int) { return rv; };
+    }
+
+    template <class Dnode>
+    auto mn_to_m(dnode_tag, Dnode& dnode) {
+        return [&rv = get<value>(dnode)](int i, int) { return rv[i]; };
+    }
+
+    template <class Dnode>
+    auto mn_to_n(dnode_tag, Dnode& dnode) {
+        return [&rv = get<value>(dnode)](int, int j) { return rv[j]; };
+    }
+
+    template <class Dnode>
+    auto n_to_n(dnode_tag, Dnode& dnode) {
+        return [&v = get<value>(dnode)](int i) { return v[i]; };
+    }
+
     template <class Unknown>
     auto one_to_one(unknown_tag, Unknown& u) {
         return [&u]() -> const Unknown& { return u; };
