@@ -31,7 +31,7 @@ license and that you accept its terms.*/
 #include "structure/type_tag.hpp"
 template <class T>
 void gather(T& x)   {
-    auto gather_dnode = [](auto detfunction, auto& x, auto... params) {
+    auto gather_dnode = [](auto detfunction, auto& x, auto&&... params) {
         decltype(detfunction)::gather(x, params...);
     };
     across_nodes(x, gather_dnode);
