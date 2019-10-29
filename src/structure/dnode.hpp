@@ -57,3 +57,28 @@ auto make_dnode_matrix(size_t size_x, size_t size_y, ParamArgs&&... args) {
     return make_tagged_tuple<dnode_metadata<dnode_matrix_tag, DetFunction>>(
         unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
 }
+
+template <class DetFunction, class... ParamArgs>
+auto make_dnode_with_init(typename DetFunction::T c, ParamArgs&&... args) {
+    auto v = typename DetFunction::T(c);
+    auto params = make_params<DetFunction>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple<dnode_metadata<lone_dnode_tag, DetFunction>>(
+        unique_ptr_field<struct value>(std::move(v)), value_field<struct params>(params));
+}
+
+template <class DetFunction, class... ParamArgs>
+auto make_dnode_array_with_init(size_t size, typename DetFunction::T c, ParamArgs&&... args) {
+    std::vector<typename DetFunction::T> values(size, c);
+    auto params = make_array_params<DetFunction>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple<dnode_metadata<dnode_array_tag, DetFunction>>(
+        unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
+}
+
+template <class DetFunction, class... ParamArgs>
+auto make_dnode_matrix_with_init(size_t size_x, size_t size_y, typename DetFunction::T c, ParamArgs&&... args) {
+    // @todo: change to better data structure (instead of vector of vectors)
+    matrix<typename DetFunction::T> values(size_x, std::vector<typename DetFunction::T>(size_y, c));
+    auto params = make_matrix_params<DetFunction>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple<dnode_metadata<dnode_matrix_tag, DetFunction>>(
+        unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
+}
