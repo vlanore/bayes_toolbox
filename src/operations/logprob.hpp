@@ -30,8 +30,8 @@ license and that you accept its terms.*/
 #include "across_nodes.hpp"
 #include "structure/visitor.hpp"
 
-class LogProbVisitor : public Visitor<LogProbVisitor, is_node> {
-    using Parent = Visitor<LogProbVisitor, is_node>;
+class LogProbTraitVisitor : public TraitVisitor<LogProbTraitVisitor, is_node> {
+    using Parent = TraitVisitor<LogProbTraitVisitor, is_node>;
     friend Parent;
 
     double& total;
@@ -44,13 +44,13 @@ class LogProbVisitor : public Visitor<LogProbVisitor, is_node> {
     }
 
   public:
-    LogProbVisitor(double& total) : total(total) {}
+    LogProbTraitVisitor(double& total) : total(total) {}
     using Parent::operator();
 };
 
 template <class T>
 double logprob(T& x) {
     double result = 0;
-    across_model_nodes(x, LogProbVisitor{result});
+    across_model_nodes(x, LogProbTraitVisitor{result});
     return result;
 }

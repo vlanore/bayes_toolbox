@@ -33,7 +33,7 @@ template <template <class> class>
 struct verifies {};
 
 template <class Implem, template <class> class... Traits>
-class Visitor {
+class TraitVisitor {
     template <template <class> class Trait, class T>
     void call_if_true(std::true_type, T& x) {
         (*static_cast<Implem*>(this))(verifies<Trait>{}, x);

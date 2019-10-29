@@ -118,9 +118,9 @@ using is_double = std::is_same<T, double>;
 template <class T>
 using is_int = std::is_same<T, int>;
 
-struct IntDoubleVisitor : public Visitor<IntDoubleVisitor, is_double, is_int, is_node> {
+struct IntDoubleTraitVisitor : public TraitVisitor<IntDoubleTraitVisitor, is_double, is_int, is_node> {
     std::ostream& s;
-    IntDoubleVisitor(std::ostream& s) : s(s) {}
+    IntDoubleTraitVisitor(std::ostream& s) : s(s) {}
 
     void operator()(verifies<is_int>, int& i) { s << "Got int " << i << ". "; }
 
@@ -131,12 +131,12 @@ struct IntDoubleVisitor : public Visitor<IntDoubleVisitor, is_double, is_int, is
         s << "Got a node. ";
     }
 
-    using Visitor<IntDoubleVisitor, is_double, is_int, is_node>::operator();
+    using TraitVisitor<IntDoubleTraitVisitor, is_double, is_int, is_node>::operator();
 };
 
-TEST_CASE("Visitor") {
+TEST_CASE("TraitVisitor") {
     std::stringstream ss;
-    IntDoubleVisitor v{ss};
+    IntDoubleTraitVisitor v{ss};
 
     int i = 2;
     double x = 3;
