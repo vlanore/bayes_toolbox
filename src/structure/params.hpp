@@ -53,16 +53,13 @@ struct ParamFactory {
         return [value]() { return value; };
     }
 
-    static auto make(std::function<T()> f) { return f; }
+    // static auto make(std::function<T()> f) { return f; }
+    template <class F>
+    static auto make(F f) { 
+        static_assert(std::is_same<T,std::decay_t<decltype(f())>>::value, "in ArrayParamFactory: incorrect return type");
+        return f; 
+    }
 };
-
-/*
-template <class T>
-struct ArrayParamFactory {
-    // @todo: change int to size_t ?
-    static auto make(std::function<T(int)> f) { return f; }
-};
-*/
 
 template <class T>
 struct ArrayParamFactory    {
@@ -75,8 +72,11 @@ struct ArrayParamFactory    {
 
 template <class T>
 struct MatrixParamFactory {
-    // @todo: change int to size_t ?
-    static auto make(std::function<T(int, int)> f) { return f; }
+    template <class F>
+    static auto make(F f) { 
+        static_assert(std::is_same<T,std::decay_t<decltype(f(0,0))>>::value, "in ArrayParamFactory: incorrect return type");
+        return f; 
+    }
 };
 
 //==================================================================================================
