@@ -51,6 +51,7 @@ struct suffstat_type {};
 struct target {};
 struct lower_bound {};
 struct upper_bound {};
+struct variance {};
 
 // dnode deterministic functions
 struct real_a {};
