@@ -36,7 +36,7 @@ struct bernoulli {
 
     template <typename Gen>
     static void draw(T& x, unit_real pi, Gen& gen) {
-        std::vector<double> w = {pi, 1 - pi};
+        std::vector<double> w = {1 - pi, pi};
         std::discrete_distribution<T> distrib(w.begin(), w.end());
         x = distrib(gen);
     }
