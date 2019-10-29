@@ -52,6 +52,8 @@ struct target {};
 struct lower_bound {};
 struct upper_bound {};
 struct variance {};
+struct exchrates {};
+struct freqs {};
 
 // dnode deterministic functions
 struct real_a {};
