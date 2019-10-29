@@ -1,3 +1,4 @@
+#pragma once
 
 struct ss_factory   {
 
