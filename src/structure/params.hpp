@@ -56,10 +56,21 @@ struct ParamFactory {
     static auto make(std::function<T()> f) { return f; }
 };
 
+/*
 template <class T>
 struct ArrayParamFactory {
     // @todo: change int to size_t ?
     static auto make(std::function<T(int)> f) { return f; }
+};
+*/
+
+template <class T>
+struct ArrayParamFactory    {
+    template <class F>
+    static auto make(F f) { 
+        static_assert(std::is_same<T,std::decay_t<decltype(f(0))>>::value, "in ArrayParamFactory: incorrect return type");
+        return f; 
+    }
 };
 
 template <class T>
