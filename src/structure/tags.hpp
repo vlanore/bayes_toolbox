@@ -58,7 +58,7 @@ struct real_a {};
 struct real_b {};
 struct real_arg {};
 struct vector_argv {};
-
+struct nucmatrix {};
 
 // tags for class typing
 struct model_tag {};
