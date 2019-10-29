@@ -308,7 +308,7 @@ std::string g(double x, double y) {
 TEST_CASE("across_nodes") {
     auto n = make_node<poisson>(1.0);
     raw_value(n) = 3;
-    auto a = make_node_array<gamma_ss>(3, [](int i) { return i; }, n_to_const(3.0));
+    auto a = make_node_array<gamma_ss>(3, [](int i) -> double { return i; }, n_to_const(3.0));
     set_value(a, {1, 2, 3});
     auto m = make_node_matrix<poisson>(2, 2, [](int, int) { return 3.0; });
     set_value(m, {{0, 1}, {2, 3}});
