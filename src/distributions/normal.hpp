@@ -32,7 +32,8 @@ license and that you accept its terms.*/
 struct normal {
     using T = pos_real;
 
-    using param_decl = param_decl_t<param<rate, spos_real>>;
+    using param_decl = param_decl_t<param<struct mean, real>, param<variance, spos_real>>;
+
 
     template <typename Gen>
     static void draw(T& x, pos_real mean, spos_real variance, Gen& gen) {
