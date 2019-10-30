@@ -55,6 +55,7 @@ struct variance {};
 struct exchrates {};
 struct freqs {};
 
+
 // dnode deterministic functions
 struct real_a {};
 struct real_b {};
