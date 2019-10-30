@@ -55,7 +55,7 @@ TEST_CASE("Check that dist types have correct size") {
 
 TEST_CASE("Param making") {
     spos_real x = {1.};
-    auto params = make_params<gamma_ss>(2, x);
+    auto params = make_params<gamma_ss>(2., x);
     x = 3;
 
     // order in tuple is important for unpacking in calls
@@ -78,19 +78,19 @@ TEST_CASE("Datatype conversions") {
 TEST_CASE("Node construction") {
     auto gen = make_generator();
     SUBCASE("exponential") {
-        auto alpha = make_node<exponential>(4);
+        auto alpha = make_node<exponential>(4.);
         check_mean(get<value>(alpha), [&]() { draw(alpha, gen); }, 0.25, 2.0);
     }
     SUBCASE("gamma") {
-        auto alpha = make_node<gamma_ss>(2, 3);
+        auto alpha = make_node<gamma_ss>(2., 3.);
         check_mean(get<value>(alpha), [&]() { draw(alpha, gen); }, 6.0, 2.0);
     }
     SUBCASE("gamma_sr") {
-        auto alpha = make_node<gamma_sr>(2, 3);
+        auto alpha = make_node<gamma_sr>(2., 3.);
         check_mean(get<value>(alpha), [&]() { draw(alpha, gen); }, 0.6666, 2.0);
     }
     SUBCASE("poisson") {
-        auto alpha = make_node<poisson>(3);
+        auto alpha = make_node<poisson>(3.);
         check_mean(get<value>(alpha), [&]() { draw(alpha, gen); }, 3.0, 2.0);
     }
     SUBCASE("exponential with ref") {
@@ -189,7 +189,7 @@ TEST_CASE("Basic model test") {
 TOKEN(tok1)
 
 TEST_CASE("type_tag") {
-    auto a = make_node<exponential>(1);
+    auto a = make_node<exponential>(1.);
     auto m = make_model(tok1_ = move(a));
     struct {
         int a;
@@ -205,7 +205,7 @@ TEST_CASE("type_tag") {
 }
 
 TEST_CASE("raw_value") {
-    auto n = make_node<poisson>(1);
+    auto n = make_node<poisson>(1.);
     get<value>(n) = 2;
     CHECK(raw_value(n) == 2);
 
