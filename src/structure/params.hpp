@@ -50,8 +50,8 @@ struct ParamFactory {
 
     template <class F>
     static auto make(F f) {
-        static_assert(std::is_same<T, std::decay_t<decltype(f())>>::value,
-                      "in ParamFactory: incorrect return type");
+        // static_assert(std::is_same<T, std::decay_t<decltype(f())>>::value,
+        //              "in ParamFactory: incorrect return type");
         return f;
     }
 };
@@ -71,8 +71,8 @@ struct ArrayParamFactory {
 
     template <class F>
     static auto make(F f) {
-        static_assert(std::is_same<T, std::decay_t<decltype(f(0))>>::value,
-                      "in ArrayParamFactory: incorrect return type");
+        // static_assert(std::is_same<T, std::decay_t<decltype(f(0))>>::value,
+        //              "in ArrayParamFactory: incorrect return type");
         return f;
     }
 };
