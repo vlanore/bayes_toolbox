@@ -201,3 +201,15 @@ template <class T, class Return = T>
 auto mn_to_const(const T& value) {
     return [value](int, int) -> const Return& { return value; };
 }
+
+template<class Array, class Alloc>
+auto n_to_mix(Array& array, Alloc& alloc)  {
+    return [&array, &alloc] (int site) {return array[alloc[site]];};
+}
+
+template<class Array, class Alloc>
+auto mn_to_mixn(Array& array, Alloc& alloc)  {
+    return [&array, &alloc] (int branch, int site) {return array[alloc[site]];};
+}
+
+
