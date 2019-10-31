@@ -59,6 +59,12 @@ struct ParamFactory {
 
 template <class T>
 struct ArrayParamFactory {
+    static auto make(const T& value) { return n_to_one(value); }
+
+    static auto make(T& value) { return n_to_one(value); }
+
+    static auto make(T&& value) { return n_to_const(value); }
+
     template <class F>
     static auto make(F f) {
         static_assert(std::is_same<T, std::decay_t<decltype(f(0))>>::value,
@@ -69,6 +75,12 @@ struct ArrayParamFactory {
 
 template <class T>
 struct MatrixParamFactory {
+    static auto make(const T& value) { return mn_to_one(value); }
+
+    static auto make(T& value) { return mn_to_one(value); }
+
+    static auto make(T&& value) { return mn_to_const(value); }
+
     template <class F>
     static auto make(F f) {
         static_assert(std::is_same<T, std::decay_t<decltype(f(0, 0))>>::value,

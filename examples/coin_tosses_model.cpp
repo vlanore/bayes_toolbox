@@ -33,13 +33,12 @@ TOKEN(bern)
 
 // Model definition
 auto bernoulli_model(size_t size) {
-    auto p = make_node<uniform>(0., 1.);                        // p ~ U(0,1)
-    auto bern = make_node_array<bernoulli>(size, n_to_one(p));  // bern ~ Bern(p)
-    // clang-format off
-    return make_model(
-           p_ = move(p),
-        bern_ = move(bern)
-    );                      // clang-format on
+    auto p = make_node<uniform>(0., 1.);              // p ~ U(0,1)
+    auto bern = make_node_array<bernoulli>(size, p);  // bern ~ Bern(p)
+    return make_model(                                //
+        p_ = move(p),                                 //
+        bern_ = move(bern)                            //
+    );
 }
 
 int main() {
