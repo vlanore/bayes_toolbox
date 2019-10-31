@@ -35,166 +35,169 @@ license and that you accept its terms.*/
 //==================================================================================================
 // array param helpers for common cases
 
+template <class T>
+struct ret {};
+
 // forward declarations
 namespace overloads {
-    template <class Node>
-    auto one_to_one(node_tag, Node& node) {
+    template <class Node, class Return>
+    auto one_to_one(node_tag, ret<Return>, Node& node) {
         return [&rv = raw_value(node)]() { return rv; };
     }
 
-    template <class Node>
-    auto n_to_one(node_tag, Node& node) {
+    template <class Node, class Return>
+    auto n_to_one(node_tag, ret<Return>, Node& node) {
         return [&rv = raw_value(node)](int) { return rv; };
     }
 
-    template <class Node>
-    auto mn_to_one(node_tag, Node& node) {
+    template <class Node, class Return>
+    auto mn_to_one(node_tag, ret<Return>, Node& node) {
         return [&rv = raw_value(node)](int, int) { return rv; };
     }
 
-    template <class Node>
-    auto mn_to_m(node_tag, Node& node) {
+    template <class Node, class Return>
+    auto mn_to_m(node_tag, ret<Return>, Node& node) {
         return [&rv = get<value>(node)](int i, int) { return rv[i]; };
     }
 
-    template <class Node>
-    auto mn_to_n(node_tag, Node& node) {
+    template <class Node, class Return>
+    auto mn_to_n(node_tag, ret<Return>, Node& node) {
         return [&rv = get<value>(node)](int, int j) { return rv[j]; };
     }
 
-    template <class Node>
-    auto n_to_n(node_tag, Node& node) {
+    template <class Node, class Return>
+    auto n_to_n(node_tag, ret<Return>, Node& node) {
         return [&v = get<value>(node)](int i) { return v[i]; };
     }
 
-    template <class Dnode>
-    auto one_to_one(dnode_tag, Dnode& dnode) {
+    template <class Dnode, class Return>
+    auto one_to_one(dnode_tag, ret<Return>, Dnode& dnode) {
         return [&rv = raw_value(dnode)]() { return rv; };
     }
 
-    template <class Dnode>
-    auto n_to_one(dnode_tag, Dnode& dnode) {
+    template <class Dnode, class Return>
+    auto n_to_one(dnode_tag, ret<Return>, Dnode& dnode) {
         return [&rv = raw_value(dnode)](int) { return rv; };
     }
 
-    template <class Dnode>
-    auto mn_to_one(dnode_tag, Dnode& dnode) {
+    template <class Dnode, class Return>
+    auto mn_to_one(dnode_tag, ret<Return>, Dnode& dnode) {
         return [&rv = raw_value(dnode)](int, int) { return rv; };
     }
 
-    template <class Dnode>
-    auto mn_to_m(dnode_tag, Dnode& dnode) {
+    template <class Dnode, class Return>
+    auto mn_to_m(dnode_tag, ret<Return>, Dnode& dnode) {
         return [&rv = get<value>(dnode)](int i, int) { return rv[i]; };
     }
 
-    template <class Dnode>
-    auto mn_to_n(dnode_tag, Dnode& dnode) {
+    template <class Dnode, class Return>
+    auto mn_to_n(dnode_tag, ret<Return>, Dnode& dnode) {
         return [&rv = get<value>(dnode)](int, int j) { return rv[j]; };
     }
 
-    template <class Dnode>
-    auto n_to_n(dnode_tag, Dnode& dnode) {
+    template <class Dnode, class Return>
+    auto n_to_n(dnode_tag, ret<Return>, Dnode& dnode) {
         return [&v = get<value>(dnode)](int i) { return v[i]; };
     }
 
-    template <class Unknown>
-    auto one_to_one(unknown_tag, Unknown& u) {
-        return [&u]() -> const Unknown& { return u; };
+    template <class Unknown, class Return>
+    auto one_to_one(unknown_tag, ret<Return>, Unknown& u) {
+        return [&u]() -> const Return& { return u; };
     }
 
-    template <class Unknown>
-    auto n_to_one(unknown_tag, Unknown& u) {
-        return [&u](int) -> const Unknown& { return u; };
+    template <class Unknown, class Return>
+    auto n_to_one(unknown_tag, ret<Return>, Unknown& u) {
+        return [&u](int) -> const Return& { return u; };
     }
 
-    template <class Unknown>
-    auto mn_to_one(unknown_tag, Unknown& u) {
-        return [&u](int, int) -> const Unknown& { return u; };
-    }
-
-    template <class Unknown>
-    auto mn_to_m(unknown_tag, std::vector<Unknown>& u) {
-        return [&u](int i, int) -> const Unknown& { return u[i]; };
-    }
-
-    template <class Unknown>
-    auto mn_to_n(unknown_tag, std::vector<Unknown>& u) {
-        return [&u](int, int j) -> const Unknown& { return u[j]; };
-    }
-
-    template <class Unknown>
-    auto n_to_n(unknown_tag, std::vector<Unknown>& u) {
-        return [&u](int i) -> const Unknown& { return u[i]; };
-    }
-
-    template <class Unknown>
-    auto n_to_one(unknown_tag, Proxy<Unknown>& u) {
-        return [&u](int) -> const Unknown& { return u.get(); };
-    }
-
-    template <class Unknown>
-    auto mn_to_one(unknown_tag, Proxy<Unknown>& u) {
-        return [&u](int, int) -> const Unknown& { return u.get(); };
-    }
-
-    template <class Unknown>
-    auto mn_to_m(unknown_tag, Proxy<Unknown, int>& u) {
-        return [&u](int i, int) -> const Unknown& { return u.get(i); };
-    }
-
-    template <class Unknown>
-    auto mn_to_n(unknown_tag, Proxy<Unknown, int>& u) {
-        return [&u](int, int j) -> const Unknown& { return u.get(j); };
-    }
-
-    template <class Unknown>
-    auto n_to_n(unknown_tag, Proxy<Unknown, int>& u) {
-        return [&u](int i) -> const Unknown& { return u.get(i); };
+    template <class Unknown, class Return>
+    auto mn_to_one(unknown_tag, ret<Return>, Unknown& u) {
+        return [&u](int, int) -> const Return& { return u; };
     }
 
 }  // namespace overloads
 
-template <class T>
+template <class Unknown, class Return = Unknown>
+auto mn_to_m(std::vector<Unknown>& u) {
+    return [&u](int i, int) -> const Return& { return u[i]; };
+}
+
+template <class Unknown, class Return = Unknown>
+auto mn_to_n(std::vector<Unknown>& u) {
+    return [&u](int, int j) -> const Return& { return u[j]; };
+}
+
+template <class Unknown, class Return = Unknown>
+auto n_to_n(std::vector<Unknown>& u) {
+    return [&u](int i) -> const Return& { return u[i]; };
+}
+
+template <class Unknown, class Return = Unknown>
+auto n_to_one(Proxy<Unknown>& u) {
+    return [&u](int) -> const Return& { return u.get(); };
+}
+
+template <class Unknown, class Return = Unknown>
+auto mn_to_one(Proxy<Unknown>& u) {
+    return [&u](int, int) -> const Return& { return u.get(); };
+}
+
+template <class Unknown, class Return = Unknown>
+auto mn_to_m(Proxy<Unknown, int>& u) {
+    return [&u](int i, int) -> const Return& { return u.get(i); };
+}
+
+template <class Unknown, class Return = Unknown>
+auto mn_to_n(Proxy<Unknown, int>& u) {
+    return [&u](int, int j) -> const Return& { return u.get(j); };
+}
+
+template <class Unknown, class Return = Unknown>
+auto n_to_n(Proxy<Unknown, int>& u) {
+    return [&u](int i) -> const Return& { return u.get(i); };
+}
+
+template <class T, class Return = T>
 auto one_to_one(T& t) {
-    return overloads::one_to_one(type_tag(t), t);
+    return overloads::one_to_one(type_tag(t), ret<Return>{}, t);
 }
 
-template <class T>
+template <class T, class Return = T>
 auto n_to_one(T& t) {
-    return overloads::n_to_one(type_tag(t), t);
+    return overloads::n_to_one(type_tag(t), ret<Return>{}, t);
 }
 
-template <class T>
+template <class T, class Return = T>
 auto mn_to_one(T& t) {
-    return overloads::mn_to_one(type_tag(t), t);
+    return overloads::mn_to_one(type_tag(t), ret<Return>{}, t);
 }
 
-template <class T>
+template <class T, class Return = T>
 auto mn_to_m(T& t) {
-    return overloads::mn_to_m(type_tag(t), t);
+    return overloads::mn_to_m(type_tag(t), ret<Return>{}, t);
 }
 
-template <class T>
+template <class T, class Return = T>
 auto mn_to_n(T& t) {
-    return overloads::mn_to_n(type_tag(t), t);
+    return overloads::mn_to_n(type_tag(t), ret<Return>{}, t);
 }
 
-template <class T>
+template <class T, class Return = T>
 auto n_to_n(T& t) {
-    return overloads::n_to_n(type_tag(t), t);
+    return overloads::n_to_n(type_tag(t), ret<Return>{}, t);
 }
 
-template <class T>
+template <class T, class Return = T>
 auto one_to_const(const T& value) {
-    return [value]() -> const T& { return value; };
+    return [value]() -> const Return& { return value; };
 }
 
-template <class T>
+template <class T, class Return = T>
 auto n_to_const(const T& value) {
-    return [value](int) -> const T& { return value; };
+    return [value](int) -> const Return& { return value; };
 }
 
-template <class T>
+template <class T, class Return = T>
 auto mn_to_const(const T& value) {
-    return [value](int, int) -> const T& { return value; };
+    return [value](int, int) -> const Return& { return value; };
 }
