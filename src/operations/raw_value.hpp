@@ -26,6 +26,7 @@ license and that you accept its terms.*/
 
 #pragma once
 
+#include "structure/index.hpp"
 #include "structure/type_tag.hpp"
 
 //==================================================================================================

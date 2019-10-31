@@ -26,7 +26,6 @@ license and that you accept its terms.*/
 
 #pragma once
 
-#include "Ref.hpp"
 #include "introspection.hpp"
 
 template <class T>
@@ -62,9 +61,4 @@ auto type_tag(const tagged_tuple<MD, Fields...>&) {
         >
     >();
     // clang-format off
-}
-
-template <class Node, class Index>
-auto type_tag(const Ref<Node, Index>&) {
-    return ref_tag();
 }

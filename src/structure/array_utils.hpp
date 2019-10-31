@@ -27,9 +27,10 @@ license and that you accept its terms.*/
 #pragma once
 
 #include <assert.h>
+#include <vector>
 #include "Proxy.hpp"
-#include "operations/raw_value.hpp"
-#include "operations/set_value.hpp"
+#include "tagged_tuple/src/tagged_tuple.hpp"
+#include "type_tag.hpp"
 
 //==================================================================================================
 // array param helpers for common cases

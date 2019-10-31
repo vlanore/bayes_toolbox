@@ -2,14 +2,16 @@
 
 // Structure
 #include "structure/array_utils.hpp"
+#include "structure/model.hpp"
 #include "structure/new_view.hpp"
 
 // Operations
 #include "operations/across_values.hpp"
 #include "operations/backup.hpp"
-#include "operations/logprob.hpp"
 #include "operations/gather.hpp"
+#include "operations/logprob.hpp"
 #include "operations/raw_value.hpp"
+#include "operations/set_value.hpp"
 
 // Distributions
 #include "distributions/bernoulli.hpp"

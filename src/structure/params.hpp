@@ -28,6 +28,7 @@ license and that you accept its terms.*/
 
 #include <functional>
 #include <type_traits>
+#include "array_utils.hpp"
 #include "tagged_tuple/src/tagged_tuple.hpp"
 #include "tags.hpp"
 
@@ -41,41 +42,38 @@ using param = type_pair<ParamTag, ParamRawValue>;
 //==================================================================================================
 template <class T>
 struct ParamFactory {
-    static auto make(const T& value) {
-        return [&value]() -> const T& { return value; };
-    }
+    static auto make(const T& value) { return one_to_one(value); }
 
-    static auto make(T& value) {
-        return [&value]() { return value; };
-    }
+    static auto make(T& value) { return one_to_one(value); }
 
-    static auto make(T&& value) {
-        return [value]() { return value; };
-    }
+    static auto make(T&& value) { return one_to_const(value); }
 
     // static auto make(std::function<T()> f) { return f; }
     template <class F>
-    static auto make(F f) { 
-        static_assert(std::is_same<T,std::decay_t<decltype(f())>>::value, "in ArrayParamFactory: incorrect return type");
-        return f; 
+    static auto make(F f) {
+        static_assert(std::is_same<T, std::decay_t<decltype(f())>>::value,
+                      "in ArrayParamFactory: incorrect return type");
+        return f;
     }
 };
 
 template <class T>
-struct ArrayParamFactory    {
+struct ArrayParamFactory {
     template <class F>
-    static auto make(F f) { 
-        static_assert(std::is_same<T,std::decay_t<decltype(f(0))>>::value, "in ArrayParamFactory: incorrect return type");
-        return f; 
+    static auto make(F f) {
+        static_assert(std::is_same<T, std::decay_t<decltype(f(0))>>::value,
+                      "in ArrayParamFactory: incorrect return type");
+        return f;
     }
 };
 
 template <class T>
 struct MatrixParamFactory {
     template <class F>
-    static auto make(F f) { 
-        static_assert(std::is_same<T,std::decay_t<decltype(f(0,0))>>::value, "in ArrayParamFactory: incorrect return type");
-        return f; 
+    static auto make(F f) {
+        static_assert(std::is_same<T, std::decay_t<decltype(f(0, 0))>>::value,
+                      "in ArrayParamFactory: incorrect return type");
+        return f;
     }
 };
 
