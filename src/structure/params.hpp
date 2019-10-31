@@ -58,7 +58,7 @@ struct ParamFactory {
 
 template <class T, class Arg>
 auto make_param(Arg&& x) {
-    return ParamFactory<T>(std::forward<Arg>(x));
+    return ParamFactory<T>::make(std::forward<Arg>(x));
 }
 
 template <class T>
@@ -79,7 +79,7 @@ struct ArrayParamFactory {
 
 template <class T, class Arg>
 auto make_array_param(Arg&& x) {
-    return ArrayParamFactory<T>(std::forward<Arg>(x));
+    return ArrayParamFactory<T>::make(std::forward<Arg>(x));
 }
 
 template <class T>
@@ -100,7 +100,7 @@ struct MatrixParamFactory {
 
 template <class T, class Arg>
 auto make_matrix_param(Arg&& x) {
-    return MatrixParamFactory<T>(std::forward<Arg>(x));
+    return MatrixParamFactory<T>::make(std::forward<Arg>(x));
 }
 
 //==================================================================================================
