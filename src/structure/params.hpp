@@ -48,14 +48,18 @@ struct ParamFactory {
 
     static auto make(T&& value) { return one_to_const(value); }
 
-    // static auto make(std::function<T()> f) { return f; }
     template <class F>
     static auto make(F f) {
         static_assert(std::is_same<T, std::decay_t<decltype(f())>>::value,
-                      "in ArrayParamFactory: incorrect return type");
+                      "in ParamFactory: incorrect return type");
         return f;
     }
 };
+
+template <class T, class Arg>
+auto make_param(Arg&& x) {
+    return ParamFactory<T>(std::forward<Arg>(x));
+}
 
 template <class T>
 struct ArrayParamFactory {
@@ -73,6 +77,11 @@ struct ArrayParamFactory {
     }
 };
 
+template <class T, class Arg>
+auto make_array_param(Arg&& x) {
+    return ArrayParamFactory<T>(std::forward<Arg>(x));
+}
+
 template <class T>
 struct MatrixParamFactory {
     static auto make(const T& value) { return mn_to_one(value); }
@@ -84,10 +93,15 @@ struct MatrixParamFactory {
     template <class F>
     static auto make(F f) {
         static_assert(std::is_same<T, std::decay_t<decltype(f(0, 0))>>::value,
-                      "in ArrayParamFactory: incorrect return type");
+                      "in MatrixParamFactory: incorrect return type");
         return f;
     }
 };
+
+template <class T, class Arg>
+auto make_matrix_param(Arg&& x) {
+    return MatrixParamFactory<T>(std::forward<Arg>(x));
+}
 
 //==================================================================================================
 namespace helper {
