@@ -121,7 +121,7 @@ struct gamma_mi {
     }
 
     template <class SS, typename Gen>
-    static void gibbs_resample(T& x, spos_real mean, spos_real invshape, SS& ss, Gen& gen)  {
+    static void gibbs_resample(T& x, SS& ss, spos_real mean, spos_real invshape, Gen& gen)  {
         double alpha = 1. / invshape + ss.count;
         double beta = mean * invshape + ss.beta;
         std::gamma_distribution<double> distrib(alpha, beta);
