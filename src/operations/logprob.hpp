@@ -30,8 +30,8 @@ license and that you accept its terms.*/
 #include "across_nodes.hpp"
 #include "structure/visitor.hpp"
 
-class LogProbTraitVisitor : public TraitVisitor<LogProbTraitVisitor, is_node> {
-    using Parent = TraitVisitor<LogProbTraitVisitor, is_node>;
+class LogProbTraitVisitor : public TraitVisitor<LogProbTraitVisitor, is_node, is_dnode> {
+    using Parent = TraitVisitor<LogProbTraitVisitor, is_node, is_dnode>;
     friend Parent;
 
     double& total;
@@ -41,6 +41,11 @@ class LogProbTraitVisitor : public TraitVisitor<LogProbTraitVisitor, is_node> {
         across_nodes(node, [& total = this->total](auto distrib, auto& x, auto... params) {
             total += decltype(distrib)::logprob(x, params...);
         });
+    }
+
+    template <class Dnode>
+    void operator()(verifies<is_dnode>, Dnode& dnode) {
+        gather(dnode);
     }
 
   public:
