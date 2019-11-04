@@ -21,9 +21,15 @@ static void gibbs_apply(node_array_tag, Array& a, SS& ss, F f)    {
     }
 }
 
-template <class Node, class SS, class Gen>
-static void gibbs_resample(Node& n, SS& ss, Gen& gen) {
-    auto gibbs_lambda = [&gen] (auto distrib, auto& x, auto& s, auto... params) { decltype(distrib)::gibbs_resample(x,s,params...,gen); };
-    gibbs_apply(type_tag(n), n, ss, gibbs_lambda);
+template<class Array, class SS, class F>
+static void gibbs_apply(node_array_tag, Array& a, SS& ss, F f, int i)    {
+    using distrib = node_distrib_t<Array>;
+    using keys = param_keys_t<distrib>;
+    gibbs_unpack_params(distrib{}, raw_value(a, i), ss.get(i), f, get<params>(a), keys(), i);
 }
 
+template <class Node, class SS, class Gen, class... Args>
+static void gibbs_resample(Node& n, SS& ss, Gen& gen, Args... args) {
+    auto gibbs_lambda = [&gen] (auto distrib, auto& x, auto& s, auto... params) { decltype(distrib)::gibbs_resample(x,s,params...,gen); };
+    gibbs_apply(type_tag(n), n, ss, gibbs_lambda, args...);
+}
