@@ -33,8 +33,16 @@ license and that you accept its terms.*/
 
 struct mh_overloads {
 
-    template <class Node, class LogProb, class Proposal, class Gen, class Update>
-    static void mh_move(lone_node_tag, Node& node, LogProb lp, Proposal P, Gen& gen, Update update = [](){}) {
+    struct LoneNoUpdate {
+        void operator()() {}
+    };
+
+    struct ArrayNoUpdate {
+        void operator()(int) {}
+    };
+
+    template <class Node, class LogProb, class Proposal, class Gen, class Update = LoneNoUpdate>
+    static void mh_move(lone_node_tag, Node& node, LogProb lp, Proposal P, Gen& gen, Update update = {}) {
         auto bkp = flat_backup(node);
         double logprob_before = flat_logprob(node) + lp();
         double log_hastings = P(get<value>(node), gen);
@@ -47,8 +55,8 @@ struct mh_overloads {
         }
     }
 
-    template <class Node, class LogProb, class Proposal, class Gen, class Update>
-    static void mh_move(node_array_tag, Node& node, LogProb lp, Proposal P, Gen& gen, Update update = [](int){}) {
+    template <class Node, class LogProb, class Proposal, class Gen, class Update = ArrayNoUpdate>
+    static void mh_move(node_array_tag, Node& node, LogProb lp, Proposal P, Gen& gen, Update update = {})   {
         for (size_t i=0; i<get<value>(node).size(); i++)    {
             auto bkp = flat_backup(node,i);
             double logprob_before = flat_logprob(node,i) + lp(i);
@@ -64,13 +72,13 @@ struct mh_overloads {
     }
 };
 
-template <class Node, class LogProb, class Proposal, class Gen, class Update>
-void flat_mh_move(Node& node, LogProb lp, Proposal P, Gen& gen, Update update) {
-    mh_overloads::mh_move(type_tag(node), node, lp, P, gen, update);
+template <class Node, class LogProb, class Proposal, class Gen, class... Update>
+void flat_mh_move(Node& node, LogProb lp, Proposal P, Gen& gen, Update... update) {
+    mh_overloads::mh_move(type_tag(node), node, lp, P, gen, update...);
 }
 
-template <class Node, class LogProb, class Gen, class Update>
-void flat_scaling_move(Node& node, LogProb lp, Gen& gen, Update update) {
-    flat_mh_move(node, lp, [](auto& value, auto& gen) { return scale(value, gen); }, gen, update);
+template <class Node, class LogProb, class Gen, class... Update>
+void flat_scaling_move(Node& node, LogProb lp, Gen& gen, Update... update) {
+    flat_mh_move(node, lp, [](auto& value, auto& gen) { return scale(value, gen); }, gen, update...);
 }
 

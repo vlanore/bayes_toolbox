@@ -76,13 +76,11 @@ int main() {
     for (size_t it = 0; it < nb_it; it++) {
 
         auto logprob_lambda = [&lam = lambda_(m)] () {return flat_logprob(lam);};
-        auto logprob_K = [&m] (int i) {return flat_logprob(K_(m), i);};
-        auto no_update_hyper = [](){};
-        auto no_update_lambda = [](int){};
+        flat_scaling_move(alpha__(m), logprob_lambda, gen);
+        flat_scaling_move(beta__(m), logprob_lambda, gen);
 
-        flat_scaling_move(alpha__(m), logprob_lambda, gen, no_update_hyper);
-        flat_scaling_move(beta__(m), logprob_lambda, gen, no_update_hyper);
-        flat_scaling_move(lambda_(m), logprob_K, gen, no_update_lambda);
+        auto logprob_K = [&m] (int i) {return flat_logprob(K_(m), i);};
+        flat_scaling_move(lambda_(m), logprob_K, gen);
 
         alpha__sum += raw_value(alpha__(m));
         beta__sum += raw_value(beta__(m));
