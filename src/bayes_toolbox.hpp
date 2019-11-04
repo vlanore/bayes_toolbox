@@ -7,9 +7,11 @@
 
 // Operations
 #include "operations/across_values.hpp"
-#include "operations/backup.hpp"
-#include "operations/gather.hpp"
 #include "operations/logprob.hpp"
+#include "operations/draw.hpp"
+#include "operations/backup.hpp"
+
+// #include "operations/gather.hpp"
 #include "operations/raw_value.hpp"
 #include "operations/set_value.hpp"
 
@@ -26,6 +28,12 @@
 
 // Deterministic functions
 #include "detfunctions/product.hpp"
+
+#include "operations/flat_logprob.hpp"
+#include "operations/flat_draw.hpp"
+#include "operations/flat_backup.hpp"
+#include "operations/flat_gather.hpp"
+#include "moves/flat_mh.hpp"
 
 #include "moves/proposals.hpp"
 #include "moves/mh.hpp"
