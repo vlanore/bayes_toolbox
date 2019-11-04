@@ -27,7 +27,10 @@
 // Deterministic functions
 #include "detfunctions/product.hpp"
 
+#include "moves/proposals.hpp"
+#include "moves/mh.hpp"
+#include "moves/gibbs.hpp"
+
 // Utils
-#include "basic_moves.hpp"
 #include "mcmc_utils.hpp"
 #include "tagged_tuple/src/fancy_syntax.hpp"
