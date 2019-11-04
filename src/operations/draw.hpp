@@ -31,15 +31,6 @@ license and that you accept its terms.*/
 #include "structure/type_tag.hpp"
 
 /*==================================================================================================
-~~ Raw drawing functions ~~
-==================================================================================================*/
-template <typename Gen>
-double draw_uniform(Gen& gen) {  // @todo: move elsewhere
-    std::uniform_real_distribution<double> distrib(0, 1);
-    return distrib(gen);
-}
-
-/*==================================================================================================
 ~~ Generic version that unpacks probnode objects ~~
 ==================================================================================================*/
 template <class T, class Gen>

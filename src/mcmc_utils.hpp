@@ -28,6 +28,12 @@ license and that you accept its terms.*/
 
 #include "operations/draw.hpp"
 
+template <typename Gen>
+double draw_uniform(Gen& gen) {  // @todo: move elsewhere
+    std::uniform_real_distribution<double> distrib(0, 1);
+    return distrib(gen);
+}
+
 template <class ProbNode>
 auto make_value_backup(ProbNode& node) {
     return get<value>(node);
