@@ -22,6 +22,7 @@ include_directories("utils/tagged_tuple/utils")
 
 add_executable(basic_test "src/test.cpp")
 add_executable(new_test "src/new_test.cpp")
+add_executable(flat_poisson_gamma "examples/flat_gamma_poisson_model.cpp")
 add_executable(poisson_gamma "examples/gamma_poisson_model.cpp")
 add_executable(example_1_1 "examples/example_1_1.cpp")
 add_executable(coin_toss "examples/coin_toss_model.cpp")
