@@ -128,3 +128,9 @@ auto matrix_element_gather(Node& node)  {
     };
 }
 
+template <class Var, class SS>
+auto suffstat_logprob(Var& var, Proxy<SS&>& ss)   {
+    return [&var, &ss] () {return ss.get().GetLogProb(get<value>(var));};
+}
+
+
