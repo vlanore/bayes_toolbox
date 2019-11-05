@@ -63,7 +63,7 @@ double profile_move(std::vector<double>& vec, double tuning, Gen& gen) {
     // draw two distinct indices in the vector
     size_t i1 = std::uniform_int_distribution<size_t>(0, n - 1)(gen);
     size_t i2 = std::uniform_int_distribution<size_t>(0, n - 2)(gen);
-    if (i1 == i2) { i2 += 1; }  // avoid collision
+    if (i1 <= i2) { i2 += 1; }  // avoid collision
 
     // slide move v1 and compensate to keep v1+v2 sum constant
     double &v1{vec[i1]}, &v2{vec[i2]};
