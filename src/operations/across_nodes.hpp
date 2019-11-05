@@ -69,27 +69,27 @@ namespace overloads {
 
     template <class Dnode, class F>
     void across_nodes(lone_dnode_tag, Dnode& n, F f) {
-        using detfunction = dnode_detfunction_t<Dnode>;
-        using keys = param_keys_t<detfunction>;
-        unpack_params(detfunction{}, raw_value(n), f, get<params>(n), keys());
+        using distrib = dnode_distrib_t<Dnode>;
+        using keys = param_keys_t<distrib>;
+        unpack_params(distrib{}, raw_value(n), f, get<params>(n), keys());
     }
 
     template <class Array, class F>
     void across_nodes(dnode_array_tag, Array& a, F f) {
-        using detfunction = dnode_detfunction_t<Array>;
-        using keys = param_keys_t<detfunction>;
+        using distrib = dnode_distrib_t<Array>;
+        using keys = param_keys_t<distrib>;
         for (size_t i = 0; i < get<value>(a).size(); i++) {
-            unpack_params(detfunction{}, raw_value(a, i), f, get<params>(a), keys(), i);
+            unpack_params(distrib{}, raw_value(a, i), f, get<params>(a), keys(), i);
         }
     }
 
     template <class Matrix, class F>
     void across_nodes(dnode_matrix_tag, Matrix& m, F f) {
-        using detfunction = dnode_detfunction_t<Matrix>;
-        using keys = param_keys_t<detfunction>;
+        using distrib = dnode_distrib_t<Matrix>;
+        using keys = param_keys_t<distrib>;
         for (size_t i = 0; i < get<value>(m).size(); i++) {
             for (size_t j = 0; j < get<value>(m)[i].size(); j++) {
-                unpack_params(detfunction{}, raw_value(m, i, j), f, get<params>(m), keys(), i, j);
+                unpack_params(distrib{}, raw_value(m, i, j), f, get<params>(m), keys(), i, j);
             }
         }
     }
