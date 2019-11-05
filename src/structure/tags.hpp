@@ -42,7 +42,6 @@ struct gam_mean {};
 struct gam_invshape {};
 struct weights {};
 struct distrib {};
-struct detfunction {};
 struct value {};
 struct params {};
 struct backup_value {};

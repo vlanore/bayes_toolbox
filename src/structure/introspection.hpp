@@ -105,7 +105,7 @@ using param_keys_t = map_key_list_t<typename Distrib::param_decl>;
 // dnode introspection
 
 template <class Dnode>
-using dnode_detfunction_t = metadata_get_property<struct detfunction, metadata_t<Dnode>>;
+using dnode_distrib_t = metadata_get_property<struct distrib, metadata_t<Dnode>>;
 
 //==================================================================================================
 // model traits
