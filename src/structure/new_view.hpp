@@ -73,12 +73,14 @@ auto make_subset(Node& node, Subset&& subset) {
 /*==================================================================================================
 ~~ Pre-made subset lambdas ~~
 ==================================================================================================*/
+
 struct subsets {
     template <class Node>
     static auto element(Node& node, size_t i) {
         return make_subset(node, [i](auto& node, auto f) {
-            static_assert(is_node_array<std::decay_t<decltype(node)>>::value,
-                          "Expects a node array");
+            static_assert(is_node_array<std::decay_t<decltype(node)>>::value
+                    || is_dnode_array<std::decay_t<decltype(node)>>::value,
+                          "Expects a node or dnode array");
             apply(f, node, i);
         });
     }
@@ -86,8 +88,9 @@ struct subsets {
     template <class Node>
     static auto element(Node& node, size_t i, size_t j) {
         return make_subset(node, [i, j](auto& node, auto f) {
-            static_assert(is_node_matrix<std::decay_t<decltype(node)>>::value,
-                          "Expects a node matrix");
+            static_assert(is_node_matrix<std::decay_t<decltype(node)>>::value
+                    || is_dnode_matrix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node or dnode matrix");
             apply(f, node, i, j);
         });
     }
@@ -95,8 +98,9 @@ struct subsets {
     template <class Node>
     static auto column(Node& node, size_t j) {
         return make_subset(node, [j](auto& node, auto f) {
-            static_assert(is_node_matrix<std::decay_t<decltype(node)>>::value,
-                          "Expects a node matrix");
+            static_assert(is_node_matrix<std::decay_t<decltype(node)>>::value
+                    || is_dnode_matrix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node or dnode matrix");
             for (size_t i = 0; i < get<value>(node).size(); i++) { apply(f, node, i, j); }
         });
     }
@@ -104,8 +108,9 @@ struct subsets {
     template <class Node>
     static auto row(Node& node, size_t i) {
         return make_subset(node, [i](auto& node, auto f) {
-            static_assert(is_node_matrix<std::decay_t<decltype(node)>>::value,
-                          "Expects a node matrix");
+            static_assert(is_node_matrix<std::decay_t<decltype(node)>>::value
+                    || is_dnode_matrix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node or dnode matrix");
             for (size_t j = 0; j < get<value>(node)[i].size(); j++) { apply(f, node, i, j); }
         });
     }
