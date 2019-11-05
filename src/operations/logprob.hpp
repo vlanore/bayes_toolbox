@@ -45,7 +45,9 @@ class LogProbTraitVisitor : public TraitVisitor<LogProbTraitVisitor, is_node, is
 
     template <class Dnode>
     void operator()(verifies<is_dnode>, Dnode& dnode) {
-        gather(dnode);
+        across_nodes(dnode, [](auto distrib, auto& x, auto... params) {
+            decltype(distrib)::gather(x, params...);
+        });
     }
 
   public:
@@ -53,9 +55,14 @@ class LogProbTraitVisitor : public TraitVisitor<LogProbTraitVisitor, is_node, is
     using Parent::operator();
 };
 
+// use of visitor deactivated (subsets do not pass through)
 template <class T>
 double logprob(T& x) {
     double result = 0;
-    across_model_nodes(x, LogProbTraitVisitor{result});
+    auto logprob_node = [&result] (auto distrib, auto& x, auto... params) {
+        result += decltype(distrib)::logprob(x, params...);
+    };
+    across_nodes(x, logprob_node);
+    // across_model_nodes(x, LogProbTraitVisitor{result});
     return result;
 }
