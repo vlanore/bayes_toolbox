@@ -40,6 +40,28 @@ struct categorical {
         x = distrib(gen);
     }
 
-    // static double logprob(T x, const std::vector<double>& w) { return log(w[x]); }
     static double logprob(const T& x, const std::vector<double>& w) { return log(w[x]); }
+
+    template <class LogProb, typename Gen>
+    static void gibbs_resample(T& x, LogProb logprob, const std::vector<double>& w, Gen& gen)  {
+        std::vector<double> logp(w.size(),0);
+        double max = 0;
+        for (size_t i=0; i<w.size(); i++)   {
+            logp[i] = log(w[i]) + logprob(i);
+            if (!i || (max < logp[i]))  {
+                max = logp[i];
+            }
+        }
+        double tot = 0;
+        std::vector<double> post(w.size(),0);
+        for (size_t i=0; i<w.size(); i++)   {
+            post[i] = exp(logp[i] - max);
+            tot += post[i];
+        }
+        for (size_t i=0; i<w.size(); i++)   {
+            post[i] /= tot;
+        }
+        std::discrete_distribution<T> distrib(post.begin(), post.end());
+        x = distrib(gen);
+    }
 };
