@@ -31,6 +31,26 @@ static double logprob_apply(node_array_tag, Array& a, F f, int i)    {
     return logprob_unpack_params(distrib{}, raw_value(a, i), f, get<params>(a), keys(), i);
 }
 
+template<class Matrix, class F>
+static double logprob_apply(node_matrix_tag, Matrix& a, F f)    {
+    using distrib = node_distrib_t<Matrix>;
+    using keys = param_keys_t<distrib>;
+    double tot = 0;
+    for (size_t i=0; i<get<value>(a).size(); i++)   {
+        for (size_t j=0; i<get<value>(a)[0].size(); j++)   {
+            tot += logprob_unpack_params(distrib{}, raw_value(a, i, j), f, get<params>(a), keys(), i, j);
+        }
+    }
+    return tot;
+}
+
+template<class Matrix, class F>
+static double logprob_apply(node_matrix_tag, Matrix& a, F f, int i, int j)    {
+    using distrib = node_distrib_t<Matrix>;
+    using keys = param_keys_t<distrib>;
+    return logprob_unpack_params(distrib{}, raw_value(a, i, j), f, get<params>(a), keys(), i, j);
+}
+
 template <class Node, class... Args>
 static double flat_logprob(Node& n, Args... args) {
     auto logprob_lambda = [] (auto distrib, auto& x, auto... params) { return decltype(distrib)::logprob(x,params...); };

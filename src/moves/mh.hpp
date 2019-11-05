@@ -35,12 +35,6 @@ struct NoUpdate {
     void operator()() {}
 };
 
-
-template <class MB>
-auto logprob_of_blanket(MB blanket) {
-    return [blanket]() mutable { return logprob(blanket); };
-}
-
 /**
  * Generic Metropolis-Hastings move function
  * Proposal distribution should be a lambda function that returns Hastings log ratio

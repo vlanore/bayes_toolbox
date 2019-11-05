@@ -11,7 +11,7 @@
 #include "operations/draw.hpp"
 #include "operations/backup.hpp"
 
-// #include "operations/gather.hpp"
+#include "operations/gather.hpp"
 #include "operations/raw_value.hpp"
 #include "operations/set_value.hpp"
 

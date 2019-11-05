@@ -48,3 +48,33 @@ template <typename Gen>
 bool decide(double logprob, Gen& gen) {
     return draw_uniform(gen) < exp(logprob);
 }
+
+template <class MB>
+auto logprob_of_blanket(MB blanket) {
+    return [blanket]() mutable { return logprob(blanket); };
+}
+
+template <class Node>
+auto simple_logprob(Node& node) {
+    return logprob_of_blanket(make_collection(node));
+}
+
+template <class Node>
+auto array_logprob(Node& node)  {
+    return [&node] (int i) {return logprob_of_blanket(make_collection(subsets::element(node,i)))();};
+}
+
+template <class Node>
+auto matrix_row_logprob(Node& node)  {
+    return [&node] (int i) {return logprob_of_blanket(make_collection(subsets::row(node,i)))();};
+}
+
+template <class Node>
+auto matrix_column_logprob(Node& node)  {
+    return [&node] (int i) {return logprob_of_blanket(make_collection(subsets::column(node,i)))();};
+}
+
+template <class Node>
+auto matrix_logprob(Node& node)  {
+    return [&node] (int i, int j) {return logprob_of_blanket(make_collection(subsets::element(node,i,j)))();};
+}
