@@ -72,28 +72,26 @@ int main() {
 
     size_t n1 = 2;
     size_t n2 = 3;
-    auto m = poisson_product(5, 10);
+    auto m = poisson_product(n1, n2);
 
     // auto v = make_collection(lambda1_(m), lambda2_(m));
     // vector<vector<int>> initK(n1, vector<int>(n2,1));
     // set_value(K_(m), initK);
 
-    for (int rep=0; rep<2; rep++)   {
-        cerr << "draw model\n";
-        draw(lambda1_(m), gen);
-        draw(lambda2_(m), gen);
-        gather(mrate_(m));
-        draw(K_(m), gen);
-        cerr << "draw model ok\n";
+    cerr << "draw model\n";
+    draw(lambda1_(m), gen);
+    draw(lambda2_(m), gen);
+    gather(mrate_(m));
+    draw(K_(m), gen);
+    cerr << "draw model ok\n";
 
-        for (size_t i=0; i<n1; i++) {
-            for (size_t j=0; j<n2; j++) {
-                cerr << i << '\t' << j;
-                cerr << '\t' << get<lambda1,value>(m)[i] * get<lambda2,value>(m)[j];
-                cerr << '\t' << get<mrate,value>(m)[i][j];
-                cerr << '\t' << get<K,value>(m)[i][j];
-                cerr << '\n';
-            }
+    for (size_t i=0; i<n1; i++) {
+        for (size_t j=0; j<n2; j++) {
+            cerr << i << '\t' << j;
+            cerr << '\t' << get<lambda1,value>(m)[i] * get<lambda2,value>(m)[j];
+            cerr << '\t' << get<mrate,value>(m)[i][j];
+            cerr << '\t' << get<K,value>(m)[i][j];
+            cerr << '\n';
         }
     }
     cerr << '\n' << '\n';
@@ -102,36 +100,24 @@ int main() {
     // size_t nb_it = 100000;
     for (size_t it = 0; it < nb_it; it++) {
 
-        auto logprob_lambda1 = [&m] (int i)   {
-            // auto subset_r = subsets::row(mrate_(m), i);
-            auto subset_K = subsets::row(K_(m), i);
-            auto collec = make_collection(subset_K);
-            // auto collec = make_collection(subset_r, subset_K);
-            return logprob(collec);
-        };
+        sweet_scaling_move(lambda1_(m), matrix_row_logprob(K_(m)), gen, matrix_row_gather(mrate_(m)));
+        sweet_scaling_move(lambda2_(m), matrix_column_logprob(K_(m)), gen, matrix_column_gather(mrate_(m)));
 
-        auto logprob_lambda2 = [&m] (int j)   {
-            // auto subset_r = subsets::column(mrate_(m), j);
-            auto subset_K = subsets::column(K_(m), j);
-            auto collec = make_collection(subset_K);
-            // auto collec = make_collection(subset_r, subset_K);
-            return logprob(collec);
-        };
-
-        auto update_lambda1 = [&m] (int i)   {
+        /*
+        auto logprob_and_update_lambda1 = [&m] (int i)   {
             auto subset_r = subsets::row(mrate_(m), i);
-            auto collec = make_collection(subset_r);
-            return gather(collec);
+            auto subset_K = subsets::row(K_(m), i);
+            auto collec = make_collection(subset_r, subset_K);
+            return logprob(collec);
         };
 
-        auto update_lambda2 = [&m] (int j)   {
+        auto logprob_and_update_lambda2 = [&m] (int j)   {
             auto subset_r = subsets::column(mrate_(m), j);
-            auto collec = make_collection(subset_r);
-            return gather(collec);
+            auto subset_K = subsets::column(K_(m), j);
+            auto collec = make_collection(subset_r, subset_K);
+            return logprob(collec);
         };
-
-        sweet_scaling_move(lambda1_(m), logprob_lambda1, gen, update_lambda1);
-        sweet_scaling_move(lambda2_(m), logprob_lambda2, gen, update_lambda2);
+        */
 
         cerr << "=======\n";
         for (size_t i=0; i<n1; i++) {
@@ -143,20 +129,6 @@ int main() {
                 cerr << '\n';
             }
         }
-        /*
-        for (size_t i=0; i<n1; i++) {
-            auto lambda1_mb =
-                make_collection(subsets::row(K_(m), i), subsets::element(lambda1_(m), i));
-            mh_move(lambda1_(m), logprob_of_blanket(lambda1_mb),
-                    [i](auto& value, auto& gen) { return scale(value[i], gen); }, gen);
-        }
-
-        for (size_t i=0; i<n2; i++) {
-            auto lambda2_mb =
-                make_collection(subsets::column(K_(m), i), subsets::element(lambda2_(m), i));
-            mh_move(lambda2_(m), logprob_of_blanket(lambda2_mb),
-                    [i](auto& value, auto& gen) { return scale(value[i], gen); }, gen);
-        }
-        */
     }
 }
+
