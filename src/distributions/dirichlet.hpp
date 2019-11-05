@@ -60,6 +60,7 @@ struct dirichlet {
     static void gibbs_resample(T& x, SS& ss, const std::vector<double>& alpha, Gen& gen)  {
         size_t k = x.size();
         assert(k == alpha.size());
+        assert(k == ss.size());
         double sum_y{0};
         for (size_t i = 0; i < k; i++) {
             gamma_sr::draw(x[i], alpha[i] + ss[i], 1, gen);
