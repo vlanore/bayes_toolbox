@@ -77,10 +77,54 @@ auto matrix_row_logprob(Node& node)  {
 
 template <class Node>
 auto matrix_column_logprob(Node& node)  {
-    return [&node] (int i) {return logprob_of_blanket(make_collection(subsets::column(node,i)))();};
+    return [&node] (int i) {
+        auto subset = subsets::column(node,i);
+        return logprob(subset);
+    };
 }
 
 template <class Node>
 auto matrix_element_logprob(Node& node)  {
-    return [&node] (int i, int j) {return logprob_of_blanket(make_collection(subsets::element(node,i,j)))();};
+    return [&node] (int i, int j) {
+        auto subset = subsets::element(node,i,j);
+        return logprob(subset);
+    };
 }
+
+template <class Node>
+auto simple_gather(Node& node) {
+    return [&node] () {return gather(node);};
+}
+
+template <class Node>
+auto array_element_gather(Node& node)  {
+    return [&node] (int i) {
+        auto subset = subsets::element(node,i);
+        gather(subset);
+    };
+}
+
+template <class Node>
+auto matrix_row_gather(Node& node)  {
+    return [&node] (int i) {
+        auto subset = subsets::row(node,i);
+        gather(subset);
+    };
+}
+
+template <class Node>
+auto matrix_column_gather(Node& node)  {
+    return [&node] (int i) {
+        auto subset = subsets::column(node,i);
+        gather(subset);
+    };
+}
+
+template <class Node>
+auto matrix_element_gather(Node& node)  {
+    return [&node] (int i, int j) {
+        auto subset = subsets::element(node,i,j);
+        gather(subset);
+    };
+}
+
