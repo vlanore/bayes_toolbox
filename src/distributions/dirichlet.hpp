@@ -55,6 +55,18 @@ struct dirichlet {
         }
         return sum_alpha_logx + std::lgamma(sum_alpha) - sum_lgam_alpha;
     }
+
+    template <class SS, typename Gen>
+    static void gibbs_resample(T& x, SS& ss, const std::vector<double>& alpha, Gen& gen)  {
+        size_t k = x.size();
+        assert(k == alpha.size());
+        double sum_y{0};
+        for (size_t i = 0; i < k; i++) {
+            gamma_sr::draw(x[i], alpha[i] + ss[i], 1, gen);
+            sum_y += x[i];
+        }
+        for (size_t i = 0; i < k; i++) { x[i] /= sum_y; }
+    }
 };
 
 struct dirichlet_cic {
