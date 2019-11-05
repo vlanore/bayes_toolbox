@@ -29,12 +29,7 @@
 // Deterministic functions
 #include "detfunctions/product.hpp"
 
-#include "operations/flat_logprob.hpp"
-#include "operations/flat_draw.hpp"
-#include "operations/flat_backup.hpp"
-#include "operations/flat_gather.hpp"
-#include "moves/flat_mh.hpp"
-
+#include "moves/sweet_mh.hpp"
 #include "moves/proposals.hpp"
 #include "moves/mh.hpp"
 #include "moves/gibbs.hpp"

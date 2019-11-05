@@ -28,7 +28,7 @@ license and that you accept its terms.*/
 #pragma once
 
 #include "mcmc_utils.hpp"
-#include "operations/flat_backup.hpp"
+#include "operations/backup.hpp"
 #include "moves/proposals.hpp"
 
 struct mh_overloads {
@@ -43,14 +43,14 @@ struct mh_overloads {
 
     template <class Node, class LogProb, class Proposal, class Gen, class Update = LoneNoUpdate>
     static void mh_move(lone_node_tag, Node& node, LogProb lp, Proposal P, Gen& gen, Update update = {}) {
-        auto bkp = flat_backup(node);
-        double logprob_before = flat_logprob(node) + lp();
+        auto bkp = backup(node);
+        double logprob_before = logprob(node) + lp();
         double log_hastings = P(get<value>(node), gen);
         update();
-        double logprob_after = flat_logprob(node) + lp();
+        double logprob_after = logprob(node) + lp();
         bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
         if (!accept) {
-            flat_restore(node, bkp);
+            restore(node, bkp);
             update();
         }
     }
@@ -58,14 +58,15 @@ struct mh_overloads {
     template <class Node, class LogProb, class Proposal, class Gen, class Update = ArrayNoUpdate>
     static void mh_move(node_array_tag, Node& node, LogProb lp, Proposal P, Gen& gen, Update update = {})   {
         for (size_t i=0; i<get<value>(node).size(); i++)    {
-            auto bkp = flat_backup(node,i);
-            double logprob_before = flat_logprob(node,i) + lp(i);
+            auto subset = subsets::element(node,i);
+            auto bkp = backup(subset);
+            double logprob_before = logprob(subset) + lp(i);
             double log_hastings = P(get<value>(node)[i], gen);
             update(i);
-            double logprob_after = flat_logprob(node,i) + lp(i);
+            double logprob_after = logprob(subset) + lp(i);
             bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
             if (!accept) {
-                flat_restore(node, bkp, i);
+                restore(subset, bkp);
                 update(i);
             }
         }
@@ -73,12 +74,12 @@ struct mh_overloads {
 };
 
 template <class Node, class LogProb, class Proposal, class Gen, class... Update>
-void flat_mh_move(Node& node, LogProb lp, Proposal P, Gen& gen, Update... update) {
+void sweet_mh_move(Node& node, LogProb lp, Proposal P, Gen& gen, Update... update) {
     mh_overloads::mh_move(type_tag(node), node, lp, P, gen, update...);
 }
 
 template <class Node, class LogProb, class Gen, class... Update>
-void flat_scaling_move(Node& node, LogProb lp, Gen& gen, Update... update) {
-    flat_mh_move(node, lp, [](auto& value, auto& gen) { return scale(value, gen); }, gen, update...);
+void sweet_scaling_move(Node& node, LogProb lp, Gen& gen, Update... update) {
+    sweet_mh_move(node, lp, [](auto& value, auto& gen) { return scale(value, gen); }, gen, update...);
 }
 
