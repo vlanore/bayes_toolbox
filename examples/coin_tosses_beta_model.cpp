@@ -63,15 +63,11 @@ int main() {
 
     set_value(bern_(m), outcomes);
 
-    auto v_weight_a = make_collection(beta_weight_a_(m), p_(m));
-    auto v_weight_b = make_collection(beta_weight_b_(m), p_(m));
-
     double p_sum{0};
     for (size_t it = 0; it < nb_it; ++it) {
-        // propose move for p, provided a Markov blanket of p
-        scaling_move(beta_weight_a_(m), logprob_of_blanket(v_weight_a), gen);
-        scaling_move(beta_weight_b_(m), logprob_of_blanket(v_weight_b), gen);
-        slide_constrained_move(p_(m), logprob_of_blanket(v), gen, 0., 1.);
+        scaling_move(beta_weight_a_(m), simple_logprob(p_(m)), 1.0, 10, gen);
+        scaling_move(beta_weight_b_(m), simple_logprob(p_(m)), 1.0, 10, gen);
+        slide_constrained_move(p_(m), simple_logprob(bern_(m)), 1.0, 0., 1., 10, gen);
         if (it >= burn_in) { p_sum += raw_value(p_(m)); }
     }
     float p_mean = p_sum / float(nb_it - burn_in);

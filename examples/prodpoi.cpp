@@ -57,26 +57,12 @@ auto poisson_product(size_t n1, size_t n2) {
     );  // clang-format on
 }
 
-template <class Node, class MB, class Gen, class... IndexArgs>
-void scaling_move(Node& node, MB blanket, Gen& gen, IndexArgs... args) {
-    auto index = make_index(args...);
-    auto bkp = backup(node, index);
-    double logprob_before = logprob(blanket);
-    double log_hastings = scale(raw_value(node, index), gen);
-    bool accept = decide(logprob(blanket) - logprob_before + log_hastings, gen);
-    if (!accept) { restore(node, bkp, index); }
-}
-
 int main() {
     auto gen = make_generator();
 
     size_t n1 = 2;
     size_t n2 = 3;
     auto m = poisson_product(n1, n2);
-
-    // auto v = make_collection(lambda1_(m), lambda2_(m));
-    // vector<vector<int>> initK(n1, vector<int>(n2,1));
-    // set_value(K_(m), initK);
 
     cerr << "draw model\n";
     draw(lambda1_(m), gen);
@@ -100,24 +86,8 @@ int main() {
     // size_t nb_it = 100000;
     for (size_t it = 0; it < nb_it; it++) {
 
-        sweet_scaling_move(lambda1_(m), matrix_row_logprob(K_(m)), gen, matrix_row_gather(mrate_(m)));
-        sweet_scaling_move(lambda2_(m), matrix_column_logprob(K_(m)), gen, matrix_column_gather(mrate_(m)));
-
-        /*
-        auto logprob_and_update_lambda1 = [&m] (int i)   {
-            auto subset_r = subsets::row(mrate_(m), i);
-            auto subset_K = subsets::row(K_(m), i);
-            auto collec = make_collection(subset_r, subset_K);
-            return logprob(collec);
-        };
-
-        auto logprob_and_update_lambda2 = [&m] (int j)   {
-            auto subset_r = subsets::column(mrate_(m), j);
-            auto subset_K = subsets::column(K_(m), j);
-            auto collec = make_collection(subset_r, subset_K);
-            return logprob(collec);
-        };
-        */
+        scaling_move(lambda1_(m), matrix_row_logprob(K_(m)), 1.0, 1, gen, matrix_row_gather(mrate_(m)));
+        scaling_move(lambda2_(m), matrix_column_logprob(K_(m)), 1.0, 1, gen, matrix_column_gather(mrate_(m)));
 
         cerr << "=======\n";
         for (size_t i=0; i<n1; i++) {

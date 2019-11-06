@@ -47,6 +47,16 @@ struct beta_ss {
         return std::lgamma(alpha + beta) - std::lgamma(alpha) - std::lgamma(beta) +
                (alpha - 1) * log(x) + (beta - 1) * log(1 - x);
     }
+
+    template <class SS, typename Gen>
+    static void gibbs_resample(T& x, SS& ss, spos_real weight_a, spos_real weight_b, Gen& gen)  {
+        std::gamma_distribution<double> distriba(positive_real(weight_a) + ss, 1.0);
+        std::gamma_distribution<double> distribb(positive_real(weight_b) + ss, 1.0);
+        auto aa = distriba(gen);
+        auto bb = distribb(gen);
+        x = {aa / (aa + bb)};
+    }
+
 };
 
 /*

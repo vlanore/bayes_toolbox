@@ -29,7 +29,6 @@
 // Deterministic functions
 #include "detfunctions/product.hpp"
 
-#include "moves/sweet_mh.hpp"
 #include "moves/proposals.hpp"
 #include "moves/mh.hpp"
 #include "moves/gibbs.hpp"

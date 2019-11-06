@@ -28,40 +28,72 @@ license and that you accept its terms.*/
 
 #include "mcmc_utils.hpp"
 #include "operations/backup.hpp"
-#include "operations/draw.hpp"
 #include "moves/proposals.hpp"
 
 struct NoUpdate {
     void operator()() {}
+    template<class... Index>
+    void operator()(Index...) {}
 };
 
-/**
- * Generic Metropolis-Hastings move function
- * Proposal distribution should be a lambda function that returns Hastings log ratio
- */
+struct mh_overloads {
 
-template <class Node, class LogProb, class Proposal, class Gen, class Update = NoUpdate>
-void mh_move(Node& node, LogProb lp, Proposal P, Gen& gen, Update update = {}) {
-    auto bkp = backup(node);
-    double logprob_before = lp();
-    double log_hastings = P(get<value>(node), gen);
-    update();
-    bool accept = decide(lp() - logprob_before + log_hastings, gen);
-    if (!accept) {
-        restore(node, bkp);
-        update();
+    template <class Node, class LogProb, class Proposal, class Gen, class Update = NoUpdate>
+    static void mh_move(lone_node_tag, Node& node, LogProb lp, Proposal P, size_t nrep, Gen& gen, Update update = {}) {
+        for (size_t rep=0; rep<nrep; rep++) {
+            auto bkp = backup(node);
+            double logprob_before = logprob(node) + lp();
+            double log_hastings = P(get<value>(node), gen);
+            update();
+            double logprob_after = logprob(node) + lp();
+            bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
+            if (!accept) {
+                restore(node, bkp);
+                update();
+            }
+        }
     }
+
+    template <class Node, class LogProb, class Proposal, class Gen, class Update = NoUpdate>
+    static void mh_move(node_array_tag, Node& node, LogProb lp, Proposal P, size_t nrep, Gen& gen, Update update = {})   {
+        for (size_t rep=0; rep<nrep; rep++) {
+            for (size_t i=0; i<get<value>(node).size(); i++)    {
+                // std::cerr << "=";
+                auto subset = subsets::element(node,i);
+                auto bkp = backup(subset);
+                // double log1 = logprob(subset);
+                double logprob_before = logprob(subset) + lp(i);
+                double log_hastings = P(get<value>(node)[i], gen);
+                update(i);
+                // double log2 = logprob(subset);
+                double logprob_after = logprob(subset) + lp(i);
+                // std::cerr << log1 << '\t' << log2 << '\t' << log2-log1 << '\t' << logprob_before << '\t' << logprob_after << '\n';
+                bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
+                if (!accept) {
+                    restore(subset, bkp);
+                    update(i);
+                }
+            }
+        }
+    }
+};
+
+template <class Node, class LogProb, class Proposal, class Gen, class... Update>
+void mh_move(Node& node, LogProb lp, Proposal P, size_t nrep, Gen& gen, Update... update) {
+    mh_overloads::mh_move(type_tag(node), node, lp, P, nrep, gen, update...);
 }
 
-template <class Node, class LogProb, class Gen>
-void scaling_move(Node& node, LogProb lp, Gen& gen) {
-    mh_move(node, lp, [](auto& value, auto& gen) { return scale(value, gen); }, gen);
+template <class Node, class LogProb, class Gen, class... Update>
+void scaling_move(Node& node, LogProb lp, double tuning, size_t nrep, Gen& gen, Update... update) {
+    mh_move(node, lp, [tuning](auto& value, auto& gen) { return scale(value, tuning, gen); }, nrep, gen, update...);
 }
 
-template <class Node, class LogProb, class Gen>
-void slide_constrained_move(Node& node, LogProb lp, Gen& gen, double min, double max) {
+template <class Node, class LogProb, class Gen, class... Update>
+void slide_constrained_move(Node& node, LogProb lp, double tuning, double min, double max, size_t nrep, Gen& gen, Update... update)  {
     assert(raw_value(node) >= min && raw_value(node) <= max);
     mh_move(node, lp,
-            [min, max](auto& value, auto& gen) { return slide_constrained(value, min, max, gen); },
-            gen);
+            [min, max, tuning](auto& value, auto& gen) { return slide_constrained(value, tuning, min, max, gen); },
+            nrep,
+            gen,
+            update...);
 }

@@ -31,23 +31,23 @@ license and that you accept its terms.*/
 #include "operations/draw.hpp"
 
 template <typename Gen>
-double scale(double& value, Gen& gen, double tuning = 1.0) {
+double scale(double& value, double tuning, Gen& gen)    {
     auto multiplier = tuning * (draw_uniform(gen) - 0.5);
     value *= exp(multiplier);
     return multiplier;
 }
 
 template <class Gen>
-double slide(double& value, Gen& gen, double tuning = 1.0) {
+double slide(double& value, double tuning, Gen& gen)    {
     auto slide_amount = tuning * (draw_uniform(gen) - 0.5);
     value += slide_amount;
     return 0.;
 }
 
 template <class Gen>
-double slide_constrained(double& value, double min, double max, Gen& gen, double tuning = 1.0) {
+double slide_constrained(double& value, double tuning, double min, double max, Gen& gen)    {
     assert(value >= min && value <= max);
-    slide(value, gen, tuning);
+    slide(value, tuning, gen);
     while (value < min || value > max) {
         if (value < min) { value = 2 * min - value; }
         if (value > max) { value = 2 * max - value; }
@@ -69,7 +69,7 @@ double profile_move(std::vector<double>& vec, double tuning, Gen& gen) {
     double &v1{vec[i1]}, &v2{vec[i2]};
     assert(v1 >= 0 && v2 >= 0);
     double v1_before = v1;
-    slide_constrained(v1, 0, v1 + v2, gen, tuning);
+    slide_constrained(v1, tuning, 0, v1 + v2, gen);
     v2 += v1_before - v1;  // compensation
 
     return 0.;  // sliding move

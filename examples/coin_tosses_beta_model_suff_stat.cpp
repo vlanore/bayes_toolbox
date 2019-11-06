@@ -78,14 +78,11 @@ int main() {
     set_value(bern_(m), outcomes);
     z.gather();
 
-    auto v_weight_a = make_collection(beta_weight_a_(m), p_(m));
-    auto v_weight_b = make_collection(beta_weight_b_(m), p_(m));
-
     double p_sum{0};
     for (size_t it = 0; it < nb_it; ++it) {
-        // propose move for p, provided a Markov blanket of p
-        scaling_move(beta_weight_a_(m), logprob_of_blanket(v_weight_a), gen);
-        scaling_move(beta_weight_b_(m), logprob_of_blanket(v_weight_b), gen);
+        scaling_move(beta_weight_a_(m), simple_logprob(p_(m)), 1.0, 10, gen);
+        scaling_move(beta_weight_b_(m), simple_logprob(p_(m)), 1.0, 10, gen);
+
         int ss_value = z.get();  // get sufftat value (local copy)
         beta_ss::draw(get<p, value>(m), get<beta_weight_a, value>(m) + ss_value,
                       get<beta_weight_b, value>(m) + n_obs - ss_value, gen);

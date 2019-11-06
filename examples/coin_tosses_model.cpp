@@ -58,7 +58,7 @@ int main() {
 
     for (size_t it = 0; it < nb_it; ++it) {
         // propose move for p, provided a Markov blanket of p
-        slide_constrained_move(p_(m), logprob_of_blanket(v), gen, 0., 1.);
+        slide_constrained_move(p_(m), simple_logprob(bern_(m)), 1.0, 0., 1., 1, gen);
         if (it >= burn_in) { p_sum += raw_value(p_(m)); }
     }
     float p_mean = p_sum / float(nb_it - burn_in);

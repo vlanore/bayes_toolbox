@@ -49,10 +49,12 @@ bool decide(double logprob, Gen& gen) {
     return draw_uniform(gen) < exp(logprob);
 }
 
+/*
 template <class MB>
 auto logprob_of_blanket(MB blanket) {
     return [blanket]() mutable { return logprob(blanket); };
 }
+*/
 
 template <class Node>
 auto simple_logprob(Node& node) {
