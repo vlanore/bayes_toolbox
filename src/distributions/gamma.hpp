@@ -114,10 +114,21 @@ struct gamma_mi {
         x = {distrib(gen)};
     }
 
-    static real logprob(T x, spos_real mean, spos_real invshape) {
+    static real logprob(const T& x, spos_real mean, spos_real invshape) {
         double alpha = 1. / invshape;
         double beta = mean * invshape;
         return alpha * log(beta) - std::lgamma(alpha) + (alpha - 1) * log(x) - beta * x;
+    }
+
+    template <class SS>
+    static real marginal_logprob(SS& ss, spos_real mean, spos_real invshape)    {
+        double alpha1 = 1. / invshape;
+        double alpha2 = alpha1 + ss.count;
+        double beta1 = mean * invshape;
+        double beta2 = beta1 + ss.beta;
+        double l1 = alpha1 * log(beta1) - std::lgamma(alpha1);
+        double l2 = alpha2 * log(beta2) - std::lgamma(alpha2);
+        return l1 - l2;
     }
 
     template <class SS, typename Gen>
