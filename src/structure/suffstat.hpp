@@ -45,7 +45,7 @@ struct ss_factory {
     };
 
     template <class SS, class Lambda>
-    static auto make_suffstat(Lambda& lambda, int n) {
+    static auto make_suffstat(Lambda lambda, int n) {
         return std::make_unique<suffstat_proxy1<SS, Lambda>>(SS(), lambda, n);
     }
 
