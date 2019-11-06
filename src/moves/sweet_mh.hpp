@@ -1,4 +1,3 @@
-
 /*Copyright or © or Copr. CNRS (2019). Contributors:
 - Vincent Lanore. vincent.lanore@gmail.com
 
