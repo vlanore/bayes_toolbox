@@ -115,27 +115,28 @@ struct gamma_mi {
     }
 
     static real logprob(const T& x, spos_real mean, spos_real invshape) {
-        double alpha = 1. / invshape;
-        double beta = mean * invshape;
-        return alpha * log(beta) - std::lgamma(alpha) + (alpha - 1) * log(x) - beta * x;
+        double shape = 1. / invshape;
+        double scale = mean * invshape;
+        return -shape * log(scale) - std::lgamma(shape) + (shape - 1) * log(x) - x/scale;
     }
 
     template <class SS>
     static real marginal_logprob(SS& ss, spos_real mean, spos_real invshape)    {
-        double alpha1 = 1. / invshape;
-        double alpha2 = alpha1 + ss.count;
-        double beta1 = mean * invshape;
-        double beta2 = beta1 + ss.beta;
-        double l1 = alpha1 * log(beta1) - std::lgamma(alpha1);
-        double l2 = alpha2 * log(beta2) - std::lgamma(alpha2);
+        double shape1 = 1. / invshape;
+        double shape2 = shape1 + ss.count;
+        double rate1 = 1.0 / (mean * invshape);
+        double rate2 = rate1 + ss.beta;
+        double l1 = shape1 * log(rate1) - std::lgamma(shape1);
+        double l2 = shape2 * log(rate2) - std::lgamma(shape2);
         return l1 - l2;
     }
 
     template <class SS, typename Gen>
     static void gibbs_resample(T& x, SS& ss, spos_real mean, spos_real invshape, Gen& gen)  {
-        double alpha = 1. / invshape + ss.count;
-        double beta = mean * invshape + ss.beta;
-        std::gamma_distribution<double> distrib(alpha, beta);
+        double shape = 1.0 / invshape + ss.count;
+        double rate = 1.0 / (mean * invshape) + ss.beta;
+        double scale = 1.0 / rate;
+        std::gamma_distribution<double> distrib(shape, scale);
         x = {distrib(gen)};
     }
 };
