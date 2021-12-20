@@ -135,6 +135,11 @@ auto suffstat_logprob(Var& var, Proxy<SS&>& ss)   {
     return [&var, &ss] () {return ss.get().GetLogProb(get<value>(var));};
 }
 
+template <class Var1, class Var2, class SS>
+auto suffstat_logprob(Var1& var1, Var2& var2, Proxy<SS&>& ss)   {
+    return [&var1, &var2, &ss] () {return ss.get().GetLogProb(get<value>(var1), get<value>(var2));};
+}
+
 template <class Var, class SS>
 auto suffstat_array_element_logprob(Var& var, Proxy<SS&, int>& ss)   {
     return [&var, &ss] (int i) {return ss.get().GetLogProb(raw_value(var,i));};
