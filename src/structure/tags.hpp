@@ -34,6 +34,7 @@ struct weight_a {};
 struct weight_b {};
 struct prob {};
 struct concentration {};
+struct intensity {};
 struct center {};
 struct invconc {};
 struct invshape {};
@@ -56,8 +57,10 @@ struct freqs {};
 
 
 // dnode deterministic functions
+struct int_arg {};
 struct real_a {};
 struct real_b {};
+struct real_c {};
 struct real_arg {};
 struct vector_argv {};
 struct nucmatrix {};

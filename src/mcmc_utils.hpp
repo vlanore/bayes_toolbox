@@ -141,6 +141,30 @@ auto suffstat_logprob(Var1& var1, Var2& var2, Proxy<SS&>& ss)   {
 }
 
 template <class Var, class SS>
+auto suffstat_logprob(Var& var, Proxy<SS&, int>& ss)  {
+    return [&var, &ss] ()   {
+        double tot = 0;
+        for (size_t i=0; i<ss.size(); i++)  {
+            tot += ss.get(i).GetLogProb(raw_value(var,i));
+        }
+        return tot;
+    };
+}
+
+template <class Var, class SS>
+auto suffstat_logprob(Var& var, Proxy<SS&, int, int>& ss, size_t size1, size_t size2)  {
+    return [&var, &ss, size1, size2] ()   {
+        double tot = 0;
+        for (size_t i=0; i<size1; i++)  {
+            for (size_t j=0; j<size2; j++)  {
+                tot += ss.get(i,j).GetLogProb(raw_value(var,i,j));
+            }
+        }
+        return tot;
+    };
+}
+
+template <class Var, class SS>
 auto suffstat_array_element_logprob(Var& var, Proxy<SS&, int>& ss)   {
     return [&var, &ss] (int i) {return ss.get().GetLogProb(raw_value(var,i));};
 }
