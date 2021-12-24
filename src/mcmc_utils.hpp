@@ -277,6 +277,34 @@ auto suffstat_logprob(Var& var, Proxy<SS&, size_t, size_t>& ss) {
 }
 
 template <class Var, class SS>
+auto suffstat_logprob(Var& var, Proxy<SS&, size_t, size_t, size_t>& ss) {
+    return [&var, &ss] ()   {
+        double tot = 0;
+        for (size_t i=0; i<get<value>(var).size(); i++)  {
+            for (size_t j=0; j<get<value>(var)[0].size(); j++)  {
+                for (size_t k=0; k<get<value>(var)[0][0].size(); k++)  {
+                    tot += ss.get(i,j,k).GetLogProb(raw_value(var,i,j,k));
+                }
+            }
+        }
+        return tot;
+    };
+}
+
+template <class Var, class SS>
+auto suffstat_cubix_slice011_logprob(Var& var, Proxy<SS&, size_t, size_t, size_t>& ss) {
+    return [&var, &ss] (int i)   {
+        double tot = 0;
+        for (size_t j=0; j<get<value>(var)[0].size(); j++)  {
+            for (size_t k=0; k<get<value>(var)[0][0].size(); k++)  {
+                tot += ss.get(i,j,k).GetLogProb(raw_value(var,i,j,k));
+            }
+        }
+        return tot;
+    };
+}
+
+template <class Var, class SS>
 auto suffstat_array_element_logprob(Var& var, Proxy<SS&, size_t>& ss)   {
     return [&var, &ss] (size_t i) {return ss.get().GetLogProb(raw_value(var,i));};
 }

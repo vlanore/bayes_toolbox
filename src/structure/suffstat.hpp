@@ -59,7 +59,7 @@ struct ss_factory {
         SS _ss;
         Lambda _lambda;
         size_t _m;
-        size_t  _n;
+        size_t _n;
 
         SS& _get() final { return _ss; }
 
@@ -84,6 +84,41 @@ struct ss_factory {
     template <class SS, class Lambda>
     static auto make_suffstat_with_init(SS&& from, Lambda lambda, size_t m, size_t n) {
         return std::make_unique<suffstat_proxy2<SS, Lambda>>(std::forward<SS>(from), lambda, m, n);
+    }
+
+    template <class SS, class Lambda>
+    class suffstat_proxy3 final : public Proxy<SS&> {
+        SS _ss;
+        Lambda _lambda;
+        size_t _m;
+        size_t _n;
+        size_t _p;
+
+        SS& _get() final { return _ss; }
+
+      public:
+        suffstat_proxy3(const SS& from, Lambda lambda, size_t m, size_t n, size_t p) : _ss(from), _lambda(lambda), _m(m), _n(n), _p(p) {}
+
+        void gather() final {
+            _ss.Clear();
+            for (size_t i=0; i<_m; i++) { 
+                for (size_t j=0; j<_n; j++)    {
+                    for (size_t k=0; k<_n; k++)    {
+                        _lambda(_ss, i, j, k); 
+                    }
+                }
+            }
+        }
+    };
+
+    template <class SS, class Lambda>
+    static auto make_suffstat(Lambda lambda, size_t m, size_t n, size_t p) {
+        return std::make_unique<suffstat_proxy3<SS, Lambda>>(SS(), lambda, m, n, p);
+    }
+
+    template <class SS, class Lambda>
+    static auto make_suffstat_with_init(SS&& from, Lambda lambda, size_t m, size_t n, size_t p) {
+        return std::make_unique<suffstat_proxy3<SS, Lambda>>(std::forward<SS>(from), lambda, m, n, p);
     }
 
     template <class SS, class Lambda>
@@ -356,7 +391,7 @@ struct ss_factory {
 
     template <class SS, class Lambda>
     class suffstat_cubix_proxy2 final : public Proxy<SS&, size_t, size_t, size_t> {
-        std::vector<std::vector<SS>> _ss;
+        std::vector<std::vector<std::vector<SS>>> _ss;
         Lambda _lambda;
         size_t _m;
         size_t _n;
