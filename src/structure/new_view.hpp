@@ -96,6 +96,16 @@ struct subsets {
     }
 
     template <class Node>
+    static auto row(Node& node, size_t i) {
+        return make_subset(node, [i](auto& node, auto f) {
+            static_assert(is_node_matrix<std::decay_t<decltype(node)>>::value
+                    || is_dnode_matrix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node or dnode matrix");
+            for (size_t j = 0; j < get<value>(node)[i].size(); j++) { apply(f, node, i, j); }
+        });
+    }
+
+    template <class Node>
     static auto column(Node& node, size_t j) {
         return make_subset(node, [j](auto& node, auto f) {
             static_assert(is_node_matrix<std::decay_t<decltype(node)>>::value
@@ -106,12 +116,84 @@ struct subsets {
     }
 
     template <class Node>
-    static auto row(Node& node, size_t i) {
+    static auto element(Node& node, size_t i, size_t j, size_t k) {
+        return make_subset(node, [i, j, k](auto& node, auto f) {
+            static_assert(is_node_cubix<std::decay_t<decltype(node)>>::value
+                    || is_dnode_cubix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node or dnode cubix");
+            apply(f, node, i, j, k);
+        });
+    }
+
+    template <class Node>
+    static auto slice001(Node& node, size_t i, size_t j) {
+        return make_subset(node, [i,j](auto& node, auto f) {
+            static_assert(is_node_cubix<std::decay_t<decltype(node)>>::value
+                    || is_dnode_cubix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node or dnode cubix");
+            for (size_t k=0; k<get<value>(node)[i][j].size(); k++) { apply(f, node, i, j, k); }
+        });
+    }
+
+    template <class Node>
+    static auto slice010(Node& node, size_t i, size_t k) {
+        return make_subset(node, [i,k](auto& node, auto f) {
+            static_assert(is_node_cubix<std::decay_t<decltype(node)>>::value
+                    || is_dnode_cubix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node or dnode cubix");
+            for (size_t j=0; j<get<value>(node)[i].size(); j++) { apply(f, node, i, j, k); }
+        });
+    }
+
+    template <class Node>
+    static auto slice100(Node& node, size_t j, size_t k) {
+        return make_subset(node, [j,k](auto& node, auto f) {
+            static_assert(is_node_cubix<std::decay_t<decltype(node)>>::value
+                    || is_dnode_cubix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node or dnode cubix");
+            for (size_t i=0; i<get<value>(node).size(); i++) { apply(f, node, i, j, k); }
+        });
+    }
+
+    template <class Node>
+    static auto slice011(Node& node, size_t i) {
         return make_subset(node, [i](auto& node, auto f) {
-            static_assert(is_node_matrix<std::decay_t<decltype(node)>>::value
-                    || is_dnode_matrix<std::decay_t<decltype(node)>>::value,
-                          "Expects a node or dnode matrix");
-            for (size_t j = 0; j < get<value>(node)[i].size(); j++) { apply(f, node, i, j); }
+            static_assert(is_node_cubix<std::decay_t<decltype(node)>>::value
+                    || is_dnode_cubix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node or dnode cubix");
+            for (size_t j=0; j<get<value>(node)[0].size(); j++) {
+                for (size_t k=0; k<get<value>(node)[0][0].size(); k++) {
+                    apply(f, node, i, j, k); 
+                }
+            }
+        });
+    }
+
+    template <class Node>
+    static auto slice101(Node& node, size_t j) {
+        return make_subset(node, [j](auto& node, auto f) {
+            static_assert(is_node_cubix<std::decay_t<decltype(node)>>::value
+                    || is_dnode_cubix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node or dnode cubix");
+            for (size_t i=0; i<get<value>(node).size(); i++) {
+                for (size_t k=0; k<get<value>(node)[0][0].size(); k++) {
+                    apply(f, node, i, j, k); 
+                }
+            }
+        });
+    }
+
+    template <class Node>
+    static auto slice110(Node& node, size_t k) {
+        return make_subset(node, [k](auto& node, auto f) {
+            static_assert(is_node_cubix<std::decay_t<decltype(node)>>::value
+                    || is_dnode_cubix<std::decay_t<decltype(node)>>::value,
+                          "Expects a node or dnode cubix");
+            for (size_t i=0; i<get<value>(node).size(); i++) {
+                for (size_t j=0; j<get<value>(node)[0].size(); j++) {
+                    apply(f, node, i, j, k); 
+                }
+            }
         });
     }
 };

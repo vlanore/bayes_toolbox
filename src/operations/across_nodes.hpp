@@ -67,6 +67,19 @@ namespace overloads {
         }
     }
 
+    template <class Cubix, class F>
+    void across_nodes(node_cubix_tag, Cubix& m, F f) {
+        using distrib = node_distrib_t<Cubix>;
+        using keys = param_keys_t<distrib>;
+        for (size_t i = 0; i < get<value>(m).size(); i++) {
+            for (size_t j = 0; j < get<value>(m)[i].size(); j++) {
+                for (size_t k = 0; k < get<value>(m)[i][j].size(); k++) {
+                    unpack_params(distrib{}, raw_value(m, i, j, k), f, get<params>(m), keys(), i, j, k);
+                }
+            }
+        }
+    }
+
     template <class Dnode, class F>
     void across_nodes(lone_dnode_tag, Dnode& n, F f) {
         using distrib = dnode_distrib_t<Dnode>;
@@ -90,6 +103,19 @@ namespace overloads {
         for (size_t i = 0; i < get<value>(m).size(); i++) {
             for (size_t j = 0; j < get<value>(m)[i].size(); j++) {
                 unpack_params(distrib{}, raw_value(m, i, j), f, get<params>(m), keys(), i, j);
+            }
+        }
+    }
+
+    template <class Cubix, class F>
+    void across_nodes(dnode_cubix_tag, Cubix& m, F f) {
+        using distrib = dnode_distrib_t<Cubix>;
+        using keys = param_keys_t<distrib>;
+        for (size_t i = 0; i < get<value>(m).size(); i++) {
+            for (size_t j = 0; j < get<value>(m)[i].size(); j++) {
+                for (size_t k = 0; k < get<value>(m)[i][j].size(); k++) {
+                    unpack_params(distrib{}, raw_value(m, i, j, k), f, get<params>(m), keys(), i, j, k);
+                }
             }
         }
     }

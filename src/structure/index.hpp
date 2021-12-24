@@ -41,9 +41,18 @@ struct MatrixIndex {
     MatrixIndex(size_t i, size_t j) : i(i), j(j) {}
 };
 
+struct CubixIndex   {
+    size_t i;
+    size_t j;
+    size_t k;
+    CubixIndex(size_t i, size_t j, size_t k) : i(i), j(j), k(k) {}
+};
+
 auto make_index() { return NoIndex(); }
 auto make_index(size_t i) { return ArrayIndex{i}; }
 auto make_index(size_t i, size_t j) { return MatrixIndex{i, j}; }
+auto make_index(size_t i, size_t j, size_t k) { return CubixIndex{i, j, k}; }
 auto make_index(NoIndex index) { return index; }
 auto make_index(ArrayIndex index) { return index; }
 auto make_index(MatrixIndex index) { return index; }
+auto make_index(CubixIndex index) { return index; }

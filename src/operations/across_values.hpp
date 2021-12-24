@@ -51,6 +51,13 @@ namespace overloads {
         }
     }
 
+    template <class Cubix, class F>
+    void across_values(node_cubix_tag, Cubix& m, const F& f) {
+        for (auto& v : get<value>(m)) {
+            for (auto& e : v) { f(e); }
+        }
+    }
+
     template <class... SubsetArgs, class F>
     void across_values(unknown_tag, NodeSubset<SubsetArgs...>& subset, const F& f) {
         subset.across_values(f);

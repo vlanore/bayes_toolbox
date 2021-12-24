@@ -43,7 +43,10 @@ auto type_tag(const tagged_tuple<MD, Fields...>&) {
             node_array_tag,
             conditional_t<is_node_matrix<T>::value,
                 node_matrix_tag,
-                lone_node_tag
+                conditional_t<is_node_cubix<T>::value,
+                    node_cubix_tag,
+                    lone_node_tag
+                >
             >
         >,
         conditional_t<is_dnode<T>::value,
@@ -51,7 +54,10 @@ auto type_tag(const tagged_tuple<MD, Fields...>&) {
                 dnode_array_tag,
                 conditional_t<is_dnode_matrix<T>::value,
                     dnode_matrix_tag,
-                    lone_dnode_tag
+                    conditional_t<is_dnode_cubix<T>::value,
+                        dnode_cubix_tag,
+                        lone_dnode_tag
+                    >
                 >
             >,
             conditional_t<is_model<T>::value,

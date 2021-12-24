@@ -103,6 +103,27 @@ auto make_matrix_param(Arg&& x) {
     return MatrixParamFactory<T>::make(std::forward<Arg>(x));
 }
 
+template <class T>
+struct CubixParamFactory {
+    static auto make(const T& value) { return mnp_to_one(value); }
+
+    static auto make(T& value) { return mnp_to_one(value); }
+
+    static auto make(T&& value) { return mnp_to_const(value); }
+
+    template <class F>
+    static auto make(F f) {
+        static_assert(std::is_same<T, std::decay_t<decltype(f(0, 0, 0))>>::value,
+                      "in CubixParamFactory: incorrect return type");
+        return f;
+    }
+};
+
+template <class T, class Arg>
+auto make_cubix_param(Arg&& x) {
+    return CubixParamFactory<T>::make(std::forward<Arg>(x));
+}
+
 //==================================================================================================
 namespace helper {
     template <class Factory, class Value>
@@ -163,5 +184,14 @@ auto make_matrix_params(ParamArgs&&... args) {
     static_assert(sizeof...(ParamArgs) == list_size<param_decl>::value,
                   "Number of args does not match expected number");
     return helper::make_params_helper<param_decl, 0, MatrixParamFactory>(
+        std::forward<ParamArgs>(args)...);
+}
+
+template <class Distrib, class... ParamArgs>
+auto make_cubix_params(ParamArgs&&... args) {
+    using param_decl = typename Distrib::param_decl;
+    static_assert(sizeof...(ParamArgs) == list_size<param_decl>::value,
+                  "Number of args does not match expected number");
+    return helper::make_params_helper<param_decl, 0, CubixParamFactory>(
         std::forward<ParamArgs>(args)...);
 }

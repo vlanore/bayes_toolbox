@@ -59,6 +59,15 @@ auto make_node_matrix(size_t size_x, size_t size_y, ParamArgs&&... args) {
 }
 
 template <class Distrib, class... ParamArgs>
+auto make_node_cubix(size_t size_x, size_t size_y, size_t size_z, ParamArgs&&... args) {
+    // @todo: change to better data structure (instead of vector of vectors)
+    cubix<typename Distrib::T> values(size_x, std::vector<std::vector<typename Distrib::T>>(size_y, std::vector<typename Distrib::T>(size_z)));
+    auto params = make_cubix_params<Distrib>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple<node_metadata<node_cubix_tag, Distrib>>(
+        unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
+}
+
+template <class Distrib, class... ParamArgs>
 auto make_node_with_init(typename Distrib::T c, ParamArgs&&... args) {
     auto v = typename Distrib::T(c);
     auto params = make_params<Distrib>(std::forward<ParamArgs>(args)...);
@@ -80,6 +89,15 @@ auto make_node_matrix_with_init(size_t size_x, size_t size_y, typename Distrib::
     matrix<typename Distrib::T> values(size_x, std::vector<typename Distrib::T>(size_y, c));
     auto params = make_matrix_params<Distrib>(std::forward<ParamArgs>(args)...);
     return make_tagged_tuple<node_metadata<node_matrix_tag, Distrib>>(
+        unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
+}
+
+template <class Distrib, class... ParamArgs>
+auto make_node_cubix_with_init(size_t size_x, size_t size_y, size_t size_z, typename Distrib::T c, ParamArgs&&... args) {
+    // @todo: change to better data structure (instead of vector of vectors)
+    cubix<typename Distrib::T> values(size_x, std::vector<std::vector<typename Distrib::T>>(size_y, std::vector<typename Distrib::T>(size_z, c)));
+    auto params = make_cubix_params<Distrib>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple<node_metadata<node_cubix_tag, Distrib>>(
         unique_ptr_field<struct value>(std::move(values)), value_field<struct params>(params));
 }
 

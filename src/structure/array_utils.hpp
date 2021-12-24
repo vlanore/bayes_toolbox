@@ -66,6 +66,18 @@ namespace overloads {
     }
 
     template <class Node, class Return>
+    auto mnp_to_one(node_tag, ret<Return>, Node& node) {
+        return [&rv = raw_value(node)](int, int, int) { return rv; };
+    }
+
+    /*
+    template <class Node, class Return>
+    auto mnp_to_m(node_tag, ret<Return>, Node& node) {
+        return [&rv = raw_value(node)](int i, int, int) { return rv[i]; };
+    }
+    */
+
+    template <class Node, class Return>
     auto n_to_n(node_tag, ret<Return>, Node& node) {
         return [&v = get<value>(node)](int i) { return v[i]; };
     }

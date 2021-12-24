@@ -72,11 +72,13 @@ struct node_tag {};
 struct lone_node_tag : node_tag {};
 struct node_array_tag : node_tag {};
 struct node_matrix_tag : node_tag {};
+struct node_cubix_tag : node_tag {};
 
 struct dnode_tag {};
 struct lone_dnode_tag : dnode_tag {};
 struct dnode_array_tag : dnode_tag {};
 struct dnode_matrix_tag : dnode_tag {};
+struct dnode_cubix_tag : dnode_tag {};
 
 struct view_tag {};
 struct unknown_tag {};

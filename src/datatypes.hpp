@@ -41,4 +41,7 @@ using spos_integer = size_t;
 template <class T>
 using matrix = std::vector<std::vector<T>>;
 
+template <class T>
+using cubix = std::vector<std::vector<std::vector<T>>>;
+
 using indicator = char;

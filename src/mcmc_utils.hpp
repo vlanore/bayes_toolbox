@@ -94,6 +94,62 @@ auto matrix_element_logprob(Node& node)  {
 }
 
 template <class Node>
+auto cubix_element_logprob(Node& node)  {
+    return [&node] (int i, int j, int k) {
+        auto subset = subsets::element(node,i,j, k);
+        return logprob(subset);
+    };
+}
+
+template <class Node>
+auto cubix_slice100_logprob(Node& node) {
+    return [&node] (int j, int k)   {
+        auto subset = subsets::slice100(node,j,k);
+        return logprob(subset);
+    };
+}
+
+template <class Node>
+auto cubix_slice010_logprob(Node& node) {
+    return [&node] (int i, int k)   {
+        auto subset = subsets::slice010(node,i,k);
+        return logprob(subset);
+    };
+}
+
+template <class Node>
+auto cubix_slice001_logprob(Node& node) {
+    return [&node] (int i, int j)   {
+        auto subset = subsets::slice001(node,i,j);
+        return logprob(subset);
+    };
+}
+
+template <class Node>
+auto cubix_slice110_logprob(Node& node) {
+    return [&node] (int k)   {
+        auto subset = subsets::slice110(node,k);
+        return logprob(subset);
+    };
+}
+
+template <class Node>
+auto cubix_slice101_logprob(Node& node) {
+    return [&node] (int j)   {
+        auto subset = subsets::slice110(node,j);
+        return logprob(subset);
+    };
+}
+
+template <class Node>
+auto cubix_slice011_logprob(Node& node) {
+    return [&node] (int i)   {
+        auto subset = subsets::slice011(node,i);
+        return logprob(subset);
+    };
+}
+
+template <class Node>
 auto simple_gather(Node& node) {
     return [&node] () {return gather(node);};
 }
@@ -130,6 +186,62 @@ auto matrix_element_gather(Node& node)  {
     };
 }
 
+template <class Node>
+auto cubix_element_gather(Node& node)  {
+    return [&node] (int i, int j, int k) {
+        auto subset = subsets::element(node,i,j,k);
+        gather(subset);
+    };
+}
+
+template <class Node>
+auto cubix_slice011_gather(Node& node)  {
+    return [&node] (int i) {
+        auto subset = subsets::slice011(node,i);
+        gather(subset);
+    };
+}
+
+template <class Node>
+auto cubix_slice101_gather(Node& node)  {
+    return [&node] (int j) {
+        auto subset = subsets::slice101(node,j);
+        gather(subset);
+    };
+}
+
+template <class Node>
+auto cubix_slice110_gather(Node& node)  {
+    return [&node] (int k) {
+        auto subset = subsets::slice011(node,k);
+        gather(subset);
+    };
+}
+
+template <class Node>
+auto cubix_slice001_gather(Node& node)  {
+    return [&node] (int i, int j) {
+        auto subset = subsets::slice001(node,i,j);
+        gather(subset);
+    };
+}
+
+template <class Node>
+auto cubix_slice010_gather(Node& node)  {
+    return [&node] (int i, int k) {
+        auto subset = subsets::slice010(node,i,k);
+        gather(subset);
+    };
+}
+
+template <class Node>
+auto cubix_slice100_gather(Node& node)  {
+    return [&node] (int j, int k) {
+        auto subset = subsets::slice001(node,j,k);
+        gather(subset);
+    };
+}
+
 template <class Var, class SS>
 auto suffstat_logprob(Var& var, Proxy<SS&>& ss)   {
     return [&var, &ss] () {return ss.get().GetLogProb(get<value>(var));};
@@ -141,7 +253,7 @@ auto suffstat_logprob(Var1& var1, Var2& var2, Proxy<SS&>& ss)   {
 }
 
 template <class Var, class SS>
-auto suffstat_logprob(Var& var, Proxy<SS&, int>& ss)  {
+auto suffstat_logprob(Var& var, Proxy<SS&, size_t>& ss)  {
     return [&var, &ss] ()   {
         double tot = 0;
         for (size_t i=0; i<ss.size(); i++)  {
@@ -152,11 +264,11 @@ auto suffstat_logprob(Var& var, Proxy<SS&, int>& ss)  {
 }
 
 template <class Var, class SS>
-auto suffstat_logprob(Var& var, Proxy<SS&, int, int>& ss, size_t size1, size_t size2)  {
-    return [&var, &ss, size1, size2] ()   {
+auto suffstat_logprob(Var& var, Proxy<SS&, size_t, size_t>& ss) {
+    return [&var, &ss] ()   {
         double tot = 0;
-        for (size_t i=0; i<size1; i++)  {
-            for (size_t j=0; j<size2; j++)  {
+        for (size_t i=0; i<get<value>(var).size(); i++)  {
+            for (size_t j=0; j<get<value>(var)[0].size(); j++)  {
                 tot += ss.get(i,j).GetLogProb(raw_value(var,i,j));
             }
         }
@@ -165,7 +277,7 @@ auto suffstat_logprob(Var& var, Proxy<SS&, int, int>& ss, size_t size1, size_t s
 }
 
 template <class Var, class SS>
-auto suffstat_array_element_logprob(Var& var, Proxy<SS&, int>& ss)   {
-    return [&var, &ss] (int i) {return ss.get().GetLogProb(raw_value(var,i));};
+auto suffstat_array_element_logprob(Var& var, Proxy<SS&, size_t>& ss)   {
+    return [&var, &ss] (size_t i) {return ss.get().GetLogProb(raw_value(var,i));};
 }
 

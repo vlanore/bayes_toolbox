@@ -65,6 +65,9 @@ template <class T>
 using is_node_matrix = has_meta_tag<T, node_matrix_tag>;
 
 template <class T>
+using is_node_cubix = has_meta_tag<T, node_cubix_tag>;
+
+template <class T>
 using is_lone_dnode = has_meta_tag<T, lone_dnode_tag>;
 
 template <class T>
@@ -72,6 +75,9 @@ using is_dnode_array = has_meta_tag<T, dnode_array_tag>;
 
 template <class T>
 using is_dnode_matrix = has_meta_tag<T, dnode_matrix_tag>;
+
+template <class T>
+using is_dnode_cubix = has_meta_tag<T, dnode_cubix_tag>;
 
 //==================================================================================================
 // distrib traits (***)

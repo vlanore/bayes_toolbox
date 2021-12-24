@@ -62,6 +62,20 @@ void restore(T& x, Backup& b);  // forward decl
 
 namespace overloads {
     template <class Node, class T = typename node_distrib_t<Node>::T>
+    void restore(node_cubix_tag, Node& node, cubix<T>& backup) {
+        assert(backup.size() == get<value>(node).size());
+        assert(backup.size() > 0);
+        assert(backup.at(0).size() == get<value>(node).at(0).size());
+        assert(backup.at(0).size() > 0);
+        assert(backup.at(0).at(0).size() == get<value>(node).at(0).at(0).size());
+        for (size_t i = 0; i < backup.size(); i++) {
+            for (size_t j = 0; j < backup.at(0).size(); j++) {
+                get<value>(node)[i][j].assign(backup[j].begin(), backup[j].end());
+            }
+        }
+    }
+
+    template <class Node, class T = typename node_distrib_t<Node>::T>
     void restore(node_matrix_tag, Node& node, matrix<T>& backup) {
         assert(backup.size() == get<value>(node).size());
         assert(backup.size() > 0);

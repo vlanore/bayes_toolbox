@@ -53,6 +53,17 @@ namespace overloads {
         return v[index.i][index.j];
     }
 
+    template <class Node>
+    auto& raw_value(node_cubix_tag, Node& node, CubixIndex index) {
+        auto& v = get<value>(node);
+        assert(index.i >= 0 and index.i < v.size());
+        assert(v.size() > 0);
+        assert(index.j >= 0 and index.j < v.at(0).size());
+        assert(v.at(0).size() > 0);
+        assert(index.k >= 0 and index.k < v.at(0).at(0).size());
+        return v[index.i][index.j][index.k];
+    }
+
     template <class Dnode>
     auto& raw_value(lone_dnode_tag, Dnode& node, NoIndex = NoIndex()) {
         return get<value>(node);
@@ -71,6 +82,17 @@ namespace overloads {
         assert(v.size() > 0);
         assert(index.j >= 0 and index.j < v.at(0).size());
         return v[index.i][index.j];
+    }
+
+    template <class Dnode>
+    auto& raw_value(dnode_cubix_tag, Dnode& node, CubixIndex index) {
+        auto& v = get<value>(node);
+        assert(index.i >= 0 and index.i < v.size());
+        assert(v.size() > 0);
+        assert(index.j >= 0 and index.j < v.at(0).size());
+        assert(v.at(0).size() > 0);
+        assert(index.k >= 0 and index.k < v.at(0).at(0).size());
+        return v[index.i][index.j][index.k];
     }
 }  // namespace overloads
 
@@ -101,6 +123,17 @@ namespace overloads {
         assert(v.size() > 0);
         assert(index.j >= 0 and index.j < v.at(0).size());
         return v[index.i][index.j];
+    }
+
+    template <class Node>
+    const auto& raw_value(node_cubix_tag, const Node& node, CubixIndex index) {
+        auto& v = get<value>(node);
+        assert(index.i >= 0 and index.i < v.size());
+        assert(v.size() > 0);
+        assert(index.j >= 0 and index.j < v.at(0).size());
+        assert(v.at(0).size() > 0);
+        assert(index.k >= 0 and index.k < v.at(0).at(0).size());
+        return v[index.i][index.j][index.k];
     }
 }  // namespace overloads
 
