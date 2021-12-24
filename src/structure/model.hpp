@@ -40,3 +40,16 @@ template <class Tag, class... Args>
 auto node(Args&&... args) {
     return move_field<Tag>(std::forward<Args>(args)...);
 }
+
+// returns a unique pointer on a std::vector of models -- not a tagged tuple.
+template<class Constructor>
+auto make_model_array(size_t size, Constructor constructor)  {
+    using comp_type = decltype(constructor(0));
+    auto vec = std::make_unique<std::vector<comp_type>>();
+    vec->reserve(size);
+    for (size_t i=0; i<size; i++)   {
+        vec->push_back(constructor(i));
+    }
+    return vec;
+}
+
