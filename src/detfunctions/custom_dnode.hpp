@@ -26,62 +26,13 @@ license and that you accept its terms.*/
 
 #pragma once
 
-// tags for struct indexation
-struct rate {};
-struct shape {};
-struct scale {};
-struct weight_a {};
-struct weight_b {};
-struct prob {};
-struct concentration {};
-struct intensity {};
-struct center {};
-struct invconc {};
-struct invshape {};
-struct mean {};
-struct gam_mean {};
-struct gam_invshape {};
-struct weights {};
-struct distrib {};
-struct value {};
-struct params {};
-struct backup_value {};
-struct suffstat {};
-struct suffstat_type {};
-struct target {};
-struct lower_bound {};
-struct upper_bound {};
-struct variance {};
-struct exchrates {};
-struct freqs {};
+template<class RetType>
+struct custom_dnode {
+    using T = RetType;
+    using F = std::function<RetType()>;
+    using param_decl = param_decl_t<param<lambda_arg, F>>;
 
-
-// dnode deterministic functions
-struct int_arg {};
-struct real_a {};
-struct real_b {};
-struct real_c {};
-struct real_arg {};
-struct vector_argv {};
-struct nucmatrix {};
-struct lambda_arg {};
-
-// tags for class typing
-struct model_tag {};
-
-struct node_tag {};
-struct lone_node_tag : node_tag {};
-struct node_array_tag : node_tag {};
-struct node_matrix_tag : node_tag {};
-struct node_cubix_tag : node_tag {};
-
-struct dnode_tag {};
-struct lone_dnode_tag : dnode_tag {};
-struct dnode_array_tag : dnode_tag {};
-struct dnode_matrix_tag : dnode_tag {};
-struct dnode_cubix_tag : dnode_tag {};
-
-struct view_tag {};
-struct unknown_tag {};
-struct suffstat_tag {};
-struct ref_tag {};
+    static void gather(T& x, F f)   {
+        x = f();
+    }
+};

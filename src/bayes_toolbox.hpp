@@ -27,6 +27,7 @@
 #include "distributions/uniform.hpp"
 
 // Deterministic functions
+#include "detfunctions/custom_dnode.hpp"
 #include "detfunctions/product.hpp"
 
 #include "moves/proposals.hpp"
