@@ -1,5 +1,85 @@
 #pragma once
 
+#include <assert.h>
+
+template <class T>
+class Proxy<T, size_t> {
+    virtual T _get(size_t i) = 0;
+
+  protected:
+    // protected non-virtual destructor, as this interface is not
+    // meant to be used with owning pointers
+    ~Proxy() = default;
+
+  public:
+    // @fixme? maybe this should be a private virtual _gather for consistency
+    virtual void gather() = 0;
+
+    virtual size_t size() const = 0;
+    T get(size_t i) {
+#ifndef NDEBUG
+        auto tmp = _get(i);
+        gather();
+        assert(_get(i) == tmp);
+#endif
+        return _get(i);
+    }
+};
+
+template <class T>
+class Proxy<T, size_t, size_t> {
+    virtual T _get(size_t i, size_t j) = 0;
+
+  protected:
+    // protected non-virtual destructor, as this interface is not
+    // meant to be used with owning pointers
+    ~Proxy() = default;
+
+  public:
+    // @fixme? maybe this should be a private virtual _gather for consistency
+    virtual void gather() = 0;
+
+    virtual size_t size1() const = 0;
+    virtual size_t size2() const = 0;
+
+    T get(size_t i, size_t j) {
+#ifndef NDEBUG
+        auto tmp = _get(i,j);
+        gather();
+        assert(_get(i,j) == tmp);
+#endif
+        return _get(i,j);
+    }
+};
+
+
+template <class T>
+class Proxy<T, size_t, size_t, size_t> {
+    virtual T _get(size_t i, size_t j, size_t k) = 0;
+
+  protected:
+    // protected non-virtual destructor, as this interface is not
+    // meant to be used with owning pointers
+    ~Proxy() = default;
+
+  public:
+    // @fixme? maybe this should be a private virtual _gather for consistency
+    virtual void gather() = 0;
+
+    virtual size_t size1() const = 0;
+    virtual size_t size2() const = 0;
+    virtual size_t size3() const = 0;
+
+    T get(size_t i, size_t j, size_t k) {
+#ifndef NDEBUG
+        auto tmp = _get(i,j,k);
+        gather();
+        assert(_get(i,j,k) == tmp);
+#endif
+        return _get(i,j,k);
+    }
+};
+
 struct ss_factory {
     template <class SS, class Lambda>
     class suffstat_proxy0 final : public Proxy<SS&> {
@@ -224,6 +304,8 @@ struct ss_factory {
         Lambda _lambda;
 
         SS& _get(size_t i, size_t j) final { return _ss[i][j]; }
+        size_t size1() const { return _ss.size(); }
+        size_t size2() const { return _ss[0].size(); }
 
       public:
         suffstat_matrix_proxy0(size_t size1, size_t size2, const SS& from, Lambda lambda)
@@ -256,6 +338,8 @@ struct ss_factory {
         size_t _n;
 
         SS& _get(size_t i, size_t j) final { return _ss[i][j]; }
+        size_t size1() const { return _ss.size(); }
+        size_t size2() const { return _ss[0].size(); }
 
       public:
         suffstat_matrix_proxy1(size_t size1, size_t size2, const SS& from, Lambda lambda, size_t n)
@@ -291,6 +375,8 @@ struct ss_factory {
         size_t _n;
 
         SS& _get(size_t i, size_t j) final { return _ss[i][j]; }
+        size_t size1() const { return _ss.size(); }
+        size_t size2() const { return _ss[0].size(); }
 
       public:
         suffstat_matrix_proxy2(size_t size1, size_t size2, const SS& from, Lambda lambda, size_t m, size_t n)
@@ -326,6 +412,9 @@ struct ss_factory {
         Lambda _lambda;
 
         SS& _get(size_t i, size_t j, size_t k) final { return _ss[i][j][k]; }
+        size_t size1() const { return _ss.size(); }
+        size_t size2() const { return _ss[0].size(); }
+        size_t size3() const { return _ss[0][0].size(); }
 
       public:
         suffstat_cubix_proxy0(size_t size1, size_t size2, size_t size3, const SS& from, Lambda lambda)
@@ -360,6 +449,9 @@ struct ss_factory {
         size_t _n;
 
         SS& _get(size_t i, size_t j, size_t k) final { return _ss[i][j][k]; }
+        size_t size1() const { return _ss.size(); }
+        size_t size2() const { return _ss[0].size(); }
+        size_t size3() const { return _ss[0][0].size(); }
 
       public:
         suffstat_cubix_proxy1(size_t size1, size_t size2, size_t size3, const SS& from, Lambda lambda, size_t n)
@@ -397,6 +489,9 @@ struct ss_factory {
         size_t _n;
 
         SS& _get(size_t i, size_t j, size_t k) final { return _ss[i][j][k]; }
+        size_t size1() const { return _ss.size(); }
+        size_t size2() const { return _ss[0].size(); }
+        size_t size3() const { return _ss[0][0].size(); }
 
       public:
         suffstat_cubix_proxy2(size_t size1, size_t size2, size_t size3, const SS& from, Lambda lambda, size_t m, size_t n)
