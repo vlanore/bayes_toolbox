@@ -75,3 +75,93 @@ double profile_move(std::vector<double>& vec, double tuning, Gen& gen) {
     return 0.;  // sliding move
 }
 
+// draw n out of N with replacement
+template<class Gen>
+void draw_with_replacement(std::vector<int>& tab, int N, Gen& gen) {
+    int n = tab.size();
+    std::vector<int> index(N,0);
+    for (int i=0; i<n; i++) {
+        int trial = (int)(draw_uniform(gen) * (N-i));
+        for (int k=0; k<N; k++) {
+            if (index[k] != 0) {
+                if (trial >= k) {
+                    trial++;
+                }
+            }
+        }
+        if (trial == N) {
+            std::cerr << "error in draw from urn: overflow\n";
+            exit(1);
+        }
+        tab[i] = trial;
+        if (index[trial] != 0) {
+            std::cerr << "error in draw from urn: chose twice the same\n";
+            exit(1);
+        }
+        index[trial] = 1;
+    }
+}
+
+template <class Gen>
+double profile_move(std::vector<double>& profile, int n, double tuning, Gen& gen) {
+    int dim = profile.size();
+    double ret = 0;
+    /*
+    if (n == 0) {  // dirichlet
+        double oldprofile[dim];
+        for (int i = 0; i < dim; i++) {
+            oldprofile[i] = profile[i];
+        }
+        double total = 0;
+        for (int i = 0; i < dim; i++) {
+            profile[i] = Random::sGamma(tuning * oldprofile[i]);
+            if (profile[i] == 0) {
+                std::cerr << "error in dirichlet resampling : 0 \n";
+                exit(1);
+            }
+            total += profile[i];
+        }
+        double logHastings = 0;
+        for (int i = 0; i < dim; i++) {
+            profile[i] /= total;
+            logHastings += -Random::logGamma(tuning * oldprofile[i]) +
+                           Random::logGamma(tuning * profile[i]) -
+                           (tuning * profile[i] - 1.0) * log(oldprofile[i]) +
+                           (tuning * oldprofile[i] - 1.0) * log(profile[i]);
+        }
+        return logHastings;
+    }
+    */
+    if (2*n > dim) {
+        n = dim/2;
+    }
+    std::vector<int> indices(2*n,0);
+    draw_with_replacement(indices,dim,gen);
+    for (int i=0; i<n; i++) {
+        int i1 = indices[2*i];
+        int i2 = indices[2*i+1];
+        double tot = profile[i1] + profile[i2];
+        double x = profile[i1];
+
+        double h = tot * tuning * (draw_uniform(gen) - 0.5);
+        x += h;
+        while ((x < 0) || (x > tot)) {
+            if (x < 0) {
+                x = -x;
+            }
+            if (x > tot) {
+                x = 2 * tot - x;
+            }
+        }
+        profile[i1] = x;
+        profile[i2] = tot - x;
+        if (!profile[i1]) {
+            profile[i1] = 1e-50;
+        }
+        if (!profile[i2]) {
+            profile[i2] = 1e-50;
+        }
+    }
+    return ret;
+}
+

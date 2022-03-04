@@ -58,16 +58,12 @@ struct mh_overloads {
     static void mh_move(node_array_tag, Node& node, LogProb lp, Proposal P, size_t nrep, Gen& gen, Update update = {})   {
         for (size_t rep=0; rep<nrep; rep++) {
             for (size_t i=0; i<get<value>(node).size(); i++)    {
-                // std::cerr << "=";
                 auto subset = subsets::element(node,i);
                 auto bkp = backup(subset);
-                // double log1 = logprob(subset);
                 double logprob_before = logprob(subset) + lp(i);
                 double log_hastings = P(get<value>(node)[i], gen);
                 update(i);
-                // double log2 = logprob(subset);
                 double logprob_after = logprob(subset) + lp(i);
-                // std::cerr << log1 << '\t' << log2 << '\t' << log2-log1 << '\t' << logprob_before << '\t' << logprob_after << '\n';
                 bool accept = decide(logprob_after - logprob_before + log_hastings, gen);
                 if (!accept) {
                     restore(subset, bkp);
