@@ -1,3 +1,4 @@
+                auto blanke2
 /*Copyright or © or Copr. CNRS (2019). Contributors:
 - Vincent Lanore. vincent.lanore@gmail.com
 
@@ -82,6 +83,11 @@ void mh_move(Node& node, LogProb lp, Proposal P, size_t nrep, Gen& gen, Update..
 template <class Node, class LogProb, class Gen, class... Update>
 void scaling_move(Node& node, LogProb lp, double tuning, size_t nrep, Gen& gen, Update... update) {
     mh_move(node, lp, [tuning](auto& value, auto& gen) { return scale(value, tuning, gen); }, nrep, gen, update...);
+}
+
+template <class Node, class LogProb, class Gen, class... Update>
+void sliding_move(Node& node, LogProb lp, double tuning, size_t nrep, Gen& gen, Update... update) {
+    mh_move(node, lp, [tuning](auto& value, auto& gen) { return slide(value, tuning, gen); }, nrep, gen, update...);
 }
 
 template <class Node, class LogProb, class Gen, class... Update>
