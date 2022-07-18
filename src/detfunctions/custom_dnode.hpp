@@ -26,13 +26,15 @@ license and that you accept its terms.*/
 
 #pragma once
 
-template<class RetType>
+template<class ValType>
 struct custom_dnode {
-    using T = RetType;
-    using F = std::function<RetType()>;
+    using T = ValType;
+    // using F = std::function<T()>;
+    using F = std::function<void(T&)>;
     using param_decl = param_decl_t<param<lambda_arg, F>>;
 
     static void gather(T& x, F f)   {
-        x = f();
+        f(x);
+        // x = f();
     }
 };
