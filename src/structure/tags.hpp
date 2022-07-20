@@ -72,6 +72,7 @@ struct model_tag {};
 struct node_tag {};
 struct lone_node_tag : node_tag {};
 struct node_array_tag : node_tag {};
+struct node_tree_process_tag : node_tag {};
 struct node_matrix_tag : node_tag {};
 struct node_cubix_tag : node_tag {};
 

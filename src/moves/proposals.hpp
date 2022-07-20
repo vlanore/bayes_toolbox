@@ -165,3 +165,13 @@ double profile_move(std::vector<double>& profile, int n, double tuning, Gen& gen
     return ret;
 }
 
+
+struct proposals    {
+    static auto scaling(double tuning) {
+        return [tuning] (auto& value, auto& gen) {return scale(value, tuning, gen);};
+    }
+
+    static auto sliding(double tuning) {
+        return [tuning] (auto& value, auto& gen) {return slide(value, tuning, gen);};
+    }
+};

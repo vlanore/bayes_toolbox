@@ -45,6 +45,12 @@ namespace overloads {
     }
 
     template <class Node>
+    auto& raw_value(node_tree_process_tag, Node& node, ArrayIndex index) {
+        assert(index.i >= 0 and index.i < get<value>(node).size());
+        return get<value>(node)[index.i];
+    }
+
+    template <class Node>
     auto& raw_value(node_matrix_tag, Node& node, MatrixIndex index) {
         auto& v = get<value>(node);
         assert(index.i >= 0 and index.i < v.size());
@@ -112,6 +118,12 @@ namespace overloads {
 
     template <class Node>
     const auto& raw_value(node_array_tag, const Node& node, ArrayIndex index) {
+        assert(index.i >= 0 and index.i < get<value>(node).size());
+        return get<value>(node)[index.i];
+    }
+
+    template <class Node>
+    const auto& raw_value(node_tree_process_tag, const Node& node, ArrayIndex index) {
         assert(index.i >= 0 and index.i < get<value>(node).size());
         return get<value>(node)[index.i];
     }

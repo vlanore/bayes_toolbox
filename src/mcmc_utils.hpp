@@ -305,7 +305,12 @@ auto suffstat_cubix_slice011_logprob(Var& var, Proxy<SS&, size_t, size_t, size_t
 }
 
 template <class Var, class SS>
-auto suffstat_array_element_logprob(Var& var, Proxy<SS&, size_t>& ss)   {
-    return [&var, &ss] (size_t i) {return ss.get(i).GetLogProb(raw_value(var,i));};
+auto suffstat_array_element_logprob(Var var, Proxy<SS&, size_t>& ss)   {
+    return [var, &ss] (size_t i) {return ss.get(i).GetLogProb(var(i));};
+}
+
+template <class Var1, class Var2, class SS>
+auto suffstat_array_element_logprob(Var1 var1, Var2 var2, Proxy<SS&, size_t>& ss)   {
+    return [var1, var2, &ss] (size_t i) {return ss.get(i).GetLogProb(var1(i), var2(i));};
 }
 

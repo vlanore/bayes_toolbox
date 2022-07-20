@@ -62,6 +62,9 @@ template <class T>
 using is_node_array = has_meta_tag<T, node_array_tag>;
 
 template <class T>
+using is_node_tree_process = has_meta_tag<T, node_tree_process_tag>;
+
+template <class T>
 using is_node_matrix = has_meta_tag<T, node_matrix_tag>;
 
 template <class T>

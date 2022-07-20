@@ -45,7 +45,10 @@ auto type_tag(const tagged_tuple<MD, Fields...>&) {
                 node_matrix_tag,
                 conditional_t<is_node_cubix<T>::value,
                     node_cubix_tag,
-                    lone_node_tag
+                    conditional_t<is_node_tree_process<T>::value,
+                        node_tree_process_tag,
+                        lone_node_tag
+                    >
                 >
             >
         >,

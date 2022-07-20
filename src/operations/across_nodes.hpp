@@ -40,6 +40,12 @@ namespace overloads {
         f(Distrib{}, x, get<Keys>(params)(is...)...);
     }
 
+    template <class Distrib, class T, class F, class Params, class... Keys, class... Indexes>
+    void tree_process_unpack_params(Distrib, T& x, bool isroot, const T& x0, double time, F f, const Params& params, std::tuple<Keys...>,
+                       Indexes... is) {
+        f(Distrib{}, x, isroot, x0, time, get<Keys>(params)(is...)...);
+    }
+
     template <class Node, class F>
     void across_nodes(lone_node_tag, Node& n, F f) {
         using distrib = node_distrib_t<Node>;
@@ -54,6 +60,29 @@ namespace overloads {
         for (size_t i = 0; i < get<value>(a).size(); i++) {
             unpack_params(distrib{}, raw_value(a, i), f, get<params>(a), keys(), i);
         }
+    }
+
+    template <class Tree, class Process, class F>
+    void recursive_across_nodes(Tree& tree, int node, Process& process, F f)    {
+        using distrib = node_distrib_t<Process>;
+        auto timeframe = get<time_frame_field>(process);
+        using keys = param_keys_t<distrib>;
+        if (tree.is_root(node)) {
+            tree_process_unpack_params(distrib{}, raw_value(process, node), true, raw_value(process, node), 0, f, get<params>(process), keys());
+        }
+        else    {
+            double dt = timeframe(tree.parent(node)) - timeframe(node);
+            tree_process_unpack_params(distrib{}, raw_value(process, node), false, raw_value(process, tree.parent(node)), dt, f, get<params>(process), keys());
+        }
+        for (auto c : tree.children(node)) {
+            recursive_across_nodes(tree, c, process, f);
+        }
+    }
+
+    template <class Process, class F>
+    void across_nodes(node_tree_process_tag, Process& process, F f) {
+        auto& tree = get<tree_field>(process);
+        recursive_across_nodes(tree, tree.root(), process, f);
     }
 
     template <class Matrix, class F>

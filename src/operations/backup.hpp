@@ -92,6 +92,12 @@ namespace overloads {
     }
 
     template <class Node, class T = typename node_distrib_t<Node>::T>
+    void restore(node_tree_process_tag, Node& node, std::vector<T>& backup) {
+        assert(backup.size() == get<value>(node).size());
+        get<value>(node).assign(backup.begin(), backup.end());
+    }
+
+    template <class Node, class T = typename node_distrib_t<Node>::T>
     void restore(lone_node_tag, Node& node, T& backup) {
         get<value>(node) = backup;
     }
