@@ -52,6 +52,7 @@ auto make_node_array(size_t size, ParamArgs&&... args) {
 
 struct tree_field {};
 struct time_frame_field {};
+struct constraint {};
 
 template<class Chrono>
 auto time_frame(const Chrono& chrono)   {
@@ -63,9 +64,50 @@ auto make_node_tree_process(Tree& tree, TimeFrame timeframe, ParamArgs&&... args
     size_t size = tree.nb_nodes();
     std::vector<typename Distrib::T> values(size);
     auto params = make_params<Distrib>(std::forward<ParamArgs>(args)...);
-    // auto params = make_array_params<Distrib>(std::forward<ParamArgs>(args)...);
     return make_tagged_tuple<node_metadata<node_tree_process_tag, Distrib>>(
         unique_ptr_field<struct value>(std::move(values)),
+        ref_field<tree_field>(tree), 
+        value_field<time_frame_field>(timeframe), 
+        value_field<struct params>(params));
+}
+
+template <class Distrib, class Tree, class TimeFrame, class... ParamArgs>
+auto make_node_tree_process_with_init(Tree& tree, typename Distrib::T initT, TimeFrame timeframe, ParamArgs&&... args) {
+    size_t size = tree.nb_nodes();
+    std::vector<typename Distrib::T> values(size, initT);
+    auto params = make_params<Distrib>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple<node_metadata<node_tree_process_tag, Distrib>>(
+        unique_ptr_field<struct value>(std::move(values)),
+        ref_field<tree_field>(tree), 
+        value_field<time_frame_field>(timeframe), 
+        value_field<struct params>(params));
+}
+
+template <class Distrib, class Tree, class TimeFrame, class... ParamArgs>
+auto make_node_tree_process_with_constraints(Tree& tree, TimeFrame timeframe, ParamArgs&&... args) {
+    size_t size = tree.nb_nodes();
+    std::vector<typename Distrib::T> values(size);
+    auto initC = Distrib::make_init_constraint(values[0]);
+    std::vector<typename Distrib::Constraint> clamps(size, initC);
+    auto params = make_params<Distrib>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple<node_metadata<node_cond_tree_process_tag, Distrib>>(
+        unique_ptr_field<struct value>(std::move(values)),
+        unique_ptr_field<struct constraint>(std::move(clamps)),
+        ref_field<tree_field>(tree), 
+        value_field<time_frame_field>(timeframe), 
+        value_field<struct params>(params));
+}
+
+template <class Distrib, class Tree, class TimeFrame, class... ParamArgs>
+auto make_node_tree_process_with_init_and_constraints(Tree& tree, typename Distrib::T initT, TimeFrame timeframe, ParamArgs&&... args) {
+    size_t size = tree.nb_nodes();
+    std::vector<typename Distrib::T> values(size, initT);
+    auto initC = Distrib::make_init_constraint(initT);
+    std::vector<typename Distrib::Constraint> clamps(size, initC);
+    auto params = make_params<Distrib>(std::forward<ParamArgs>(args)...);
+    return make_tagged_tuple<node_metadata<node_cond_tree_process_tag, Distrib>>(
+        unique_ptr_field<struct value>(std::move(values)),
+        unique_ptr_field<struct constraint>(std::move(clamps)),
         ref_field<tree_field>(tree), 
         value_field<time_frame_field>(timeframe), 
         value_field<struct params>(params));
