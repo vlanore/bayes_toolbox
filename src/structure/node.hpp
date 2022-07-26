@@ -59,6 +59,7 @@ auto time_frame(const Chrono& chrono)   {
     return [&ch = chrono] (int node) {return ch[node];};
 }
 
+/*
 template <class Distrib, class Tree, class TimeFrame, class... ParamArgs>
 auto make_node_tree_process(Tree& tree, TimeFrame timeframe, ParamArgs&&... args) {
     size_t size = tree.nb_nodes();
@@ -82,9 +83,10 @@ auto make_node_tree_process_with_init(Tree& tree, typename Distrib::T initT, Tim
         value_field<time_frame_field>(timeframe), 
         value_field<struct params>(params));
 }
+*/
 
 template <class Distrib, class Tree, class TimeFrame, class... ParamArgs>
-auto make_node_tree_process_with_constraints(Tree& tree, TimeFrame timeframe, ParamArgs&&... args) {
+auto make_node_tree_process(Tree& tree, TimeFrame timeframe, ParamArgs&&... args) {
     size_t size = tree.nb_nodes();
     std::vector<typename Distrib::T> values(size);
     auto initC = Distrib::make_init_constraint(values[0]);
@@ -99,7 +101,7 @@ auto make_node_tree_process_with_constraints(Tree& tree, TimeFrame timeframe, Pa
 }
 
 template <class Distrib, class Tree, class TimeFrame, class... ParamArgs>
-auto make_node_tree_process_with_init_and_constraints(Tree& tree, typename Distrib::T initT, TimeFrame timeframe, ParamArgs&&... args) {
+auto make_node_tree_process_with_init(Tree& tree, typename Distrib::T initT, TimeFrame timeframe, ParamArgs&&... args) {
     size_t size = tree.nb_nodes();
     std::vector<typename Distrib::T> values(size, initT);
     auto initC = Distrib::make_init_constraint(initT);
