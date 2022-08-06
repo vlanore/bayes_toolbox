@@ -263,6 +263,17 @@ auto suffstat_logprob(Var& var, Proxy<SS&, size_t>& ss)  {
     };
 }
 
+template <class Var1, class Var2, class SS>
+auto suffstat_logprob(Var1 var1, Var2 var2, Proxy<SS&, size_t>& ss)  {
+    return [var1, var2, &ss] ()   {
+        double tot = 0;
+        for (size_t i=0; i<ss.size(); i++)  {
+            tot += ss.get(i).GetLogProb(var1(i), var2(i));
+        }
+        return tot;
+    };
+}
+
 template <class Var, class SS>
 auto suffstat_logprob(Var& var, Proxy<SS&, size_t, size_t>& ss) {
     return [&var, &ss] ()   {
