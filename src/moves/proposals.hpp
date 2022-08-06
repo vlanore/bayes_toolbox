@@ -174,4 +174,30 @@ struct proposals    {
     static auto sliding(double tuning) {
         return [tuning] (auto& value, auto& gen) {return slide(value, tuning, gen);};
     }
+
 };
+
+template<class T>
+auto default_kernel(double tuning)   {
+    return [](auto& value, auto& gen) {};
+}
+
+template<>
+auto default_kernel<real>(double tuning) {
+    return [tuning] (auto& value, auto& gen) {return slide(value, tuning, gen);};
+}
+
+/*
+template<>
+auto default_kernel<spos_real>(double tuning)    {
+    return [tuning] (auto& value, auto& gen) {return scale(value, tuning, gen);};
+}
+
+template<>
+auto default_kernel<unit_real>(double tuning)    {
+    return [tuning] (auto& value, auto& gen) {
+        return slide_constrained(value, tuning, 0, 1.0, gen);
+    };
+}
+*/
+
