@@ -107,6 +107,9 @@ struct has_array_draw<T, to_void<decltype(T::template array_draw<decltype(make_g
 template <class Node>
 using node_distrib_t = metadata_get_property<struct distrib, metadata_t<Node>>;
 
+template <class Node>
+using node_root_distrib_t = metadata_get_property<struct root_distrib, metadata_t<Node>>;
+
 template <class Distrib>
 using param_keys_t = map_key_list_t<typename Distrib::param_decl>;
 

@@ -28,6 +28,7 @@ license and that you accept its terms.*/
 
 #include "node.hpp"
 #include "dnode.hpp"
+#include "tree_process_node.hpp"
 
 using model_metadata = metadata<type_list<model_tag>, type_map<>>;
 

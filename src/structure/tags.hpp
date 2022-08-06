@@ -42,9 +42,20 @@ struct mean {};
 struct gam_mean {};
 struct gam_invshape {};
 struct weights {};
+
 struct distrib {};
+struct root_distrib{};
+
 struct value {};
+struct node_values{};
+struct path_values{};
 struct params {};
+struct root_params {};
+struct tree_field {};
+struct time_frame_field {};
+struct constraint {};
+struct root_constraint {};
+
 struct backup_value {};
 struct suffstat {};
 struct suffstat_type {};
