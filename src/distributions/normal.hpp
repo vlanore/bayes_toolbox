@@ -36,12 +36,12 @@ struct normal {
 
     template <typename Gen>
     static void draw(T& x, pos_real mean, spos_real variance, Gen& gen) {
-        std::normal_distribution<double> distrib(real(mean), positive_real(variance));
+        std::normal_distribution<double> distrib(real(mean), positive_real(sqrt(variance)));
         x = distrib(gen);
     }
 
     static real logprob(T x, pos_real mean, spos_real variance) {
-        double y = (x - mean) / variance;
-        return -0.5 * y * y - log(variance * sqrt(2.0 * constants::pi));
+        double y = (x - mean) * (x - mean) / variance;
+        return -0.5 * y - log(variance * sqrt(2.0 * constants::pi));
     }
 };
